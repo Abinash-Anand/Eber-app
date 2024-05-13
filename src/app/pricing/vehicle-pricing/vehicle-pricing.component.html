@@ -1,0 +1,60 @@
+<div class="container mt-5 text-white  p-3 ml-3">
+    <div class="row ">
+        <div class="col-12 col-md-6 bg-dark p-3">
+            <form>
+                <!-- Dropdown for selecting country -->
+                <div class="mb-3">
+                    <label for="countrySelect" class="form-label">Select Country</label>
+                    <select id="countrySelect" class="form-select">
+                        <option value="" disabled selected>Select Country</option>
+                        <!-- Angular code will populate options from previously added countries -->
+                        <option value="1">Country 1</option>
+                        <option value="2">Country 2</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Dropdown for selecting city/zone -->
+                <div class="mb-3">
+                    <label for="citySelect" class="form-label">Select City/Zone</label>
+                    <select id="citySelect" class="form-select">
+                        <option value="" disabled selected>Select City/Zone</option>
+                        <!-- Angular code will populate options based on selected country -->
+                        <option value="1">City/Zone 1</option>
+                        <option value="2">City/Zone 2</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Dropdown for selecting vehicle type -->
+                <div class="mb-3">
+                    <label for="vehicleTypeSelect" class="form-label">Select Vehicle Type</label>
+                    <select id="vehicleTypeSelect" class="form-select">
+                        <option value="" disabled selected>Select Vehicle Type</option>
+                        <!-- Angular code will populate options based on selected country and city/zone -->
+                        <option value="1">Vehicle Type 1</option>
+                        <option value="2">Vehicle Type 2</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <!-- Pricing inputs for each pricing type -->
+                <div class="mb-3">
+                    <label class="form-label">Time Price</label>
+                    <input type="number" class="form-control" placeholder="Time Price">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Distance Price</label>
+                    <input type="number" class="form-control" placeholder="Distance Price">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Min Price</label>
+                    <input type="number" class="form-control" placeholder="Min Price">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Driver Profit</label>
+                    <input type="number" class="form-control" placeholder="Driver Profit">
+                </div>
+                <!-- Button to submit pricing -->
+                <button type="submit" class="btn btn-primary">Set Pricing</button>
+            </form>
+        </div>
+    </div>
+</div>

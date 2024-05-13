@@ -14,6 +14,19 @@ import { UserComponent } from './user/user.component';
 import { DriversComponent } from './drivers/drivers.component';
 import { PricingComponent } from './pricing/pricing.component';
 import { SettingsComponent } from './settings/settings.component';
+import { CreateRideComponent } from './rides/create-ride/create-ride.component';
+import { ConfirmRideComponent } from './rides/confirm-ride/confirm-ride.component';
+import { RideHistoryComponent } from './rides/ride-history/ride-history.component';
+import { DriverListComponent } from './drivers/driver-list/driver-list.component';
+import { RunningRequestComponent } from './drivers/running-request/running-request.component';
+import { CountryComponent } from './pricing/country/country.component';
+import { CityComponent } from './pricing/city/city.component';
+import { VehicleTypeComponent } from './pricing/vehicle-type/vehicle-type.component';
+import { VehiclePricingComponent } from './pricing/vehicle-pricing/vehicle-pricing.component';
+import { ErrorPageComponent } from './error-page/error-page.component';
+import { HomeComponent } from './home/home.component';
+import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
+import { CityListComponent } from './pricing/city/city-list/city-list.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +40,20 @@ import { SettingsComponent } from './settings/settings.component';
     UserComponent,
     DriversComponent,
     PricingComponent,
-    SettingsComponent
+    SettingsComponent,
+    CreateRideComponent,
+    ConfirmRideComponent,
+    RideHistoryComponent,
+    DriverListComponent,
+    RunningRequestComponent,
+    CountryComponent,
+    CityComponent,
+    VehicleTypeComponent,
+    VehiclePricingComponent,
+    ErrorPageComponent,
+    HomeComponent,
+    VehicleListComponent,
+    CityListComponent
   ],
   imports: [
     BrowserModule,

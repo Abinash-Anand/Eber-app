@@ -1,0 +1,30 @@
+<div class="container mt-5  ">
+    <div class="row p-3 text-white">
+        <div class="col-md-6 bg-dark p-3">
+            <h1>City Form</h1>
+            <form>
+                <div class="mb-3">
+                    <label for="countrySelect" class="form-label">Country</label>
+                    <select id="countrySelect" class="form-select">
+                        <option value="" disabled selected>Select Country</option>
+                        <!-- Populate dropdown with countries from the database -->
+                        <option value="1">Country 1</option>
+                        <option value="2">Country 2</option>
+                        <option value="3">Country 3</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="zoneInput" class="form-label">Zone (City/Area)</label>
+                    <input type="text" class="form-control" id="zoneInput" placeholder="Enter city name">
+                    <!-- Google Autocomplete for city name -->
+                </div>
+                <button type="button" class="btn btn-primary"
+                [routerLink]="['/pricing/city/city-list']">Add City</button>
+            </form>
+        </div>
+        <div class="col-md-6 p-3 ">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>

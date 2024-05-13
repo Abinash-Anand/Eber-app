@@ -1,0 +1,33 @@
+<div class="container  mt-5 text-white ">
+    <div class="row ">
+        <div class="col-6 col-md-6  p-3 bg-dark">
+            <!-- Form for adding/editing vehicle type -->
+            <form>
+                <!-- Input field for vehicle name -->
+                <div class=" mb-3">
+                    <label for="vehicleName" class="form-label">Vehicle Name</label>
+                    <input type="text" class="form-control" id="vehicleName" placeholder="Enter vehicle name" required>
+                    <div class="invalid-feedback">
+                        Vehicle name is required.
+                    </div>
+                </div>
+                <!-- Input field for vehicle icon -->
+                <div class="mb-3">
+                    <label for="vehicleIcon" class="form-label">Vehicle Icon</label>
+                    <input type="file" class="form-control" id="vehicleIcon" accept="image/*" required>
+                    <div class="invalid-feedback">
+                        Please upload an image file.
+                    </div>
+                </div>
+                <!-- Button to add/edit vehicle type -->
+                <button type="submit"
+                 class="btn btn-primary"
+                 [routerLink]="['/pricing/vehicle-type/vehicle-list']">Add Vehicle</button>
+            </form>
+        </div>
+        <div class="col-6 p-3 vehicle-list">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+    
+</div>

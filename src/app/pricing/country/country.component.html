@@ -1,0 +1,86 @@
+<div class="container mt-5">
+    <!-- Add Country Button -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCountryModal">
+        Add Country
+    </button>
+
+    <!-- Modal for Adding Country -->
+    <div class="modal fade" id="addCountryModal" tabindex="-1" aria-labelledby="addCountryModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCountryModalLabel">Add Country</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Input field for country name -->
+                    <div class="mb-3">
+                        <label for="countryName" class="form-label">Country Name</label>
+                        <input type="text" class="form-control" id="countryName" placeholder="Enter country name">
+                    </div>
+                    <!-- Display auto-filled details from REST Countries API -->
+                    <!-- Currency -->
+                    <div class="mb-3">
+                        <label for="currency" class="form-label">Currency</label>
+                        <input type="text" class="form-control" id="currency" readonly>
+                    </div>
+                    <!-- Country Code -->
+                    <div class="mb-3">
+                        <label for="countryCode" class="form-label">Country Code</label>
+                        <input type="text" class="form-control" id="countryCode" readonly>
+                    </div>
+                    <!-- Country Calling Code -->
+                    <div class="mb-3">
+                        <label for="callingCode" class="form-label">Country Calling Code</label>
+                        <input type="text" class="form-control" id="callingCode" readonly>
+                    </div>
+                    <!-- Validation for preventing duplicate entries -->
+                    <!-- Grid View of Added Countries -->
+                    <div class="mb-3">
+                        <!-- Search Filter -->
+                        <label for="searchInput" class="form-label">Search Country</label>
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search by country name">
+                    </div>
+                    <!-- Grid View of Added Countries -->
+                    <div class="row">
+                        <div class="col">
+                            <!-- Country grid view -->
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Country Name</th>
+                                            <th>Currency</th>
+                                            <th>Country Code</th>
+                                            <th>Flag</th>
+                                            <th>Time Zone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Rows for displaying added countries -->
+                                        <tr>
+                                            <td>Country 1</td>
+                                            <td>Currency 1</td>
+                                            <td>Code 1</td>
+                                            <td>Flag 1</td>
+                                            <td>Time Zone 1</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Country 2</td>
+                                            <td>Currency 2</td>
+                                            <td>Code 2</td>
+                                            <td>Flag 2</td>
+                                            <td>Time Zone 2</td>
+                                        </tr>
+                                        <!-- Add more rows as needed -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
