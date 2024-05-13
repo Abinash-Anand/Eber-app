@@ -1,0 +1,66 @@
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-2 d-block bg-dark sidebar">
+            <div class="position-sticky">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">1. Rides</a>
+                        <ul class="nav flex-column pl-3">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">1.1. Create Ride</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">1.2. Confirm Ride</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">1.3. Ride History</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">2. User</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">3. Drivers</a>
+                        <ul class="nav flex-column pl-3">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">3.1. List</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">3.2. Running Requests</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">4. Pricing</a>
+                        <ul class="nav flex-column pl-3">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">4.1. Country</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">4.2. City</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">4.3. Vehicle Type</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">4.4. Vehicle Pricing</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">5. Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        <div class="col-10 bg-light">
+            <!-- <div class="welcome-message m-5">
+                <h1>Welcome to Eber!</h1>
+
+            </div> -->
+           <router-outlet></router-outlet>
+           
+        </div>
+    </div>
+</div>

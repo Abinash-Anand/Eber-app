@@ -1,0 +1,6 @@
+.container, a{
+    color: white !important;
+}
+a:hover {
+    background-color: black;
+}
