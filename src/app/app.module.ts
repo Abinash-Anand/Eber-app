@@ -27,6 +27,8 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 import { HomeComponent } from './home/home.component';
 import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { MapService } from './services/maps/mapsApi.service';
 
 @NgModule({
   declarations: [
@@ -58,10 +60,12 @@ import { CityListComponent } from './pricing/city/city-list/city-list.component'
   imports: [
     BrowserModule,
     AppRoutingModule,
-    NgbModule
+    NgbModule,
+    GoogleMapsModule
   ],
   providers: [
-    provideClientHydration()
+    provideClientHydration(),
+    MapService
   ],
   bootstrap: [AppComponent]
 })
