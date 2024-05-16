@@ -4,3 +4,25 @@
     width: 800px;
     /* Adjust width as needed */
 }
+
+ul{
+    list-style-type: none;
+    margin-top: 5px;
+    padding-left: 0;
+    border-radius: 10px;
+    box-shadow: 10px 5px 10px black;
+}
+.map-container{
+    border-radius: 10px;
+}
+li{
+    background-color: black;
+    border: 1px solid rgba(24, 24, 24, 0.715);
+    padding: 10px;
+    color:white
+}
+li:hover{
+    background-color: rgba(0, 0, 0, 0.822);
+    /* color: rgb(255, 255, 255); */
+    box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.589);
+}

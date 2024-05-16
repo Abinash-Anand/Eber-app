@@ -1,6 +1,7 @@
 import { ElementRef, Injectable } from '@angular/core';
 import { Loader } from '@googlemaps/js-api-loader';
 import { environment } from '../../../environment';
+import {  } from '@googlemaps/js-api-loader';
 
 @Injectable({
   providedIn: 'root'
@@ -9,9 +10,26 @@ export class MapService {
 
   userGeolocation: { lat: number, lng: number };
 
-  constructor() { }
+private autocompleteService: google.maps.places.AutocompleteService;
+  private loader: Loader;
+  constructor() {
+    this.loader = new Loader({
+      apiKey: environment.googleMapsApiKey,
+      version: 'weekly', // Specify the version of Google Maps API
+      libraries: ['places'] // Load the places library
+    });
+    
+    this.initAutocompleteService();
 
-  
+  }
+  private initAutocompleteService() {
+    this.loader.load().then(() => {
+      // Once the Google Maps API is loaded, initialize the AutocompleteService
+      this.autocompleteService = new google.maps.places.AutocompleteService();
+    });
+  }
+
+
   //===========================Geolocation api Service=============================
   getLocationService(): Promise<any>{
     return new Promise((resolve, reject) => {
@@ -38,7 +56,7 @@ export class MapService {
       console.error('Error loading Google Maps API:', err);
     });
   }
-
+//function call
   initializeMap(mapElement: HTMLElement, userGeolocation: { lat: number, lng: number }) {
     // Initialize your map here
     const map = new google.maps.Map(mapElement, {
@@ -53,4 +71,23 @@ export class MapService {
       title: 'Your Location'
     });
   }
+  //AUTOCOMPLETE PLACES SUGGESTIONS API
+
+  getPlacePredictions(input: string): Promise<google.maps.places.AutocompletePrediction[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.autocompleteService) {
+        reject("AutocompleteService not initialized");
+        return;
+      }
+      
+      this.autocompleteService.getPlacePredictions({ input: input }, (predictions, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          resolve(predictions);
+        } else {
+          reject(status);
+        }
+      });
+    });
+  }
+
 }

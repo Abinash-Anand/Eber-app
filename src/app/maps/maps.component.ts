@@ -1,8 +1,7 @@
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { environment } from '../../environment';
-import { Loader } from '@googlemaps/js-api-loader';
 import { MapService } from '../services/maps/mapsApi.service';
-import { response } from 'express';
+import {  } from '@googlemaps/js-api-loader';
+
 
 @Component({
   selector: 'app-maps',
@@ -11,12 +10,15 @@ import { response } from 'express';
 })
 export class MapsComponent implements OnInit, AfterViewInit {
   @ViewChild('mapRef') mapElement: ElementRef
-  
+    searchText: string = '';
+  suggestions: google.maps.places.QueryAutocompletePrediction[] = [];
+
   constructor(private mapService: MapService) {
     
   }
   ngOnInit(): void {
-   this.getUserLocation()
+    this.getUserLocation()
+    
   }
   ngAfterViewInit() {
     console.log(this.mapElement.nativeElement);
@@ -30,5 +32,17 @@ export class MapsComponent implements OnInit, AfterViewInit {
        console.log(response.lng, response.lat);
         
       })
+  }
+
+
+  onSearchChange(search) {
+    console.log(search);
+    this.searchText = search
+    this.mapService.getPlacePredictions(this.searchText).then(results => {
+      this.suggestions = results;
+    }).catch(error => {
+      console.error('Error searching places:', error);
+      this.suggestions = []; // Clear suggestions on error
+    });
   }
 }
