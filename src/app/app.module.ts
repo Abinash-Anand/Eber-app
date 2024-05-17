@@ -29,6 +29,10 @@ import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicl
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MapService } from './services/maps/mapsApi.service';
+import { DistanceTimeService } from './services/maps/distancetime.service';
+import { FormsModule } from '@angular/forms';
+import { GoogleMapsLoaderService } from './services/maps/google-maps-loader.service';
+import { ZonesService } from './services/maps/zones.service';
 
 @NgModule({
   declarations: [
@@ -61,11 +65,15 @@ import { MapService } from './services/maps/mapsApi.service';
     BrowserModule,
     AppRoutingModule,
     NgbModule,
+    FormsModule,
     GoogleMapsModule
   ],
   providers: [
     provideClientHydration(),
-    MapService
+    MapService,
+    DistanceTimeService,
+    GoogleMapsLoaderService,
+    ZonesService
   ],
   bootstrap: [AppComponent]
 })
