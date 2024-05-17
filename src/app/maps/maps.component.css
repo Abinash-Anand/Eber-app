@@ -1,7 +1,6 @@
-.map {
-    height: 600px;
-    /* Adjust height as needed */
-    width: 800px;
+#map {
+
+    border: 1px solide #212121;
     /* Adjust width as needed */
 }
 
@@ -25,4 +24,14 @@ li:hover{
     background-color: rgba(0, 0, 0, 0.822);
     /* color: rgb(255, 255, 255); */
     box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.589);
+    cursor: pointer;
+}
+input{
+    border-radius: 10px;
+    height: 3rem;
+}
+.btn{
+font-size: smaller;
+border: none;
+
 }
