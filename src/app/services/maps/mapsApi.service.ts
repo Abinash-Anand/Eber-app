@@ -44,17 +44,17 @@ export class MapService {
         reject("Error getting geolocation: " + error.message);
       });
     });
-  } 
+  }
 
-  googleMapsApi(mapElement: HTMLElement, location: { lat: number, lng: number }) {
+  googleMapsApi(mapElement: HTMLElement, location: { lat: number, lng: number }, onMarkerDragEnd: (location: { lat: number, lng: number }) => void) {
     this.loader.load().then(() => {
-      this.initializeMap(mapElement, location);
+      this.initializeMap(mapElement, location, onMarkerDragEnd);
     }).catch((err) => {
       console.error('Error loading Google Maps API:', err);
     });
   }
 
-  initializeMap(mapElement: HTMLElement, location: { lat: number, lng: number }) {
+  initializeMap(mapElement: HTMLElement, location: { lat: number, lng: number }, onMarkerDragEnd: (location: { lat: number, lng: number }) => void) {
     const map = new google.maps.Map(mapElement, {
       center: { lat: location.lat, lng: location.lng },
       zoom: 18
@@ -63,7 +63,17 @@ export class MapService {
     const marker = new google.maps.Marker({
       position: { lat: location.lat, lng: location.lng },
       map: map,
+      draggable: true, // Make the marker draggable
       title: 'Location'
+    });
+
+    // Listen for dragend event on the marker
+    marker.addListener('dragend', () => {
+      const position = marker.getPosition();
+      if (position) {
+        const newLocation = { lat: position.lat(), lng: position.lng() };
+        onMarkerDragEnd(newLocation); // Call the provided callback with new location
+      }
     });
   }
 
@@ -92,6 +102,23 @@ export class MapService {
       }
 
       this.geocoder.geocode({ address: address }, (results, status) => {
+        if (status === google.maps.GeocoderStatus.OK) {
+          resolve(results);
+        } else {
+          reject(status);
+        }
+      });
+    });
+  }
+
+  reverseGeocode(location: { lat: number, lng: number }): Promise<google.maps.GeocoderResult[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.geocoder) {
+        reject("Geocoder not initialized");
+        return;
+      }
+
+      this.geocoder.geocode({ location }, (results, status) => {
         if (status === google.maps.GeocoderStatus.OK) {
           resolve(results);
         } else {

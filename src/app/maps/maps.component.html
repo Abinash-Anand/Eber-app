@@ -6,16 +6,17 @@
             <input class="col-5 " type="text"  
              (input)="onSearchChange($event.target.value)"
              placeholder="Search for a place..."
-             ><button class=" mb-4 mx-2" (click)="switchToUserLocation()"><img width="35" height="35"
+             ><button class=" mb-2 mx-2" (click)="switchToUserLocation()"><img width="35" height="40"
                 src="https://img.icons8.com/external-solidglyph-m-oki-orlando/64/external-geolocation-geography-solid-solidglyph-m-oki-orlando.png"
                 alt="external-geolocation-geography-solid-solidglyph-m-oki-orlando" /></button>
+
             <ul *ngIf="suggestions.length > 0" >
                 <li *ngFor="let suggestion of suggestions; let id = index"
                 (click)="onSelectAddress(suggestion, suggestion.place_id)">
                     {{ suggestion.description }}
                 </li>
             </ul>
-
+            <p>Current Address: {{ address }}</p>
             
             <!-- <div class="map " #mapRef style="width: 100%; height:70vh; border:1px solid black">
                 

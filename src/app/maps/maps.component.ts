@@ -22,7 +22,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation);
+    this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation, this.onMarkerDragEnd.bind(this));
   }
 
   getUserLocation() {
@@ -30,7 +30,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
       this.userGeolocation.lat = response.lat;
       this.userGeolocation.lng = response.lng;
       if (this.isUserLocation) {
-        this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation);
+        this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation, this.onMarkerDragEnd.bind(this));
       }
     }).catch(error => {
       console.error('Error getting user location:', error);
@@ -65,7 +65,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
       if (location) {
         this.selectedLocation = { lat: location.lat(), lng: location.lng() };
         this.isUserLocation = false; // Switching to searched location
-        this.mapService.googleMapsApi(this.mapElement.nativeElement, this.selectedLocation);
+        this.mapService.googleMapsApi(this.mapElement.nativeElement, this.selectedLocation, this.onMarkerDragEnd.bind(this));
       }
     }).catch(error => {
       console.error('Geocoding error:', error);
@@ -74,6 +74,17 @@ export class MapsComponent implements OnInit, AfterViewInit {
 
   switchToUserLocation() {
     this.isUserLocation = true; // Switching to user location
-    this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation);
+    this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation, this.onMarkerDragEnd.bind(this));
+  }
+
+  onMarkerDragEnd(location: { lat: number, lng: number }) {
+    this.selectedLocation = location;
+    this.mapService.reverseGeocode(location).then(results => {
+      if (results.length > 0) {
+        this.address = results[0].formatted_address;
+      }
+    }).catch(error => {
+      console.error('Reverse geocoding error:', error);
+    });
   }
 }
