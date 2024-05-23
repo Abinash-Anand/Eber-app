@@ -6,17 +6,19 @@
                 <tr>
                     <th scope="col">Vehicle Icon</th>
                     <th scope="col">Vehicle Type</th>
+                    <th scope="col">Vehicle Name</th>
                     <th scope="col">Options</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
+                <tr *ngFor="let vehicle of vehicleArray">
                     <td>
                         <img 
-                        src="https://upload.wikimedia.org/wikipedia/commons/b/b5/R8_Coupe_V10_performance-1.jpg"
+                        [src]="vehicle.image"
                          class="img-fluid" alt="Vehicle Icon"
                          style="width: 180px; height:100px"></td>
-                    <td>Sedan</td>
+                    <td>{{vehicle.type}}</td>
+                    <td>{{vehicle.name}}</td>
                     <td><a href="#" class="btn btn-primary">Edit</a></td>
                 </tr>
                 <!-- Repeat this row for each vehicle type -->

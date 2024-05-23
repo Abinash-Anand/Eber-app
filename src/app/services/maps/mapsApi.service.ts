@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { DistanceTimeService } from './distancetime.service';
 import { GoogleMapsLoaderService } from './google-maps-loader.service';
+import { ZonesService } from './zones.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,9 @@ export class MapService {
 
   constructor(
     private distanceTimeService: DistanceTimeService, 
-    private googleMapsLoaderService: GoogleMapsLoaderService
+    private googleMapsLoaderService: GoogleMapsLoaderService,
+        private zonesService: ZonesService
+
   ) {
     this.initAutocompleteService();
     this.initGeocoder();
@@ -61,6 +64,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): Promise<google.maps.Map> {
     return this.googleMapsLoaderService.load().then(() => {
       const map = this.initializeMap(mapElement, location, onMarkerDragEnd);
+      this.zonesService.createZone(map)
       return map;
     }).catch((err) => {
       console.error('Error loading Google Maps API:', err);
@@ -72,7 +76,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): google.maps.Map {
     const map = new google.maps.Map(mapElement, {
       center: { lat: location.lat, lng: location.lng },
-      zoom: 18
+      zoom: 12
     });
 
     const marker = new google.maps.Marker({

@@ -1,33 +1,57 @@
-<div class="container mt-3 text-white ">
-    <div class="row ">
-        <div class="col-6 col-md-6  p-3 bg-dark">
+<div class="container mt-3 text-white">
+    <div class="row">
+        <div class="col-4 p-3 bg-dark">
             <!-- Form for adding/editing vehicle type -->
-            <form>
+            <form class="col-12" (ngSubmit)="onSubmitVehicleType()" #f="ngForm">
                 <!-- Input field for vehicle name -->
-                <div class=" mb-3">
+                <div class="mb-3">
+                    <h2>Vehicle Form</h2>
                     <label for="vehicleName" class="form-label">Vehicle Name</label>
-                    <input type="text" class="form-control" id="vehicleName" placeholder="Enter vehicle name" required>
-                    <div class="invalid-feedback">
+                    <input type="text" class="form-control" id="vehicleName" placeholder="Enter vehicle name" required
+                        name="vehicleName" ngModel #vehicleName="ngModel" />
+                    <p class="warning" *ngIf="vehicleName.invalid && vehicleName.touched">
                         Vehicle name is required.
+                    </p>
+                </div>
+                <!-- Dropdown for selecting car type -->
+                <div class="mb-3">
+                    <label for="carType" class="form-label">Vehicle Type</label>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                            [innerText]="carType || 'Select Car Type'"></button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" (click)="onSelectCarType('Sedan')">Sedan</a>
+                            <a class="dropdown-item" (click)="onSelectCarType('SUV')">SUV</a>
+                            <a class="dropdown-item" (click)="onSelectCarType('HatchBack')">HatchBack</a>
+                        </div>
+                        <p *ngIf="carType === 'Select Type'" class="text-warning">
+                            Note: Vehicle Type Required
+                        </p>
                     </div>
                 </div>
+                <!-- Hidden input to bind car type to form -->
+                <input type="hidden" name="carType" [ngModel]="carType" />
                 <!-- Input field for vehicle icon -->
                 <div class="mb-3">
                     <label for="vehicleIcon" class="form-label">Vehicle Icon</label>
-                    <input type="file" class="form-control" id="vehicleIcon" accept="image/*" required>
-                    <div class="invalid-feedback">
+                    <input type="file" class="form-control" id="vehicleIcon" accept="image/*" required
+                        name="vehicleIcon" ngModel #vehicleIcon="ngModel"
+                        (change)="onSelectVehicleImg($event.target.files)" />
+                    <p class="warning" *ngIf="vehicleIcon.invalid && vehicleIcon.touched">
                         Please upload an image file.
-                    </div>
+                    </p>
                 </div>
                 <!-- Button to add/edit vehicle type -->
-                <button type="submit"
-                 class="btn btn-primary"
-                 [routerLink]="['/pricing/vehicle-type/vehicle-list']">Add Vehicle</button>
+                <button type="submit" class="btn btn-primary" [disabled]="!f.valid"
+                    [routerLink]="['/pricing/vehicle-type/vehicle-list']">
+                    Add Vehicle
+                </button>
             </form>
         </div>
-        <div class="col-6 p-3">
+        <div class="col-8 p-3">
             <router-outlet></router-outlet>
         </div>
     </div>
-    
+    <div class="row"></div>
 </div>

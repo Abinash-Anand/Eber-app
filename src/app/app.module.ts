@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
+import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -33,6 +34,7 @@ import { DistanceTimeService } from './services/maps/distancetime.service';
 import { FormsModule } from '@angular/forms';
 import { GoogleMapsLoaderService } from './services/maps/google-maps-loader.service';
 import { ZonesService } from './services/maps/zones.service';
+import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-type.service';
 
 @NgModule({
   declarations: [
@@ -63,17 +65,19 @@ import { ZonesService } from './services/maps/zones.service';
   ],
   imports: [
     BrowserModule,
+    HttpClientModule,
     AppRoutingModule,
     NgbModule,
     FormsModule,
-    GoogleMapsModule
+    GoogleMapsModule,
   ],
   providers: [
     provideClientHydration(),
     MapService,
     DistanceTimeService,
     GoogleMapsLoaderService,
-    ZonesService
+    ZonesService,
+    VehicleTypeService
   ],
   bootstrap: [AppComponent]
 })
