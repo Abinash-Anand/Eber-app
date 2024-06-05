@@ -1,25 +1,22 @@
+
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CountryApiService {
 
+  private apiUrl = 'https://restcountries.com/v3.1';
+
   constructor(private http: HttpClient) { }
 
+  getAllCountries(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/all`);
+  }
 
-  onGetHttpCall() {
-    this.http.get('https://restcountries.com/v3.1/all')
-    // .subscribe((result) => {
-    //  console.log("Currency: ", result[136].currencies.INR);
-    //    console.log("Calling code:", result[136].idd.root + result[136].idd.suffixes[0]);
-    //     console.log("Calling code:", result[136].idd.root + result[136].idd.suffixes[0]);
-    //  console.log("Flag: " ,result[136].flags.svg);
-    //   //  console.log("TimeZone: " ,result[136].timezone);
-     
-     
-       
-    //  })
+  getCountryByName(name: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/name/${name}`);
   }
 }

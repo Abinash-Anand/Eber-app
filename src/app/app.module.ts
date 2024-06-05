@@ -35,6 +35,7 @@ import { FormsModule } from '@angular/forms';
 import { GoogleMapsLoaderService } from './services/maps/google-maps-loader.service';
 import { ZonesService } from './services/maps/zones.service';
 import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-type.service';
+import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 
 @NgModule({
   declarations: [
@@ -61,7 +62,8 @@ import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-ty
     ErrorPageComponent,
     HomeComponent,
     VehicleListComponent,
-    CityListComponent
+    CityListComponent,
+    CountryListComponent
   ],
   imports: [
     BrowserModule,
