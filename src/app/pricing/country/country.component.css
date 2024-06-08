@@ -1,3 +1,63 @@
-/* .container {
-    background-color: rgba(30, 98, 146, 0.731);
-} */
+.form-country{
+padding: 10px;}
+
+ul {
+    list-style-type: none;
+    margin-top: 5px;
+    padding-left: 0;
+    border-radius: 10px;
+    box-shadow: 10px 5px 10px black;
+}
+
+.map-container {
+    border-radius: 10px;
+}
+
+li {
+    background-color: black;
+    border: 1px solid rgba(24, 24, 24, 0.715);
+    padding: 10px;
+    color: white
+}
+
+li:hover {
+    background-color: rgba(0, 0, 0, 0.822);
+    /* color: rgb(255, 255, 255); */
+    box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.589);
+    cursor: pointer;
+}
+
+input {
+    border-radius: 10px;
+    height: 3rem;
+}
+
+
+.vehicle-container {
+    background: #EEF7FF;
+    /* Semi-transparent background */
+    box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.2);
+    /* Softer shadow */
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    /* Blur effect for the background */
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* Subtle border for better visibility */
+    overflow: hidden;
+    /* Ensures the border-radius is applied to children */
+    padding: 10px;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+
+.vehicle-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+p {
+    margin: 0;
+}

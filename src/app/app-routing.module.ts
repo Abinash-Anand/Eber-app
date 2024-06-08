@@ -21,6 +21,7 @@ import { ErrorPageComponent } from './error-page/error-page.component';
 import { HomeComponent } from './home/home.component';
 import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
+import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 
 const routes: Routes = [
   {path:'', component:HomeComponent},
@@ -40,7 +41,10 @@ const routes: Routes = [
         path: 'city', component: CityComponent, children: [
         {path:'city-list', component:CityListComponent}
       ] },
-      { path: 'country', component: CountryComponent },
+      {
+        path: 'country', component: CountryComponent, children: [
+        {path:'country-list', component:CountryListComponent}
+      ] },
       { path: 'vehicle-pricing', component: VehiclePricingComponent },
       {
         path: 'vehicle-type', component: VehicleTypeComponent, children: [

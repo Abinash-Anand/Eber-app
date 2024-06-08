@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -31,11 +31,12 @@ import { CityListComponent } from './pricing/city/city-list/city-list.component'
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MapService } from './services/maps/mapsApi.service';
 import { DistanceTimeService } from './services/maps/distancetime.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GoogleMapsLoaderService } from './services/maps/google-maps-loader.service';
 import { ZonesService } from './services/maps/zones.service';
 import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-type.service';
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
+import { CountryApiService } from './services/countryApi.service.ts/country-api.service';
 
 @NgModule({
   declarations: [
@@ -72,14 +73,19 @@ import { CountryListComponent } from './pricing/country/country-list/country-lis
     NgbModule,
     FormsModule,
     GoogleMapsModule,
+    ReactiveFormsModule
   ],
   providers: [
     provideClientHydration(),
     MapService,
+    provideHttpClient(
+      withFetch()
+    ),
     DistanceTimeService,
     GoogleMapsLoaderService,
     ZonesService,
-    VehicleTypeService
+    VehicleTypeService,
+    CountryApiService
   ],
   bootstrap: [AppComponent]
 })
