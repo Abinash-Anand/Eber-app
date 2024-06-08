@@ -1,7 +1,8 @@
-.container{
-    background-image: url('https://qph.cf2.quoracdn.net/main-qimg-8ccbc4ab01aa15ee102420d26b9a6ca8-lq');
-    background-repeat: no-repeat;
-    height: 100%;
+img{
+    /* background-image: url('https://qph.cf2.quoracdn.net/main-qimg-8ccbc4ab01aa15ee102420d26b9a6ca8-lq'); */
+    /* background-repeat: no-repeat; */
+    height: 70vh;
+    width:80%;
     
 
 }

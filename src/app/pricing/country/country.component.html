@@ -1,6 +1,6 @@
 <div class="container">
     <!-- Button to Open the Modal -->
-    <button type="button" data-toggle="modal" data-target="#countryModalForm" class="btn btn-primary">Add
+    <button type="button" data-toggle="modal" data-target="#countryModalForm" class="btn btn-dark mt-3 btn-lg">Add
         Country</button>
 
     <!-- The Modal -->
@@ -57,11 +57,14 @@
         <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4" *ngFor="let country of countries">
             <div class="vehicle-container">
                 <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid" width="50">
-                <p><strong>Country: {{country.name}}</strong></p>
-                <p><strong>Currency: {{country.currency.symbol | json}}</strong></p>
-                <p><strong>Country Code: {{country.countryCode}}</strong></p>
-                <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
-                <p><strong>Timezone: {{country.timeZone}}</strong></p>
+                <div class="content">
+                        <p><strong>Country: {{country.name}}</strong></p>
+                        <p><strong>Currency: {{country.currency.symbol | json}}</strong></p>
+                        <p><strong>Country Code: {{country.countryCode}}</strong></p>
+                        <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
+                        <p><strong>Timezone: {{country.timeZone}}</strong></p>
+                </div>
+               
             </div>
         </div>
     </div>

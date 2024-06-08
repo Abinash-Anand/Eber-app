@@ -1,3 +1,19 @@
 a{
     color: white;
 }
+nav > a{
+    letter-spacing: 1px;
+    font-weight: 600;
+    font-size: 2rem;
+  
+}
+.navbar{
+    background-color: #212122;
+}
+.navbar-brand{
+    border: 5px solid white;
+    padding: 0px 5px ;
+    border-radius: 10px;
+    background-color: rgb(0, 0, 0);
+    
+}
