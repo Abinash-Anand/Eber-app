@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
+// import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 
 @Component({
   selector: 'app-vehicle-type',
@@ -37,18 +38,24 @@ export class VehicleTypeComponent {
     // console.log('Form Submitted!', this.formElement);
     // console.log('Selected file:', this.mediaFile);
     // console.log(this.formElement.controls.value);
+    // console.log('Form Submitted!', this.formElement);
     
-    if (this.mediaFile) {
+    if (this.mediaFile) { 
+      console.log(this.mediaFile);
       
       this.vehicleTypeService.convertFileToBase64(this.mediaFile).then(base64 => {
         const vehicleName = this.formElement.controls.vehicleName.value;
         const vehicleData = {
           name: vehicleName,
           type:  this.formElement.controls.carType.value,
-          image: base64
+          image: base64,
+          path: this.formElement.controls.ca
         };
+        console.log(vehicleData);
+        
         this.vehicleTypeService.vehicleDataArray.push(vehicleData); // Added missing push to array
         // Reset the form and variables
+
         this.formElement.resetForm();
         this.carType = 'Select Type';
         this.mediaFile = null;
