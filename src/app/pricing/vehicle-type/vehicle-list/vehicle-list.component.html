@@ -1,10 +1,11 @@
+<button class="btn btn-success" (click)="viewData()">Data</button>
 <h1>Vehicle List</h1>
 <div class="row m-3 text-dark">
     <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4" *ngFor="let vehicle of vehicleArray">
         <div class="vehicle-container">
-            <img src="{{vehicle.image}}" alt="" class="img-fluid">
-            <p><strong>{{vehicle.type}}</strong></p>
-            <p><strong>{{vehicle.name}}</strong></p>
+            <img [src]="vehicle.vehicleImageURL" alt="" class="img-fluid">
+            <p><strong>{{vehicle.vehicleType}}</strong></p>
+            <p><strong>{{vehicle.vehicleName}}</strong></p>
         </div>
     </div>
 </div>

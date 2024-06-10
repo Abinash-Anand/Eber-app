@@ -22,4 +22,21 @@ const vehicleTypeController = async (req, res) => {
     }
 };
 
-module.exports = { vehicleTypeController };
+const vehicleData = async (req, res) => {
+  try {
+    const vehicles = await vehicleTypeModel.find();
+
+    // Map each vehicle to include the image URL
+    const vehiclesWithImageURLs = vehicles.map(vehicle => ({
+      ...vehicle.toObject(),
+      vehicleImageURL: `http://localhost:5000/uploads/${vehicle.vehicleImage.fileName}`
+    }));
+
+    // Send the modified vehicle data with image URLs in the response
+    res.status(200).json({ message: "Vehicle data received!", vehicles: vehiclesWithImageURLs });
+  } catch (error) {
+    res.status(500).json({ message: "Vehicle data not found!", error });
+  }
+};
+
+module.exports = { vehicleTypeController, vehicleData };

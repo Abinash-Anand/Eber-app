@@ -1,75 +1,78 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
-// import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
+import { Vehicle } from '../../shared/vehicle';
+// import { VehicleTypeService } from '../../services/vehicle-type.service';
 
 @Component({
   selector: 'app-vehicle-type',
   templateUrl: './vehicle-type.component.html',
-  styleUrls: ['./vehicle-type.component.css'] // Fixed typo here
+  styleUrls: ['./vehicle-type.component.css']
 })
 export class VehicleTypeComponent {
-
-
-  constructor(private vehicleTypeService:VehicleTypeService) {
-    
-  }
   @ViewChild('f') formElement: NgForm;
   mediaFile: File | null = null;
-  // vehicleDataArray: Array<{ name: string, type: string, image: string }> = [];
   carType: string = 'Select Type';
   imageSize: number = 0;
   warningText: string = "";
+    vehicleObject: {
+        name: "",
+        type: '',
+        path:''
+  } 
+  //  vehicles: Vehicle[] = []; 
+  constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
 
   onSelectVehicleImg(files: FileList | null) {
     if (files && files.length > 0) {
-        const file = files[0];
-        this.mediaFile = file;
-        // console.log("Selected file:", this.mediaFile);
-        if ((this.mediaFile.size / 1024) > 1024) {
-            this.imageSize = (this.mediaFile.size / 1024) / 1024;
-        } else {
-            this.imageSize = 0;
-        }
+      const file = files[0];
+      this.mediaFile = file;
+      if ((this.mediaFile.size / 1024) > 1024) {
+        this.imageSize = (this.mediaFile.size / 1024) / 1024;
+      } else {
+        this.imageSize = 0;
+      }
     }
   }
 
   onSubmitVehicleType() {
-    // console.log('Form Submitted!', this.formElement);
-    // console.log('Selected file:', this.mediaFile);
-    // console.log(this.formElement.controls.value);
-    // console.log('Form Submitted!', this.formElement);
-    
-    if (this.mediaFile) { 
-      console.log(this.mediaFile);
-      
-      this.vehicleTypeService.convertFileToBase64(this.mediaFile).then(base64 => {
-        const vehicleName = this.formElement.controls.vehicleName.value;
-        const vehicleData = {
-          name: vehicleName,
-          type:  this.formElement.controls.carType.value,
-          image: base64,
-          path: this.formElement.controls.ca
-        };
-        console.log(vehicleData);
-        
-        this.vehicleTypeService.vehicleDataArray.push(vehicleData); // Added missing push to array
-        // Reset the form and variables
-
-        this.formElement.resetForm();
-        this.carType = 'Select Type';
-        this.mediaFile = null;
-        this.imageSize = 0;
-        this.warningText = "";
-        // console.log('Vehicle Data Array:', this.vehicleTypeService.vehicleDataArray);
-      });
+    if (this.mediaFile) {
+      const formData = new FormData();
+      formData.append('vehicleName', this.formElement.controls.vehicleName.value);
+      formData.append('vehicleType', this.formElement.controls.carType.value);
+      formData.append('vehicleImage', this.mediaFile);
+      // this.vehicleTypeService.vehicleDataArray.push()
+      this.http.post('http://localhost:5000/submit-vehicle-type', formData).subscribe(
+        response => {
+          console.log('Vehicle type submitted successfully', response);
+          this.formElement.resetForm();
+          this.carType = 'Select Type';
+          this.mediaFile = null;
+          this.imageSize = 0;
+          this.warningText = "";
+        },
+        error => {
+          console.error('Error submitting vehicle type', error);
+        }
+      );
     }
-
   }
+
+  onGetVehicle() {
+    this.vehicleTypeService.onGetVehicle().subscribe(
+      (response: any) => {
+        // Access the 'vehicles' array with image URLs from the response
+        this.vehicleTypeService.vehicleDataArray = response.vehicles;
+        console.log("Vehicle array: ",this.vehicleTypeService.vehicleDataArray); // Check the array in the console
+      },
+      (error: any) => {
+        console.error('Error fetching vehicles:', error);
+      }
+    );
+  } 
 
   onSelectCarType(carType: string) {
     this.carType = carType;
   }
-
-
 }

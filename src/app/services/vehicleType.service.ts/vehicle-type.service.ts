@@ -1,11 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Vehicle } from '../../shared/vehicle';
 
 @Injectable({
   providedIn: 'root'
 })
 export class VehicleTypeService {
-  vehicleDataArray: Array<{ name: string, type: string, image: string }> = [];
+  vehicleDataArray: Vehicle[] = [];
 
   constructor(private http: HttpClient) { }
     convertFileToBase64(file: File) {
@@ -16,14 +18,9 @@ export class VehicleTypeService {
       reader.onerror = (error) => reject(error); // Fixed typo here
     });
       
-      //Post request to the server to store the data of the vehicle type
-  //    submitVehicleType(vehicleName: string, vehicleType: string, vehicleImage: File) {
-  //   const formData = new FormData();
-  //   formData.append('vehicleName', vehicleName);
-  //   formData.append('vehicleType', vehicleType);
-  //   formData.append('vehicleImage', vehicleImage);
-
-  //   return this.http.post<any>('http://localhost:5000/submit-vehicle-type', formData);
-  // }
   }
+   onGetVehicle(): Observable<Vehicle[]> {
+    return this.http.get<Vehicle[]>(`http://localhost:5000/req-vehicle-data`)
+  }
+
 }

@@ -1,13 +1,23 @@
+require('dotenv').config(); // Load environment variables from .env file
+console.log('Loaded .env file:', process.env.PORT); // Debugging statement
+
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 5000; // Corrected 'Port' to 'PORT'
-const routers = require('./routers/routers'); // Ensure this path is correct
-require('./db/mongoose')
-// Middleware to parse JSON bodies
-app.use(express.json()); // Added middleware to parse <JSON></JSON>
+require('./db/mongoose'); // Ensure this path is correct
 
-app.use(routers);
+const port = process.env.PORT || 5000; // Use environment variable or default to 5000
+console.log('Port used by server:', port); // Debugging statement
+
+const routers = require('./routers/routers'); // Ensure this path is correct
+const cors = require('cors');
+
+// Middleware to parse JSON bodies
+app.use(express.json()); // Parse JSON bodies
+app.use(cors()); // Enable CORS
+app.use(routers); // Use routers
+// app.use(express.static('uploads'));
+app.use('/uploads', express.static('uploads'));
 
 app.listen(port, () => {
-    console.log("The server is live at port: ", port);
+    console.log(`The server is live at port: ${port}`);
 });
