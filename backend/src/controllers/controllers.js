@@ -39,4 +39,46 @@ const vehicleData = async (req, res) => {
   }
 };
 
-module.exports = { vehicleTypeController, vehicleData };
+// Update vehicle data by ID
+// Update vehicle data by ID
+const updateVehicleData = async (req, res) => {
+  try {
+    const vehicleId = req.params.id;
+    const updateData = req.body;
+    let updateFields = {};
+
+    if (updateData.name) {
+      updateFields.vehicleName = updateData.name;
+    }
+    if (updateData.type) {
+      updateFields.vehicleType = updateData.type;
+    }
+    console.log('Received file:', req.file);
+    if (req.file) {
+      // Log file information
+     
+      updateFields.vehicleImage = {
+        fileName: req.file.filename,
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        fileType: req.file.mimetype
+      };
+    }
+    
+    const vehicle = await vehicleTypeModel.findByIdAndUpdate(vehicleId, updateFields, { new: true });
+
+    if (!vehicle) {
+      return res.status(404).send('Vehicle not found');
+    }
+
+    res.status(200).send(vehicle);
+  } catch (error) {
+    console.error('Error updating vehicle data:', error); // Log the error to the console
+    res.status(500).send('Error updating vehicle data: ' + error.message);
+  } 
+};
+ 
+
+
+
+module.exports = { vehicleTypeController, vehicleData, updateVehicleData };

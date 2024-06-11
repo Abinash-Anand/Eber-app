@@ -1,4 +1,9 @@
-<button class="btn btn-success" (click)="onGetVehicle()">Get Vehicle</button>
+<!-- <button class="btn btn-success" (click)="onGetVehicle()">Get Vehicle</button> -->
+<div class="alert alert-success"
+ role="alert"
+ *ngIf="!formSubmit">
+    New Vehicle Submission Successful!
+</div>
 <div class="container mt-3 text-white bg-light">
     <div class="row">
         <div class="col-5 col-md-6 col-sm-12 col-xs-12 p-3 bg-dark">
@@ -50,13 +55,12 @@
                 </button>
             </form>
         </div>
-        <div class="col-8 p-3">
+        <div class="col-6 p-3">
+            
         </div>
     </div>
     
 </div>
-<div class="container bg-light">
-    
-        <router-outlet></router-outlet>
-
+<div class=" bg-light mt-2">
+    <router-outlet></router-outlet>
 </div>

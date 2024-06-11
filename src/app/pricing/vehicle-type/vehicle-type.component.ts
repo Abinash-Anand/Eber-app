@@ -1,9 +1,8 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { Vehicle } from '../../shared/vehicle';
-// import { VehicleTypeService } from '../../services/vehicle-type.service';
 
 @Component({
   selector: 'app-vehicle-type',
@@ -16,12 +15,8 @@ export class VehicleTypeComponent {
   carType: string = 'Select Type';
   imageSize: number = 0;
   warningText: string = "";
-    vehicleObject: {
-        name: "",
-        type: '',
-        path:''
-  } 
-  //  vehicles: Vehicle[] = []; 
+  formSubmit: boolean = true;
+
   constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
 
   onSelectVehicleImg(files: FileList | null) {
@@ -42,35 +37,24 @@ export class VehicleTypeComponent {
       formData.append('vehicleName', this.formElement.controls.vehicleName.value);
       formData.append('vehicleType', this.formElement.controls.carType.value);
       formData.append('vehicleImage', this.mediaFile);
-      // this.vehicleTypeService.vehicleDataArray.push()
-      this.http.post('http://localhost:5000/submit-vehicle-type', formData).subscribe(
-        response => {
+      this.vehicleTypeService.submitVehicleType(formData)
+        .then(response => {
           console.log('Vehicle type submitted successfully', response);
+          this.formSubmit = this.formElement.pending;
+          setTimeout(() => {
+            this.formSubmit = true;
+          }, 3000);
           this.formElement.resetForm();
           this.carType = 'Select Type';
           this.mediaFile = null;
           this.imageSize = 0;
           this.warningText = "";
-        },
-        error => {
+        })
+        .catch(error => {
           console.error('Error submitting vehicle type', error);
-        }
-      );
+        });
     }
   }
-
-  onGetVehicle() {
-    this.vehicleTypeService.onGetVehicle().subscribe(
-      (response: any) => {
-        // Access the 'vehicles' array with image URLs from the response
-        this.vehicleTypeService.vehicleDataArray = response.vehicles;
-        console.log("Vehicle array: ",this.vehicleTypeService.vehicleDataArray); // Check the array in the console
-      },
-      (error: any) => {
-        console.error('Error fetching vehicles:', error);
-      }
-    );
-  } 
 
   onSelectCarType(carType: string) {
     this.carType = carType;

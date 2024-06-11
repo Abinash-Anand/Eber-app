@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+#media files
+*.png
+*.jpg
+*.jpeg
+*.gif

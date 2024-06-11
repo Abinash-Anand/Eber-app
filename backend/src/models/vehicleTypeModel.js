@@ -11,6 +11,7 @@ const vehicleTypeSchema = new mongoose.Schema({
         required: true
     },
     vehicleImage: {
+        
         fileName: {
             type: String,
             required: true

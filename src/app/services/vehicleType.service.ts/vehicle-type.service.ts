@@ -19,8 +19,21 @@ export class VehicleTypeService {
     });
       
   }
+  //Send data to server
+  submitVehicleType(formData: FormData): Promise<any> {
+    return this.http.post('http://localhost:5000/submit-vehicle-type', formData).toPromise();
+  }
+
+  //Get data from server
    onGetVehicle(): Observable<Vehicle[]> {
     return this.http.get<Vehicle[]>(`http://localhost:5000/req-vehicle-data`)
   }
+
+  //update data request to server
+  updateVehicleDetails(index: string, updateData: {name:string, type:string}) {
+  const url = `http://localhost:5000/update-vehicle-data/${index}`;
+  return this.http.patch<any[]>(url, updateData);
+}
+
 
 }
