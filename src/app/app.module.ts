@@ -37,6 +37,7 @@ import { ZonesService } from './services/maps/zones.service';
 import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-type.service';
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 import { CountryApiService } from './services/countryApi.service.ts/country-api.service';
+import { CommonModule, LowerCasePipe } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import { CountryApiService } from './services/countryApi.service.ts/country-api.
     NgbModule,
     FormsModule,
     GoogleMapsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CommonModule
   ],
   providers: [
     provideClientHydration(),
@@ -85,7 +87,8 @@ import { CountryApiService } from './services/countryApi.service.ts/country-api.
     GoogleMapsLoaderService,
     ZonesService,
     VehicleTypeService,
-    CountryApiService
+    CountryApiService,
+    LowerCasePipe
   ],
   bootstrap: [AppComponent]
 })

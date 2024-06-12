@@ -1,6 +1,7 @@
 const { vehicleTypeModel } = require('../models/modelPackage'); // Ensure this path is correct
 
 const vehicleTypeController = async (req, res) => {
+  
     try {
         const vehicleType = new vehicleTypeModel({
             vehicleName: req.body.vehicleName,

@@ -1,7 +1,8 @@
+
 <div class="container">
     <!-- Button to Open the Modal -->
-    <button type="button" data-toggle="modal" data-target="#countryModalForm" class="btn btn-dark mt-3 btn-lg">Add
-        Country</button>
+    <button type="button" data-toggle="modal" data-target="#countryModalForm"
+     class="btn btn-dark mt-3 btn-lg">AddCountry</button>
 
     <!-- The Modal -->
     <div class="modal fade" id="countryModalForm" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
@@ -17,6 +18,9 @@
                 </div>
                 <!-- Modal Body -->
                 <div class="modal-body">
+                    <div class="alert alert-success" role="alert" *ngIf="countryAdded">
+                        New Country Added Successful!
+                    </div>
                     <form [formGroup]="countryForm" (ngSubmit)="onAddCountry()">
                         <div class="form-group">
                             <label for="name">Country Name:</label>
@@ -31,41 +35,76 @@
                                 <input disabled="true" id="currency" class="form-control" formControlName="currency" readonly>
                             </div>
                             <div>
-                                <label for="calling-code">Calling Code:</label>
-                                <input disabled="true" id="calling-code" class="form-control" formControlName="calling-code" readonly>
+                                <label for="callingCode">Calling Code:</label>
+                                <input disabled="true" id="callingCode" class="form-control" formControlName="callingCode" readonly>
                             </div>
                             <div>
-                                <label for="country-code">Country Code:</label>
-                                <input disabled="true" id="country-code" class="form-control" formControlName="country-code" readonly>
+                                <label for="countryCode">Country Code:</label>
+                                <input disabled="true" id="countryCode" class="form-control" formControlName="countryCode" readonly>
                             </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" [disabled]="countryForm.invalid">Add
+                            <button type="submit" class="btn btn-primary" >Add
                                 Country</button>
+                            
                         </div>
+                       
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
+<div class="alert alert-warning" role="alert" *ngIf="searchAlert">
+Country with Name {{searchCountryNotFound | uppercase}} not found
+</div>
 <div class="container" *ngIf="countries.length > 0">
-    <h1>Country List</h1>
-    <div class="row m-3 text-dark">
-        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4" *ngFor="let country of countries">
-            <div class="vehicle-container">
-                <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid" width="50">
+    <hr>
+<div class="col-md-8">
+    <div class="search">
+        <h1>Country List</h1>
+        <form class="form-inline w-100" (submit)="onSearchCountry()" #formSearch="ngForm">
+            <div class="form-group mr-2 flex-grow-1">
+                <input type="text" class="form-control w-100" placeholder="Search Country by Name"
+                name="search"
+                ngModel
+                >
+            </div>
+            <button type="submit" class="btn btn-lg searchCountry">Search</button>
+        </form>
+    </div>
+</div>
+    <hr>
+   
+    <div class="row m-3 text-dark ml-0 pl-0" *ngIf="!searchedCountry.length > 0">
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 ml-0 pl-0" *ngFor="let country of countries">
+            <div class="vehicle-container ">
+                <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid">
                 <div class="content">
                         <p><strong>Country: {{country.name}}</strong></p>
-                        <p><strong>Currency: {{country.currency.symbol | json}}</strong></p>
+                        <p><strong>Currency: {{country.currency.code | json}}</strong></p>
                         <p><strong>Country Code: {{country.countryCode}}</strong></p>
                         <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
                         <p><strong>Timezone: {{country.timeZone}}</strong></p>
                 </div>
                
             </div>
+        </div>
+    </div>
+</div>
+<div class="row m-3 text-dark ml-0 pl-0" *ngIf="searchedCountry.length > 0">
+    <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4 ml-0 pl-0" *ngFor="let country of searchedCountry">
+        <div class="vehicle-container ">
+            <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid">
+            <div class="content">
+                <p><strong>Country: {{country.name}}</strong></p>
+                <p><strong>Currency: {{country.currency.code | json}}</strong></p>
+                <p><strong>Country Code: {{country.countryCode}}</strong></p>
+                <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
+                <p><strong>Timezone: {{country.timeZone}}</strong></p>
+            </div>
+
         </div>
     </div>
 </div>

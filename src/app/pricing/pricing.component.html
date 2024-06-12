@@ -1,8 +1,8 @@
 <div class="container ">
     <div class="row">
-        <div class="col-12">
-            <h1>Pricing</h1>
-            <ul class="nav nav-tabs bg-dark ">
+        <div class="col-12 ">
+            <!-- <h1>Pricing</h1> -->
+            <ul class="nav nav-tabs bg-dark mt-3">
                 <li class="p-4 active"  routerLinkActive="active"
                 [routerLinkActiveOptions]="{exact : true}">
                     <a class="text-white" [routerLink]="['/pricing/city']">City</a>
@@ -21,7 +21,7 @@
         </div>
     </div>
 </div>
-<div class="row">
+<div class="row pricing-list">
     <div class="col-12">
         <router-outlet></router-outlet>
     </div>

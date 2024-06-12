@@ -1,7 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
+import { LowerCasePipe } from '@angular/common';
+import { Country } from '../../shared/country';
+import { environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
@@ -27,5 +30,21 @@ export class CountryApiService {
         timeZone: country.timezones[0]
       }))[0])  // Assuming we want the first result for simplicity
     );
+  }
+
+  //Submit form post request
+  //function naming convention => prefix(method used) + middle(component name) + (implementation component)suffix
+ // Submit form post request
+postCountryForm(country: Country): Observable<HttpResponse<Country>> {
+    return this.http.post<Country>(`${environment.backendServerPORT}/add-country`, country, {observe:'response'});
+  }
+
+  //get request to get all the countries
+  getAllCountries(): Observable<any>{
+    return this.http.get<Country[]>(`${environment.backendServerPORT}/get-countries`)
+  }
+  //get single country
+  getSingleCounty(id): Observable<Country>{
+  return this.http.get<Country>(`${environment.backendServerPORT}/get-country/:${id}`)
   }
 }
