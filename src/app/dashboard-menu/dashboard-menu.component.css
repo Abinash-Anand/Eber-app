@@ -1,35 +1,81 @@
-.container, a{
+/* General styles */
+.container,
+a {
     color: white !important;
 }
 
 a:hover {
-background-color: black;
+    background-color: black;
 }
 
-nav{
+nav {
     background-color: #030b2b;
 }
 
-ul > li, .btn {
+ul>li,
+.btn {
     margin: 0;
-    padding-left:0px ;
-    padding-right: 0px;
+    padding-left: 0;
+    padding-right: 0;
 }
 
-.nav-item button{
+.nav-item button {
     letter-spacing: 2px;
     font-size: 1.2rem;
 }
 
-.nav-items-container{
+.nav-items-container {
     margin-top: 50px;
 }
 
-.sidebar{
-    /* height: 90vh; */
+.btn {
+    color: white;
+    font-weight: 600;
 }
 
-.btn{
-color: white;
-font-weight: 600; 
+/* Sidebar styles */
+.sidebar {
+    min-height: 100vh;
+    /* Make sidebar take full height */
+    position: fixed;
+    /* Fix the position of the sidebar */
+    top: 0;
+    /* Align it at the top */
+    left: 0;
+    /* Align it at the left */
+    width: 16.66667%;
+    /* 2 columns out of 12 */
+    z-index: 9;
+    /* Ensure it stays on top */
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        /* Make sidebar static on small screens */
+        width: 100%;
+        /* Full width on small screens */
+    }
+}
+
+/* Sub-component styles */
+.sub-component {
+    margin-top: 5%;
+    display: block;
+    position: relative;
+    left: 16.66667%;
+    /* Align it next to the sidebar */
+    width: 83.33333%;
+    /* 10 columns out of 12 */
+}
+
+@media (max-width: 768px) {
+    .sub-component {
+        position: static;
+        /* Make sub-component static on small screens */
+        width: 100%;
+        /* Full width on small screens */
+        margin-top: 20px;
+        /* Adjust the top margin */
+    }
 }

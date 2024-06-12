@@ -1,25 +1,32 @@
-<!-- Updated dashboard component -->
 <div class="container-fluid">
     <div class="row">
-        <nav class="col-md-2 d-block bg-dark sidebar">
+        <!-- Sidebar -->
+        <nav class="col-md-2 col-sm-12 d-block mt-5 bg-dark sidebar">
             <div class="position-sticky nav-items-container">
                 <ul class="nav flex-column">
                     <!-- 1. Rides -->
                     <li class="nav-item">
                         <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#ridesDropdown"
                             aria-expanded="false" aria-controls="ridesDropdown">
-                            <img width="25" height="25" src="https://img.icons8.com/nolan/64/hover-car.png" alt="hover-car" /> Rides 
+                            <img width="25" height="25" src="https://img.icons8.com/nolan/64/hover-car.png"
+                                alt="hover-car" /> Rides
                         </button>
                         <div id="ridesDropdown" class="collapse">
                             <ul class="nav flex-column pl-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/rides/create-ride']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Create Ride</a>
+                                    <a class="nav-link" [routerLink]="['/rides/create-ride']"><img width="25"
+                                            height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Create Ride</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/rides/confirm-ride']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Confirm Ride</a>
+                                    <a class="nav-link" [routerLink]="['/rides/confirm-ride']"><img width="25"
+                                            height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Confirm Ride</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/rides/ride-history']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Ride History</a>
+                                    <a class="nav-link" [routerLink]="['/rides/ride-history']"><img width="25"
+                                            height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Ride History</a>
                                 </li>
                             </ul>
                         </div>
@@ -28,22 +35,28 @@
                     <li class="nav-item">
                         <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#userDropdown"
                             aria-expanded="false" aria-controls="userDropdown">
-                        <img width="25" height="25" src="https://img.icons8.com/3d-fluency/94/user-male-circle.png" alt="user-male-circle" />  User
+                            <img width="25" height="25" src="https://img.icons8.com/3d-fluency/94/user-male-circle.png"
+                                alt="user-male-circle" /> User
                         </button>
                     </li>
                     <!-- 3. Drivers -->
                     <li class="nav-item">
                         <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#driversDropdown"
                             aria-expanded="false" aria-controls="driversDropdown">
-                            <img width="25" height="25" src="https://img.icons8.com/arcade/64/driver.png" alt="driver" />  Drivers
+                            <img width="25" height="25" src="https://img.icons8.com/arcade/64/driver.png"
+                                alt="driver" /> Drivers
                         </button>
                         <div id="driversDropdown" class="collapse">
                             <ul class="nav flex-column pl-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> List</a>
+                                    <a class="nav-link" href="#"><img width="25" height="25"
+                                            src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> List</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Running Requests</a>
+                                    <a class="nav-link" href="#"><img width="25" height="25"
+                                            src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Running Requests</a>
                                 </li>
                             </ul>
                         </div>
@@ -52,21 +65,30 @@
                     <li class="nav-item">
                         <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#pricingDropdown"
                             aria-expanded="false" aria-controls="pricingDropdown">
-                            <img width="25" height="25" src="https://img.icons8.com/dusk/64/tags.png" alt="tags" />  Pricing
+                            <img width="25" height="25" src="https://img.icons8.com/dusk/64/tags.png" alt="tags" />
+                            Pricing
                         </button>
                         <div id="pricingDropdown" class="collapse">
                             <ul class="nav flex-column pl-3">
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/pricing/country']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Country</a>
+                                    <a class="nav-link" [routerLink]="['/pricing/country']"><img width="25" height="25"
+                                            src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Country</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/pricing/city']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> City</a>
+                                    <a class="nav-link" [routerLink]="['/pricing/city']"><img width="25" height="25"
+                                            src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> City</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/pricing/vehicle-type']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Vehicle Type</a>
+                                    <a class="nav-link" [routerLink]="['/pricing/vehicle-type']"><img width="25"
+                                            height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Vehicle Type</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" [routerLink]="['/pricing/vehicle-pricing']"><img width="25" height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png" alt="sort-right--v1"/> Vehicle Pricing</a>
+                                    <a class="nav-link" [routerLink]="['/pricing/vehicle-pricing']"><img width="25"
+                                            height="25" src="https://img.icons8.com/nolan/64/sort-right--v1.png"
+                                            alt="sort-right--v1" /> Vehicle Pricing</a>
                                 </li>
                             </ul>
                         </div>
@@ -75,14 +97,16 @@
                     <li class="nav-item">
                         <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#settingsDropdown"
                             aria-expanded="false" aria-controls="settingsDropdown">
-                            <img width="25px" height="25px" src="https://img.icons8.com/plasticine/100/automatic.png" alt="automatic" /> Settings
+                            <img width="25px" height="25px" src="https://img.icons8.com/plasticine/100/automatic.png"
+                                alt="automatic" /> Settings
                         </button>
                     </li>
                 </ul>
             </div>
         </nav>
 
-        <div class="col-10 " >
+        <!-- Sub-component -->
+        <div class="col-lg-10 col-md-10 col-sm-12 sub-component mr-sm-5 pr-5">
             <router-outlet></router-outlet>
         </div>
     </div>
