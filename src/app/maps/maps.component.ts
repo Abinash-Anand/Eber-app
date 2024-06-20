@@ -28,14 +28,14 @@ export class MapsComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     // Fetch the user's current geolocation when the component initializes
-    this.getUserLocation();
-    console.log(this.activeInput);
+    // console.log(this.activeInput);
     
-  }
-
-  ngAfterViewInit() {
-    // Initialize the map after the view has been initialized
-    this.initializeMap();
+  this.getUserLocation();
+    }
+    
+    ngAfterViewInit() {
+      // Initialize the map after the view has been initialized
+      this.initializeMap();
     console.log(this.activeInput);
     
   }

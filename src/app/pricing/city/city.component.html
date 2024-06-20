@@ -1,30 +1,48 @@
-<div class="container   ">
-    <div class="row p-3 text-white">
-        <div class="col-md-6 bg-dark p-3">
-            <h1>City Form</h1>
-            <form>
+<div class="container">
+    <div class="row py-3 text-white">
+        <div class="  col-lg-4  col-md-6 bg-dark p-3">
+            <h1 class="mb-3">City Form</h1>
+            <form [formGroup]="cityForm" (ngSubmit)="onAddCity()">
                 <div class="mb-3">
-                    <label for="countrySelect" class="form-label">Country</label>
-                    <select id="countrySelect" class="form-select">
+                    <label for="countrySelect" class="form-label" style="font-size: 1.3rem;">Country</label>
+                    <select id="countrySelect" class="form-select p-2 br-2 ml-3" formControlName="country"
+                        (change)="onCountryChange($event)">
                         <option value="" disabled selected>Select Country</option>
-                        <!-- Populate dropdown with countries from the database -->
-                        <option value="1">Country 1</option>
-                        <option value="2">Country 2</option>
-                        <option value="3">Country 3</option>
-                        <!-- Add more options as needed -->
+                        <option *ngFor="let country of countries"
+                         [value]="country.countryCode"
+                          [attr.data-country-id]="country._id"
+                            >{{ country.name }}
+                        </option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label for="zoneInput" class="form-label">Zone (City/Area)</label>
-                    <input type="text" class="form-control" id="zoneInput" placeholder="Enter city name">
-                    <!-- Google Autocomplete for city name -->
+                    <label for="zoneInput" class="form-label " style="font-size: 1.3rem;">Zone (City/Area)</label>
+                    <input type="text" class="form-control" id="zoneInput" formControlName="zone"
+                        placeholder="Enter city name" (focus)="initAutocomplete()" >
                 </div>
-                <button type="button" class="btn btn-primary"
-                [routerLink]="['/pricing/city/city-list']">Add City</button>
+                <button type="submit" class="btn btn-primary btn-lg">Add City</button>
             </form>
+
+                <button type="button" class="btn btn-primary btn-lg btn-block mt-5 py-3" 
+                (click)="onGetZones()"
+                [routerLink]="['/pricing/city/city-list']">Get Zones</button>
+
+
         </div>
-        <div class="col-md-6 p-3 ">
+        <div class="col-lg-8 col-md-6">
+            <div id="map" #mapRef style="height: 500px; width: 100%; "></div>
+
+        </div>
+    </div>
+    <div class="row">
+      
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col">
             <router-outlet></router-outlet>
+
         </div>
     </div>
 </div>

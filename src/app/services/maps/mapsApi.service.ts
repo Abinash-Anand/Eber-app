@@ -15,7 +15,7 @@ export class MapService {
   constructor(
     private distanceTimeService: DistanceTimeService, 
     private googleMapsLoaderService: GoogleMapsLoaderService,
-        private zonesService: ZonesService
+    private zonesService: ZonesService
 
   ) {
     this.initAutocompleteService();
@@ -34,7 +34,7 @@ export class MapService {
     });
   }
 
- getLocationService(): Promise<any> {
+  getLocationService(): Promise<any> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject("Geolocation is not supported by your browser.");
@@ -64,7 +64,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): Promise<google.maps.Map> {
     return this.googleMapsLoaderService.load().then(() => {
       const map = this.initializeMap(mapElement, location, onMarkerDragEnd);
-      this.zonesService.createZone(map)
+      this.zonesService.createNewZone(map);
       return map;
     }).catch((err) => {
       console.error('Error loading Google Maps API:', err);
@@ -76,7 +76,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): google.maps.Map {
     const map = new google.maps.Map(mapElement, {
       center: { lat: location.lat, lng: location.lng },
-      zoom: 12
+      zoom: 10
     });
 
     const marker = new google.maps.Marker({

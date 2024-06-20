@@ -1,7 +1,5 @@
     <!-- Display previously added cities for selected country -->
-    <ul class="list-group text-dark">
-        <li class="list-group-item">City 1</li>
-        <li class="list-group-item">City 2</li>
-        <li class="list-group-item">City 3</li>
+    <ul class="list-group text-dark" *ngFor="let city of allCitiesList">
+        <li class="list-group-item">{{city}}</li>
         <!-- Add more list items for other cities -->
     </ul>

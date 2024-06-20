@@ -47,4 +47,10 @@ postCountryForm(country: Country): Observable<HttpResponse<Country>> {
   getSingleCounty(id): Observable<Country>{
   return this.http.get<Country>(`${environment.backendServerPORT}/get-country/:${id}`)
   }
+
+
+
+  addCity(cityData: any): Observable<any> {
+    return this.http.post(`${environment.backendServerPORT}/cities`, cityData);
+  }
 }

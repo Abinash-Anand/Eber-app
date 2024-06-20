@@ -83,7 +83,7 @@ Country with Name {{searchCountryNotFound | uppercase}} not found
                 <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid">
                 <div class="content">
                         <p><strong>Country: {{country.name}}</strong></p>
-                        <p><strong>Currency: {{country.currency.code | json}}</strong></p>
+                        <p><strong>Currency: {{country.currency | json}}</strong></p>
                         <p><strong>Country Code: {{country.countryCode}}</strong></p>
                         <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
                         <p><strong>Timezone: {{country.timeZone}}</strong></p>
@@ -99,7 +99,7 @@ Country with Name {{searchCountryNotFound | uppercase}} not found
             <img [src]="country.flag" alt="{{ country.name }} flag" class="img-fluid">
             <div class="content">
                 <p><strong>Country: {{country.name}}</strong></p>
-                <p><strong>Currency: {{country.currency.code | json}}</strong></p>
+                <p><strong>Currency: {{country.currencyC | json}}</strong></p>
                 <p><strong>Country Code: {{country.countryCode}}</strong></p>
                 <p><strong>Calling Code: {{country.countryCallingCode}}</strong></p>
                 <p><strong>Timezone: {{country.timeZone}}</strong></p>
