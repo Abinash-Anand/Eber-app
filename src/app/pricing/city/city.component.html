@@ -1,5 +1,8 @@
 <div class="container">
-    <div class="row py-3 text-white">
+    <div class="alert alert-success" role="alert" *ngIf="successMsg">
+        New Zone Created!
+    </div>
+    <div class="row py-3 text-white" >
         <div class="  col-lg-4  col-md-6 bg-dark p-3">
             <h1 class="mb-3">City Form</h1>
             <form [formGroup]="cityForm" (ngSubmit)="onAddCity()">
@@ -20,29 +23,19 @@
                     <input type="text" class="form-control" id="zoneInput" formControlName="zone"
                         placeholder="Enter city name" (focus)="initAutocomplete()" >
                 </div>
-                <button type="submit" class="btn btn-primary btn-lg">Add City</button>
+                <button type="submit" class="btn btn-primary btn-lg" >Add City</button>
             </form>
 
                 <button type="button" class="btn btn-primary btn-lg btn-block mt-5 py-3" 
-                (click)="onGetZones()"
-                [routerLink]="['/pricing/city/city-list']">Get Zones</button>
+                (click)="onGetZones()" [routerLink]="['/pricing/city/city-list']">View My Zones</button>
 
 
         </div>
         <div class="col-lg-8 col-md-6">
             <div id="map" #mapRef style="height: 500px; width: 100%; "></div>
-
+            </div>
         </div>
-    </div>
-    <div class="row">
-      
-    </div>
+   
 </div>
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <router-outlet></router-outlet>
+    <router-outlet></router-outlet>
 
-        </div>
-    </div>
-</div>

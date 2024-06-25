@@ -1,1 +1,21 @@
-<p>drivers works!</p>
+<div class="container ">
+    <div class="row">
+        <div class="col-12 ">
+            <!-- <h1>Pricing</h1> -->
+            <ul class="nav nav-tabs bg-dark mt-3">
+                <li class="p-4 active" routerLinkActive="active" [routerLinkActiveOptions]="{exact : true}">
+                    <a class="text-white" [routerLink]="['/drivers/driver-list']">Driver List</a>
+                </li>
+                <li class="p-4" routerLinkActive="active">
+                    <a class="text-white" [routerLink]="['/drivers/running-request']">Running Request</a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row pricing-list">
+    <div class="col-12">
+        <router-outlet></router-outlet>
+    </div>
+</div>

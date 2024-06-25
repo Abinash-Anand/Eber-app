@@ -1,5 +1,29 @@
-    <!-- Display previously added cities for selected country -->
-    <ul class="list-group text-dark" *ngFor="let city of allCitiesList">
-        <li class="list-group-item">{{city}}</li>
-        <!-- Add more list items for other cities -->
-    </ul>
+<div class="container mt-5">
+    <div class="row py-3">
+        <div class="col-lg-4 col-md-6 zones-component">
+            <!-- Form to select country and city -->
+            <form class="p-4 rounded bg-light shadow" (ngSubmit)="onSelectCity(selectedCity)" #form="ngForm">
+                <div class="mb-3">
+                    <label for="countrySelect" class="form-label h5">Country</label>
+                    <select id="countrySelect" class="form-select p-2" (change)="onCountryChange($event)" required>
+                        <option value="" disabled selected>Select Country</option>
+                        <option *ngFor="let country of countries" [value]="country.countryCode"
+                            [attr.data-country-id]="country._id">
+                            {{ country.name }}
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="citySelect" class="form-label h5">City List</label>
+                    <select id="citySelect" class="form-select p-2" (change)="onCityChange($event)" required>
+                        <option value="" disabled selected>Select City</option>
+                        <option *ngFor="let city of cityList" [ngValue]="city" [attr.data-city-id]="city._id">
+                            {{ city.city }}
+                        </option>
+                    </select>
+                </div>
+                <button class="btn btn-success w-100" type="submit" [disabled]="!form.form.valid">Show City</button>
+            </form>
+        </div>
+    </div>
+</div>

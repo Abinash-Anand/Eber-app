@@ -22,11 +22,13 @@ import { HomeComponent } from './home/home.component';
 import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
+import { UserComponent } from './user/user.component';
 
 const routes: Routes = [
   {path:'', component:HomeComponent},
   { path: 'maps', component: MapsComponent },
   { path: 'login', component: LoginComponent },
+  {path:'users', component:UserComponent} ,
   { path: 'signup', component: SignupComponent },
   {
     path: 'rides', component: RidesComponent, children: [

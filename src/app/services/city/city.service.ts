@@ -17,7 +17,11 @@ export class CityService {
   }
   //get city data
 getCitiesData(): Observable<HttpResponse<any>>{
-  return this.http.get<any[]>(`${environment.backendServerPORT}/get-cities`, {observe:'response'})
-}
+  return this.http.get<any[]>(`${environment.backendServerPORT}/get-countriesList`, {observe:'response'})
+  }
+  
+    getCitiesByCountry(countryId: string): Observable<any> {
+    return this.http.get(`${environment.backendServerPORT}/cities/by-country/${countryId}`);
+  }
 }
 

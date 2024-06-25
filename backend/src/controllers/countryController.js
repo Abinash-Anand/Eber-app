@@ -42,7 +42,8 @@ const singleCountry = async (req, res)=>{
     try {
         console.log("id value: ",req.params.id);
         const id = req.params.id
-        const countryObject = await Country.findOne({countryCode: id});
+      const countryObject = await Country.findOne({ countryCode: id });
+      
         console.log(countryObject);
         res.status(200).send(countryObject)
     } catch (error) {

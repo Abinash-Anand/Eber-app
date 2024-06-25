@@ -1,1 +1,10 @@
-<p>user works!</p>
+<div class="row">
+    <div class="col-4"  *ngFor="let user of users">
+        <img src="" alt="">
+        <ul>
+            <li>User: {{user.username}}</li>
+            <li>Phone: {{user.phone}}</li>
+            <li>Email: {{user.email}}</li>
+        </ul>
+    </div>
+</div>

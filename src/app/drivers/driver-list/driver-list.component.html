@@ -1,1 +1,30 @@
-<p>driver-list works!</p>
+<div class="row"  >
+
+    <div class="col-6 bg-dark form-container text-light p-4">
+        <h2>Driver Registration</h2>
+        <form (ngSubmit)="onSubmitForm()" #form="ngForm" >
+            <div class="p-2">
+                <label for="name">Driver's Name</label>
+                <input type="text" class="form-control" ngModel required name="name" placeholder="Enter Driver's Name">
+            </div>
+            <div class="p-2">
+                <label for="name">Driver's Age</label>
+                <input type="text" class="form-control" ngModel required name="age" placeholder="Enter Driver's Age">
+            </div>
+          <div class="p-2">
+            <label for="name">Driver's Email</label>
+            <input type="text" class="form-control" ngModel required name="email" placeholder="Enter Driver's Email">
+          </div>
+           <div class="p-2">
+            <label for="name">Driver's Phone</label>
+            <input type="text" class="form-control" ngModel required name="phone" placeholder="Enter Driver's Phone">
+           </div>
+            <div class="p-2">
+                <label for="name">Driver's password</label>
+            <input type="text" class="form-control" ngModel required name="password" placeholder="Enter Driver's {Password}">
+            </div>
+            
+            <button class="btn btn-success btn-lg mt-3" type="submit">Create Driver</button>
+        </form>
+    </div>
+</div>

@@ -1,7 +1,7 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 col-sm-12 d-block mt-5 bg-dark sidebar">
+        <nav class="col-md-2 col-sm-12 d-block mt-5 bg-dark  sidebar">
             <div class="position-sticky nav-items-container">
                 <ul class="nav flex-column">
                     <!-- 1. Rides -->
@@ -33,7 +33,9 @@
                     </li>
                     <!-- 2. User -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#userDropdown"
+                        <button class="btn btn-dark nav-link" 
+                        data-toggle="collapse" data-target="#userDropdown"
+                        [routerLink]="['/users']"
                             aria-expanded="false" aria-controls="userDropdown">
                             <img width="25" height="25" src="https://img.icons8.com/3d-fluency/94/user-male-circle.png"
                                 alt="user-male-circle" /> User
@@ -41,7 +43,9 @@
                     </li>
                     <!-- 3. Drivers -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#driversDropdown"
+                        <button class="btn btn-dark nav-link" 
+                        data-toggle="collapse" data-target="#driversDropdown"
+                        [routerLink]="['/drivers']"
                             aria-expanded="false" aria-controls="driversDropdown">
                             <img width="25" height="25" src="https://img.icons8.com/arcade/64/driver.png"
                                 alt="driver" /> Drivers

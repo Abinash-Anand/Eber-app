@@ -1,5 +1,20 @@
 .container{
     margin-top: 1%;
-    padding:5% 10%;
-    background-color: #db7a7a61;
+    padding:20px;
+    max-width: 50%;
+    height: 70vh;
+    
+    
+    /* box-shadow: 5px 5px 5px rgb(71, 71, 71); */
+}
+.nav, .container{
+    background-color: #d3e3ff;
+
+}
+label{
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+form{
+    padding: 20px;
 }

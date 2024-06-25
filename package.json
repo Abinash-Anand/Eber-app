@@ -25,14 +25,17 @@
     "@googlemaps/js-api-loader": "^1.16.6",
     "@ng-bootstrap/ng-bootstrap": "^16.0.0",
     "@popperjs/core": "^2.11.8",
+    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "bootstrap": "^4.6.2",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "mongoose": "^8.4.1",
     "multer": "^1.4.5-lts.1",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "uuid": "^10.0.0",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {
