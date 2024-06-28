@@ -1,0 +1,17 @@
+.settings{
+    text-align: center;
+    padding: 5% ;
+    background-color: rgba(0, 0, 0, 0.874);
+    font-weight: 600;
+    border: 2px solid black;
+    box-shadow: 5px 5px black;
+    color: white;
+}
+select{
+    
+    font-size: 1.5rem;
+    padding: 15px 65px;
+}
+option{
+    background-color: rgba(160, 160, 160, 0.066);
+}

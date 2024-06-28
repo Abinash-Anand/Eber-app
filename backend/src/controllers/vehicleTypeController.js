@@ -79,7 +79,21 @@ const updateVehicleData = async (req, res) => {
   } 
 };
  
+// Controller method to get vehicle types by city
+const getVehicleTypesByCity = async (req, res) => {
+    try {
+        const cityId = req.params.cityId;
+        const vehicleTypes = await vehicleTypeModel.find({ cityId: cityId });
+
+        if (!vehicleTypes) {
+            return res.status(404).send('No vehicle types found for this city');
+        }
+
+        res.status(200).json(vehicleTypes);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving vehicle types: ", error });
+    }
+};
 
 
-
-module.exports = { vehicleTypeController, vehicleData, updateVehicleData };
+module.exports = { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity };

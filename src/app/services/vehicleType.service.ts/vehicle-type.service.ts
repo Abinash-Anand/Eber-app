@@ -8,7 +8,7 @@ import { Vehicle } from '../../shared/vehicle';
 })
 export class VehicleTypeService {
   vehicleDataArray: Vehicle[] = [];
-
+  vehicleTypeArray: {vehicleType: string}[]=[]
   constructor(private http: HttpClient) { }
     convertFileToBase64(file: File) {
     return new Promise<string>((resolve, reject) => {
@@ -35,5 +35,8 @@ export class VehicleTypeService {
   return this.http.patch<any[]>(url, updateData);
 }
 
+    getVehicleTypesByCity(cityId: string): Observable<Vehicle[]> {
+    return this.http.get<Vehicle[]>(`http://localhost:5000/vehicle-types/${cityId}`);
+  }
 
 }

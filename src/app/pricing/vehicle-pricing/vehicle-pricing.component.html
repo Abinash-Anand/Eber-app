@@ -1,27 +1,22 @@
-<div class="container text-white  p-3 ml-3">
-    <div class="row ">
+<div class="container text-white p-3 ml-3">
+    <div class="row">
         <div class="col-12 col-md-6 bg-dark p-3">
             <form>
                 <!-- Dropdown for selecting country -->
                 <div class="mb-3">
                     <label for="countrySelect" class="form-label">Select Country</label>
-                    <select id="countrySelect" class="form-select">
+                    <select id="countrySelect" class="form-select" (change)="onCountryChange($event)">
                         <option value="" disabled selected>Select Country</option>
-                        <!-- Angular code will populate options from previously added countries -->
-                        <option value="1">Country 1</option>
-                        <option value="2">Country 2</option>
-                        <!-- Add more options as needed -->
+                        <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                        </option>
                     </select>
                 </div>
                 <!-- Dropdown for selecting city/zone -->
                 <div class="mb-3">
                     <label for="citySelect" class="form-label">Select City/Zone</label>
-                    <select id="citySelect" class="form-select">
+                    <select id="citySelect" class="form-select" (change)="onCityChange($event)">
                         <option value="" disabled selected>Select City/Zone</option>
-                        <!-- Angular code will populate options based on selected country -->
-                        <option value="1">City/Zone 1</option>
-                        <option value="2">City/Zone 2</option>
-                        <!-- Add more options as needed -->
+                        <option *ngFor="let city of filteredCityArray" [value]="city._id">{{city.city}}</option>
                     </select>
                 </div>
                 <!-- Dropdown for selecting vehicle type -->
@@ -29,10 +24,8 @@
                     <label for="vehicleTypeSelect" class="form-label">Select Vehicle Type</label>
                     <select id="vehicleTypeSelect" class="form-select">
                         <option value="" disabled selected>Select Vehicle Type</option>
-                        <!-- Angular code will populate options based on selected country and city/zone -->
-                        <option value="1">Vehicle Type 1</option>
-                        <option value="2">Vehicle Type 2</option>
-                        <!-- Add more options as needed -->
+                        <option *ngFor="let vehicle of vehicleTypeArray" [value]="vehicle._id">{{vehicle}}
+                        </option>
                     </select>
                 </div>
                 <!-- Pricing inputs for each pricing type -->

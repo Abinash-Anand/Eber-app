@@ -11,7 +11,6 @@ const vehicleTypeSchema = new mongoose.Schema({
         required: true
     },
     vehicleImage: {
-        
         fileName: {
             type: String,
             required: true
@@ -28,7 +27,8 @@ const vehicleTypeSchema = new mongoose.Schema({
             type: String,
             required: true
         }
-    }
+    },
+
 });
 
 const vehicleTypeModel = mongoose.model('VehicleType', vehicleTypeSchema);

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
@@ -9,16 +9,18 @@ import { Vehicle } from '../../shared/vehicle';
   templateUrl: './vehicle-type.component.html',
   styleUrls: ['./vehicle-type.component.css']
 })
-export class VehicleTypeComponent {
+export class VehicleTypeComponent implements OnInit {
   @ViewChild('f') formElement: NgForm;
   mediaFile: File | null = null;
   carType: string = 'Select Type';
   imageSize: number = 0;
   warningText: string = "";
   formSubmit: boolean = true;
-
+  vehicleTypeArray: {vehicleType:string}[] = []
   constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
-
+ngOnInit(): void {
+   
+}
   onSelectVehicleImg(files: FileList | null) {
     if (files && files.length > 0) {
       const file = files[0];
@@ -49,13 +51,34 @@ export class VehicleTypeComponent {
           this.mediaFile = null;
           this.imageSize = 0;
           this.warningText = "";
+        this.getVehicleData()
         })
         .catch(error => {
           console.error('Error submitting vehicle type', error);
         });
     }
   }
+  getVehicleData() {
+    this.vehicleTypeService.onGetVehicle().subscribe(
+      (response: any) => {
+        // console.log(response.vehicles);
+        this.vehicleTypeService.vehicleDataArray = response.vehicles
+        const vehicleType  = []
+        
+        for (const vehicle of response.vehicles) {
 
+          vehicleType.push(vehicle.vehicleType)
+        }
+        
+        this.vehicleTypeArray = [...new Set(vehicleType)]
+        console.log(this.vehicleTypeArray);
+      },
+      (error: any) => {
+        console.error('Error fetching vehicles:', error);
+      }
+    );
+  }
+  
   onSelectCarType(carType: string) {
     this.carType = carType;
   }

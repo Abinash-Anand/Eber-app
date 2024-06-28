@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrl: './settings.component.css'
 })
 export class SettingsComponent {
+  acceptRequestTime: number = 30; // Default value or initialize as needed
+  maxStops: number = 2; // Default value or initialize as needed
 
 }

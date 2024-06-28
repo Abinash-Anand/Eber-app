@@ -1,12 +1,12 @@
-<div class="container-fluid">
+<div class="container-fluid ">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 col-sm-12 d-block mt-5 bg-dark  sidebar">
+        <nav class="col-md-2 col-sm-12 d-block mt-5   sidebar">
             <div class="position-sticky nav-items-container">
                 <ul class="nav flex-column">
                     <!-- 1. Rides -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#ridesDropdown"
+                        <button class="btn  nav-link" data-toggle="collapse" data-target="#ridesDropdown"
                             aria-expanded="false" aria-controls="ridesDropdown">
                             <img width="25" height="25" src="https://img.icons8.com/nolan/64/hover-car.png"
                                 alt="hover-car" /> Rides
@@ -33,7 +33,7 @@
                     </li>
                     <!-- 2. User -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" 
+                        <button class="btn  nav-link" 
                         data-toggle="collapse" data-target="#userDropdown"
                         [routerLink]="['/users']"
                             aria-expanded="false" aria-controls="userDropdown">
@@ -43,7 +43,7 @@
                     </li>
                     <!-- 3. Drivers -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" 
+                        <button class="btn nav-link" 
                         data-toggle="collapse" data-target="#driversDropdown"
                         [routerLink]="['/drivers']"
                             aria-expanded="false" aria-controls="driversDropdown">
@@ -67,7 +67,7 @@
                     </li>
                     <!-- 4. Pricing -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#pricingDropdown"
+                        <button class="btn  nav-link" data-toggle="collapse" data-target="#pricingDropdown"
                             aria-expanded="false" aria-controls="pricingDropdown">
                             <img width="25" height="25" src="https://img.icons8.com/dusk/64/tags.png" alt="tags" />
                             Pricing
@@ -99,7 +99,8 @@
                     </li>
                     <!-- 5. Settings -->
                     <li class="nav-item">
-                        <button class="btn btn-dark nav-link" data-toggle="collapse" data-target="#settingsDropdown"
+                        <button class="btn  nav-link" data-toggle="collapse" data-target="#settingsDropdown" 
+                            [routerLink]="['/settings']"
                             aria-expanded="false" aria-controls="settingsDropdown">
                             <img width="25px" height="25px" src="https://img.icons8.com/plasticine/100/automatic.png"
                                 alt="automatic" /> Settings
