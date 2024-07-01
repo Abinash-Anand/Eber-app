@@ -24,7 +24,7 @@ export class CountryComponent implements OnInit{
   searchedCountry: Country[] = []
   searchAlert: boolean =  false;
   constructor(private fb: FormBuilder, private countryApiService: CountryApiService,
-    private autoSuggestCountry: MapService
+    private autoSuggestCountry: MapService 
   ) {
     this.countryForm = this.fb.group({
       name: ['', Validators.required],

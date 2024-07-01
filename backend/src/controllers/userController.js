@@ -44,15 +44,15 @@ const createNewUser = async (req, res) => {
 
 // SEARCHING A USER BASED ON MULTIPLE CRITERIA
 // const searchUser =  async (req, res) => {
-//     try {
-//         const { username, userProfile, email, phone } = req.body;
+//   try {
+//       console.log(req.params);
+//         const { username, userProfile, email } = req.params;
 
 //         const findUser = await User.findOne({
 //             $or: [
 //                 { username },
 //                 { userProfile },
 //                 { email },
-//                 { phone }
 //             ]
 //         });
 //         if (!findUser) {
@@ -64,6 +64,25 @@ const createNewUser = async (req, res) => {
 //         res.status(500).send(error);
 //     }
 // };
+
+const searchUser = async (req, res) => {
+  try {
+    const { username, userProfile, email } = req.query;
+    const searchCriteria = {};
+
+    if (username) searchCriteria.username = username;
+    if (userProfile) searchCriteria.userProfile = userProfile;
+    if (email) searchCriteria.email = email;
+
+    const users = await User.find(searchCriteria); // Adjust this line to match your actual database query method
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching specific user:', error);
+    res.status(500).send({ message: 'Server Error' });
+  }
+};
+
+module.exports = { searchUser };
 
 
 
@@ -103,16 +122,17 @@ const allUsers = async (req, res, next) => {
 // }
 //Update USER  Route- PATCH request
 // const updateUser = async(req,res)=>{
-//     const updates = Object.keys(req.body)
-//     const allowedUpdates=["username","userProfile","email","phone","password"]
+//   const updates = Object.keys(req.body)
+//   console.log(updates);
+//     const allowedUpdates=["username","userProfile","email","phone"]
 //     const isValidOperation = updates.every((upData)=>allowedUpdates.includes(upData))
 //     if(!isValidOperation){
-//         return res.status(404).send("Invalid Update!")
+//       return res.status(404).send("Invalid Update!")
 //     }
-//       try {
-//         console.log(User);
-//         console.log(req.params);
-//         const id = req.params.id
+//     try {
+//       console.log(User);
+//       console.log(req.params);
+//         const id = req.body.id
 //         const user = await User.findById(id);
 //         console.log(user);
 //        if(!user){
@@ -127,15 +147,43 @@ const allUsers = async (req, res, next) => {
 //       }
 // }
 
-// //Delete USER Route- DEL request
-// const deleteUser =  async(req,res)=>{
-//     try {
-//         const user = await User.findByIdAndDelete(req.params.id)
-//         console.log(req.params.id);
-//         res.status(200).send(user)
-//     } catch (error) {
-//         res.status(400).send(error)
-//     }
-// }
+const updateUser = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { userId, userProfile, username, email, phone, countryCode } = req.body;
+    // console.log({userId, userProfile, username, email, phone, countryCode});
+    const user = await User.findByIdAndUpdate(
+      userId, 
+      {
+        userProfile,
+        username,
+        email,
+        phone,
+        countryCode
+      }, 
+      { new: true } // This option ensures the updated document is returned
+    );
+    console.log(user);
 
-module.exports= {createNewUser, allUsers}
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// //Delete USER Route- DEL request
+const deleteUser =  async(req,res)=>{
+    try {
+        const user = await User.findByIdAndDelete(req.params.id)
+        console.log(req.params.id);
+        res.status(200).send(user)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
+module.exports= {createNewUser, allUsers, updateUser, deleteUser, searchUser}

@@ -1,4 +1,4 @@
-  import { HttpClient, HttpResponse } from '@angular/common/http';
+  import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
   import { Injectable } from '@angular/core';
   import { Observable } from 'rxjs';
   import { User } from '../../shared/user';
@@ -24,13 +24,17 @@
     //   return this.http.get<User>(`${environment.backendServerPORT}/user/all-users`)
     // }
     //get specific user
-    // getSpecificUser(id:string) {
-    //   return this.http.get<User>(`${environment.backendServerPORT}/user/id/:${id}`, {observe:'response'})
-    // }
-    // updateUser(userData) {
-    //   return this.http.patch<User>(`${environment.backendServerPORT}/user/update-user`, userData,{observe:'response'})
-    // }
-    // deleteUser() {
-    //   return this.http.delete(`${environment.backendServerPORT}/user/delete-user`)
-    // }
+  getSpecificUser(searchObject: any): Observable<User[]> {
+    const params = new HttpParams()
+      .set('username', searchObject.searchBy === 'username' ? searchObject.searchInput : '')
+      .set('userProfile', searchObject.searchBy === 'userProfile' ? searchObject.searchInput : '')
+      .set('email', searchObject.searchBy === 'email' ? searchObject.searchInput : '');
+    return this.http.get<User[]>(`${environment.backendServerPORT}/user/specific-user`, { params });
+  }
+    updateUser(userData) {
+      return this.http.patch<any>(`${environment.backendServerPORT}/user/update-user`, userData,{observe:'response'})
+    } 
+    deleteUser(id:string) {
+      return this.http.delete(`${environment.backendServerPORT}/user/delete-user/${id}`, )
+    }
   }
