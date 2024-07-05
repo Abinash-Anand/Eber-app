@@ -1,3 +1,6 @@
+<div class="login" *ngIf="login">
+    <h1>Admin Logged in Successful!</h1>
+</div>
 <nav class="navbar nav "><h1>Login</h1></nav>
 <div class="container">
     <div class="row">
@@ -14,6 +17,7 @@
                         <label for="exampleInputPassword1">Password</label>
                         <input type="password" class="form-control"
                         required name="password" ngModel id="exampleInputPassword1" placeholder="Password">
+                        <p class="text-danger mt-2" *ngIf="wrongCredentials">Please Provide Correct Credentials!</p>
                     </div>
                     <button type="submit" class="btn ml-3 btn-primary btn-lg"
                      [disabled]="!form.valid" >Submit</button>

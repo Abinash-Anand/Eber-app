@@ -1,3 +1,8 @@
-.card{
-    box-shadow: 5px 5px 15px black;
+.card-body{
+   /* border: 2px solid black; */
+   /* box-shadow: 2px 5px 10px black; */
+background-image: linear-gradient(to right top, #bdb6ff, #f1b0e7, #ffb2c7, #ffbeac, #fccfa1);
+box-shadow: 3px 5px 10px #a0bde9;
+font-family: 'fantasy';
+
 }

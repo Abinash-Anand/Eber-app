@@ -1,6 +1,6 @@
-  import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+  import { HttpClient, HttpErrorResponse, HttpParams, HttpResponse } from '@angular/common/http';
   import { Injectable } from '@angular/core';
-  import { Observable } from 'rxjs';
+  import { Observable, catchError, throwError } from 'rxjs';
   import { User } from '../../shared/user';
   import { environment } from '../../../environment';
 
@@ -12,8 +12,15 @@
     constructor(private http: HttpClient) { }
     //add user
     createNewUser(userObject): Observable<HttpResponse<User[]>> {
-      return this.http.post<User[]>(`${environment.backendServerPORT}/user/create-user`, userObject, {observe: 'response'})
+      return this.http.post<User[]>(`${environment.backendServerPORT}/user/create-user`, userObject, {observe: 'response'}).pipe(
+      catchError(this.handleError)
+    );
     }
+
+    private handleError(error: HttpErrorResponse) {
+    return throwError(() => error); // Propagate the error
+  }
+    
    getAllUsers(page: number, size: number): Observable<any> {
     return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
       `${environment.backendServerPORT}/all-users?page=${page}&size=${size}`

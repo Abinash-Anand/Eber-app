@@ -14,7 +14,7 @@ import { CountryComponent } from './pricing/country/country.component';
 import { VehiclePricingComponent } from './pricing/vehicle-pricing/vehicle-pricing.component';
 import { VehicleTypeComponent } from './pricing/vehicle-type/vehicle-type.component';
 import { DriversComponent } from './drivers/drivers.component';
-import { DriverListComponent } from './drivers/driver-list/driver-list.component';
+// import { DriverListComponent } from './drivers/driver-list/driver-list.component';
 import { RunningRequestComponent } from './drivers/running-request/running-request.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
@@ -23,6 +23,7 @@ import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicl
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 import { UserComponent } from './user/user.component';
+import { DriverListComponent } from './drivers/driver-list/driver-list.component';
 
 const routes: Routes = [
   {path:'', component:HomeComponent},
@@ -62,9 +63,7 @@ const routes: Routes = [
   },
   { path: 'settings', component: SettingsComponent },
   
-
-
-
+  
   //this route for all the other routes that is not included in this 
   {path:'**', component:ErrorPageComponent}
 

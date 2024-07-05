@@ -1,0 +1,189 @@
+const express = require("express")
+
+const Driver = require('../models/driverModel')
+// const router = new express.Router();
+
+//Create a USER Route- POST request 
+// router.post('/submitForm', async (req, res) => {
+//     try {
+//         console.log(req.body);
+//         const newUser = new User(req.body);
+//         await newUser.save();
+        
+//         // Send a success response or any additional logic here
+//         res.status(201).send(newUser);
+//     } catch (error) {
+//         res.status(500).send(error.message);
+//     }
+// });
+
+// Create User Route - POST request
+const createNewDriver = async (req, res) => {
+    try {
+        // Check if the username or email already exists
+        const existingUser = await Driver.findOne({
+            $or: [{ username: req.body.username }, { email: req.body.email }]
+        });
+
+        if (existingUser) {
+            throw new Error("Username or email already in use");
+        }
+
+        // Create a new user
+        const newUser = new Driver(req.body);
+
+        // Save the new user to the database
+        await newUser.save();
+
+        res.status(201).send(newUser);
+    } catch (error) {
+        console.error('Error:', error.message);
+        res.status(400).send(error.message);
+    }
+};
+
+// SEARCHING A USER BASED ON MULTIPLE CRITERIA
+// const searchUser =  async (req, res) => {
+//   try {
+//       console.log(req.params);
+//         const { username, userProfile, email } = req.params;
+
+//         const findUser = await User.findOne({
+//             $or: [
+//                 { username },
+//                 { userProfile },
+//                 { email },
+//             ]
+//         });
+//         if (!findUser) {
+//             throw new Error("User not found")
+//         }
+//         console.log(findUser);
+//         res.status(200).send(findUser);
+//     } catch (error) {
+//         res.status(500).send(error);
+//     }
+// };
+
+const searchDriver = async (req, res) => {
+  try {
+    const { username, userProfile, email } = req.query;
+    const searchCriteria = {};
+
+    if (username) searchCriteria.username = username;
+    if (userProfile) searchCriteria.userProfile = userProfile;
+    if (email) searchCriteria.email = email;
+
+    const users = await Driver.find(searchCriteria); // Adjust this line to match your actual database query method
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching specific user:', error);
+    res.status(500).send({ message: 'Server Error' });
+  }
+};
+
+
+
+
+
+// Read All USERS Route- GET request
+const allDrivers = async (req, res, next) => {
+  try {
+    let { page, size } = req.query;
+    page = parseInt(page) || 1;
+    size = parseInt(size) || 5;
+
+    const limit = size;
+    const skip = (page - 1) * size;
+    const totalUsersCount = await Driver.countDocuments();
+    const totalPages = Math.ceil(totalUsersCount / limit);
+    const users = await Driver.find().limit(limit).skip(skip);
+
+    res.status(200).json({
+      users,
+      page,
+      size,
+      totalPages,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//get all users
+// const allUsers = async (req, res) => {
+//     try {
+//         const users = await User.find();
+//         console.log(users);
+//         res.status(200).send(users)
+//     } catch (error) {
+//         res.status(500).send(error)
+//     }
+// }
+//Update USER  Route- PATCH request
+// const updateUser = async(req,res)=>{
+//   const updates = Object.keys(req.body)
+//   console.log(updates);
+//     const allowedUpdates=["username","userProfile","email","phone"]
+//     const isValidOperation = updates.every((upData)=>allowedUpdates.includes(upData))
+//     if(!isValidOperation){
+//       return res.status(404).send("Invalid Update!")
+//     }
+//     try {
+//       console.log(User);
+//       console.log(req.params);
+//         const id = req.body.id
+//         const user = await User.findById(id);
+//         console.log(user);
+//        if(!user){
+//         return res.status(404).send()
+//        }
+//         updates.forEach((update)=>user[update] = req.body[update])
+//         await user.save()
+//         res.status(200).send({ user});
+  
+//       } catch (error) {
+//         res.send(error)
+//       }
+// }
+
+const updateDriver = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { userId, userProfile, username, email, phone, countryCode } = req.body;
+    // console.log({userId, userProfile, username, email, phone, countryCode});
+    const user = await Driver.findByIdAndUpdate(
+      userId, 
+      {
+        userProfile,
+        username,
+        email,
+        phone,
+        countryCode
+      }, 
+      { new: true } // This option ensures the updated document is returned
+    );
+    console.log(user);
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+// //Delete USER Route- DEL request
+const deleteDriver =  async(req,res)=>{
+    try {
+        const user = await Driver.findByIdAndDelete(req.params.id)
+        console.log(req.params.id);
+        res.status(200).send(user)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
+
+module.exports= {createNewDriver, allDrivers, updateDriver, deleteDriver, searchDriver}
