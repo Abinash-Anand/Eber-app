@@ -13,18 +13,15 @@ export class AppComponent implements OnInit, OnDestroy {
   private loginStatusSubscription: Subscription;
 
   constructor(private loginService: LoginService) { }
- 
+
   ngOnInit() {
-    // Subscribe to loginStatus$ to update isLoggedIn in AppComponent
-    this.loginStatusSubscription = this.loginService.loginStatus$.subscribe((status) => {
+    this.loginStatusSubscription = this.loginService.loginStatus$.subscribe(status => {
       this.isLoggedIn = status;
       console.log('Login status changed:', status);
-      // Handle any logic based on login status change
     });
   }
 
   ngOnDestroy() {
-    // Remember to unsubscribe to prevent memory leaks
     this.loginStatusSubscription.unsubscribe();
   }
 

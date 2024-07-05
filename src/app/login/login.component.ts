@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ViewChild } from '@angular/core';
 import { LoginService } from '../services/authentication/login.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
@@ -8,7 +8,7 @@ import { NgForm } from '@angular/forms';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements AfterViewInit {
   @ViewChild('form') loginCreds: NgForm;
   login: boolean = false;
   wrongCredentials: boolean = false;
@@ -18,7 +18,9 @@ export class LoginComponent {
     private router: Router,
     private route: ActivatedRoute
   ) {}
-
+  ngAfterViewInit() {
+  
+}
   onLogin() {
     console.log(this.loginCreds.value);
     const user = {
@@ -30,8 +32,10 @@ export class LoginComponent {
       next: (response) => {
         console.log(response);
         if (response.status === 200) {
+          const token = response.body.token; // Adjust based on your backend response
+          localStorage.setItem('token', token);
           this.login = true;
-          this.loginService.setLoginStatus(true); // Update login status
+          this.loginService.setLoginStatus(true);
           setTimeout(() => {
             this.router.navigate(['/'], { relativeTo: this.route });
           }, 2500);
@@ -48,13 +52,5 @@ export class LoginComponent {
         }
       }
     });
-    
   }
-  logoutUser() {
-  localStorage.removeItem('token');
-  this.router.navigate(['/login']);
-  console.log("session expired");
-  this.loginService.setLoginStatus(false); // Update login status
-}
-
 }

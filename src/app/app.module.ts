@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
-import { HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -37,6 +37,7 @@ import { VehicleTypeService } from './services/vehicleType.service.ts/vehicle-ty
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 import { CountryApiService } from './services/countryApi.service.ts/country-api.service';
 import { CommonModule, LowerCasePipe } from '@angular/common';
+import { AuthInterceptor } from './shared/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -88,7 +89,8 @@ import { CommonModule, LowerCasePipe } from '@angular/common';
     ZonesService,
     VehicleTypeService,
     CountryApiService,
-    LowerCasePipe
+    LowerCasePipe,
+     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
   ],
   bootstrap: [AppComponent]
 })

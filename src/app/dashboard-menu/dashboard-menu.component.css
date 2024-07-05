@@ -83,3 +83,9 @@ ul>li,
         /* Adjust the top margin */
     }
 }
+
+.inactive-timer{
+    border: 1px solid white;
+    color: white;
+    margin: auto 40% auto auto  ;
+}

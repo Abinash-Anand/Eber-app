@@ -6,7 +6,7 @@ function setUser(user) {
         return jwt.sign({
             _id: user._id,
             email: user.email
-        }, secretKey, { expiresIn: '1m' }); // Token expires in 1 hour
+        }, secretKey, { expiresIn: '20m' }); // Token expires in 1 hour
     } catch (error) {
         return null;
     }
