@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, viewChild, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { SignupService } from '../../services/authentication/signup.service';
 import { UserService } from '../../services/users/user.service';
@@ -17,6 +17,7 @@ import { CityService } from '../../services/city/city.service';
 export class DriverListComponent implements OnInit {
   driverCreated: boolean = false;
   @ViewChild('form') formData: NgForm
+  @ViewChild('updateForm') updateForm:NgForm
   users: Signup[] = [];
   userObject: User = {
     userProfile: '',
@@ -39,7 +40,7 @@ export class DriverListComponent implements OnInit {
   countries: Country[] = [];
   selectedCountryId: string | null = null;
   selectedCityId: string | null = null; // To store the selected city's ID
-  
+  driverIndex: string = null;
   filteredCityArray = []; // Array to hold filtered cities
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string, userId: string,
@@ -226,7 +227,27 @@ onSearchUser() {
       }
     );
   }
-
-
+  loveEditingThings(index:any) {
+    console.log(index);
+    this.driverIndex = index
+}
+  onUpdateDriver() {
+    console.log(this.updateForm);
+    const driverObject = {
+       userId: this.driverIndex,
+       driverProfile: this.updateForm.value.driverProfile,
+       driverName: this.updateForm.value.driverName,
+       driverEmail: this.updateForm.value.driverEmail,
+       driverPhone: this.updateForm.value.driverPhone,
+       countryCode: this.updateForm.value.countryCode,
+       city: this.updateForm.value.city
+    }
+    console.log(driverObject);
+    
+    this.driverListService.updateUser(driverObject).subscribe((updatedDriver) => {
+      // console.log(updatedDriver.body);
+      this.getAllUsers()
+    })
+  }
 
 }

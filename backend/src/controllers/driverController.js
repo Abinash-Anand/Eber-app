@@ -150,7 +150,7 @@ const allDrivers = async (req, res, next) => {
 const updateDriver = async (req, res) => {
   try {
     console.log(req.body);
-    const { userId, userProfile, username, email, phone, countryCode } = req.body;
+    const { userId, userProfile, username, email, phone, countryCode, city } = req.body;
     // console.log({userId, userProfile, username, email, phone, countryCode});
     const user = await Driver.findByIdAndUpdate(
       userId, 
@@ -159,15 +159,16 @@ const updateDriver = async (req, res) => {
         username,
         email,
         phone,
-        countryCode
+        countryCode,
+        city
       }, 
       { new: true } // This option ensures the updated document is returned
     );
     console.log(user);
 
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
+    // if (!user) {
+    //   return res.status(404).send("User not found");
+    // }
 
     res.status(200).send(user);
   } catch (error) {

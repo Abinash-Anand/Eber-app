@@ -28,6 +28,12 @@ const vehicleTypeSchema = new mongoose.Schema({
             required: true
         }
     },
+    // city: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref:'zoneModel',
+    //     required: true,
+        
+    // }
 
 });
 

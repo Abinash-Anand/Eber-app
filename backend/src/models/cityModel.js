@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 const { type } = require('os');
 const zoneSchema = new mongoose.Schema({
     countryId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Country',
         required: true,
-        trim: true,
 
     },
     country: {

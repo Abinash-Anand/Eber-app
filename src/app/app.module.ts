@@ -41,7 +41,6 @@ import { HomeComponent } from './home/home.component';
 import { LoginService } from './services/authentication/login.service';
 import { SignupService } from './services/authentication/signup.service';
 import { CityService } from './services/city/city.service';
-import { DriverService } from './services/drivers/driver.service';
 import { DriverlistService } from './services/drivers/driverlist.service';
 import { UserService } from './services/users/user.service';
 import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
@@ -99,10 +98,8 @@ import { cityVehicleTypeService } from './services/city-vehicle-type-association
     CountryApiService,
     LowerCasePipe,
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
-    LoginService,
     SignupService,
     CityService,
-    DriverService,
     DriverlistService,
     UserService,
     cityVehicleTypeService,

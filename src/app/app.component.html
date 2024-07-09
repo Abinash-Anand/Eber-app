@@ -3,7 +3,16 @@
     <app-dashboard-menu (loginEvent)="stateChange()" *ngIf="isLoggedIn; else redirect"  ></app-dashboard-menu>
     <!-- <app-login *ngIf="!isLoggedIn"></app-login> -->
     <ng-template #redirect>
-        <app-login></app-login>
+        <!-- <div class="row"> -->
+            <!-- <div class="col-6"> -->
+
+                <app-login></app-login>
+            <!-- </div> -->
+            <!-- <div class="col-sm">
+
+                <app-signup></app-signup>
+            </div> -->
+        <!-- </div> -->
     </ng-template>
     
     

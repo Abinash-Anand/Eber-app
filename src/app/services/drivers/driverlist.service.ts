@@ -29,7 +29,7 @@ export class DriverlistService {
       .set('username', searchObject.searchBy === 'username' ? searchObject.searchInput : '')
       .set('userProfile', searchObject.searchBy === 'userProfile' ? searchObject.searchInput : '')
       .set('email', searchObject.searchBy === 'email' ? searchObject.searchInput : '');
-    return this.http.get<User[]>(`${environment.backendServerPORT}/driver/specific-user`, { params });
+    return this.http.get<User[]>(`${environment.backendServerPORT}/driver/specific-driver`, { params });
   }
     updateUser(userData) {
       return this.http.patch<any>(`${environment.backendServerPORT}/driver/update-driver`, userData,{observe:'response'})
