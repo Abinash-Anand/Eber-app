@@ -32,7 +32,12 @@ export class MapsComponent implements OnInit, AfterViewInit {
     
   this.getUserLocation();
     }
+  getUserLiveLocation() {
+    console.log("geolocation activated");
     
+      this.getUserLocation()
+    }
+  
     ngAfterViewInit() {
       // Initialize the map after the view has been initialized
       this.initializeMap();
