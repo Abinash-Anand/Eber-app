@@ -24,7 +24,6 @@ import { CityComponent } from './pricing/city/city.component';
 import { VehicleTypeComponent } from './pricing/vehicle-type/vehicle-type.component';
 import { VehiclePricingComponent } from './pricing/vehicle-pricing/vehicle-pricing.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
-import { HomeComponent } from './home/home.component';
 import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
 import { GoogleMapsModule } from '@angular/google-maps';
@@ -38,6 +37,14 @@ import { CountryListComponent } from './pricing/country/country-list/country-lis
 import { CountryApiService } from './services/countryApi.service.ts/country-api.service';
 import { CommonModule, LowerCasePipe } from '@angular/common';
 import { AuthInterceptor } from './shared/auth.interceptor';
+import { HomeComponent } from './home/home.component';
+import { LoginService } from './services/authentication/login.service';
+import { SignupService } from './services/authentication/signup.service';
+import { CityService } from './services/city/city.service';
+import { DriverService } from './services/drivers/driver.service';
+import { DriverlistService } from './services/drivers/driverlist.service';
+import { UserService } from './services/users/user.service';
+import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
 
 @NgModule({
   declarations: [
@@ -66,6 +73,7 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     VehicleListComponent,
     CityListComponent,
     CountryListComponent,
+   
 
   ],
   imports: [
@@ -90,7 +98,15 @@ import { AuthInterceptor } from './shared/auth.interceptor';
     VehicleTypeService,
     CountryApiService,
     LowerCasePipe,
-     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
+    LoginService,
+    SignupService,
+    CityService,
+    DriverService,
+    DriverlistService,
+    UserService,
+    cityVehicleTypeService,
+
   ],
   bootstrap: [AppComponent]
 })

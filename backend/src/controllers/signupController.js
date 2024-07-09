@@ -40,7 +40,8 @@ const loginUser = async (req, res, next) => {
         res.cookie('uid', token, {
             httpOnly: false,
             secure: false, // Ensure this is false for HTTP
-            sameSite: 'None' // Allow cross-site cookies
+            sameSite: 'None', // Allow cross-site cookies
+            maxAge: 60 * 1000
         });
         console.log('Cookie set with token');
         res.status(200).send({ message: 'Login successful' ,token});

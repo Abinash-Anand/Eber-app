@@ -1,4 +1,6 @@
+
 <div class="container-fluid ">
+
     <div class="row">
         <!-- Sidebar -->
         <nav class="col-md-2 col-sm-12 d-block mt-5   sidebar">
@@ -111,10 +113,20 @@
                     </li>
                 </ul>
             </div>
+           
+            <div class="logout">
+                <button class="btn mt-5 btn-danger px-4 logout"
+                (click)="onLogout()">
+                    Logout
+                </button>
+            </div>
         </nav>
 
         <!-- Sub-component -->
         <div class="col-lg-10 col-md-10 col-sm-12 sub-component mr-sm-5 pr-5">
+            <div class="alert mt-2 alert-warning text-dark" *ngIf="logoutState" role="alert">
+                User Logged Out
+            </div>
             <router-outlet></router-outlet>
         </div>
     </div>

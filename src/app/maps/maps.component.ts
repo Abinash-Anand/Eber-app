@@ -20,7 +20,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
   map: google.maps.Map;
   google: any;
   activeInput: 'from' | 'to' | 'search' = 'from'; // Updated activeInput type
-  activeClass: boolean = false;
+  activeClass: boolean = false;   
   totalDistance: string = '';
   EstimatedTime: string = '';
 
@@ -90,6 +90,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
 
 
   onSuggestionClick(suggestion: google.maps.places.QueryAutocompletePrediction, type: 'from' | 'to'| 'search') {
+    this.mapService.clearMarkers()
     if (type === 'search') {
       this.fromAddress = suggestion.description
       if (typeof window !== 'undefined') {
@@ -178,5 +179,6 @@ export class MapsComponent implements OnInit, AfterViewInit {
     // Toggle the active class when a direction is selected
     this.activeClass = !this.activeClass;
   }
+  
 
 }

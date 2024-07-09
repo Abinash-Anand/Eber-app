@@ -202,4 +202,3 @@ export class CityComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.push(zonesSub);
   }
 }
-

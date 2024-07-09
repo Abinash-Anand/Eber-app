@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { DistanceTimeService } from './distancetime.service';
 import { GoogleMapsLoaderService } from './google-maps-loader.service';
 import { ZonesService } from './zones.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +12,10 @@ export class MapService {
 
   private autocompleteService: google.maps.places.AutocompleteService;
   private geocoder: google.maps.Geocoder;
+  private directionsRenderer: google.maps.DirectionsRenderer; // Added directionsRenderer
+  private markers: google.maps.Marker[] = []; // Array to keep track of markers
+
+  private destroy$ = new Subject<void>(); // Subject to handle unsubscription
 
   constructor(
     private distanceTimeService: DistanceTimeService, 
@@ -19,6 +24,7 @@ export class MapService {
   ) {
     this.initAutocompleteService();
     this.initGeocoder();
+    this.initDirectionsRenderer(); // Initialize directionsRenderer
   }
 
   private initAutocompleteService() {
@@ -30,6 +36,12 @@ export class MapService {
   private initGeocoder() {
     this.googleMapsLoaderService.load().then(() => {
       this.geocoder = new google.maps.Geocoder();
+    });
+  }
+
+  private initDirectionsRenderer() {
+    this.googleMapsLoaderService.load().then(() => {
+      this.directionsRenderer = new google.maps.DirectionsRenderer();
     });
   }
 
@@ -63,6 +75,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): Promise<google.maps.Map> {
     return this.googleMapsLoaderService.load().then(() => {
       const map = this.initializeMap(mapElement, location, onMarkerDragEnd);
+      this.directionsRenderer.setMap(map); // Set the map for directionsRenderer
       this.zonesService.createNewZone(map);
       return map;
     }).catch((err) => {
@@ -84,6 +97,8 @@ export class MapService {
       draggable: true,
       title: 'Current Location'
     });
+
+    this.markers.push(marker); // Track the marker
 
     google.maps.event.addListener(marker, 'dragend', (event: google.maps.KmlMouseEvent) => {
       onMarkerDragEnd({
@@ -140,6 +155,9 @@ export class MapService {
         url: `http://maps.google.com/mapfiles/ms/icons/${color}-dot.png`
       }
     });
+
+    this.markers.push(marker); // Track the marker
+
     return marker;
   }
 
@@ -161,9 +179,15 @@ export class MapService {
   }
 
   renderDirections(map: google.maps.Map, directions: google.maps.DirectionsResult) {
-    const directionsRenderer = new google.maps.DirectionsRenderer();
-    directionsRenderer.setMap(map);
-    directionsRenderer.setDirections(directions);
+    this.directionsRenderer.setMap(null); // Clear existing directions
+    this.directionsRenderer.setMap(map); // Set new map
+    this.directionsRenderer.setDirections(directions);
+  }
+
+  clearMarkers() {
+    // Clear all markers from the map
+    this.markers.forEach(marker => marker.setMap(null));
+    this.markers = []; // Reset the markers array
   }
 
   addPolygon(map: google.maps.Map, coords: { lat: number, lng: number }[]): google.maps.Polygon {
@@ -174,7 +198,7 @@ export class MapService {
       strokeWeight: 2,
       fillColor: '#FF0000',
       fillOpacity: 0.35,
-      editable:true
+      editable: true
     });
     polygon.setMap(map);
     return polygon;

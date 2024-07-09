@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
   providedIn: 'root'
 })
 export class LoginService {
+  timer = 20;
   private loginStatusSubject = new BehaviorSubject<boolean>(this.hasToken());
   loginStatus$ = this.loginStatusSubject.asObservable();
 
@@ -25,7 +26,7 @@ export class LoginService {
       return false;
     }
   }
-
+  
   logoutUser() {
     try {
       localStorage.removeItem('token');
@@ -52,5 +53,19 @@ export class LoginService {
 
   private handleError(error: HttpErrorResponse) {
     return throwError(() => error);
+  }
+  autoLoguot() {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        return true;
+      }
+      localStorage.removeItem('token')
+      console.warn("your Session Cookie has Expired!");
+      this.setLoginStatus(false);
+      this.router.navigate(['/login']);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
