@@ -5,6 +5,7 @@ import { CityService } from '../../services/city/city.service';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { Vehicle } from '../../shared/vehicle';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { LowerCasePipe } from '@angular/common';
 
 @Component({
   selector: 'app-vehicle-pricing',
@@ -20,7 +21,8 @@ export class VehiclePricingComponent implements OnInit {
   selectedCityId: string | null = null; // To store the selected city's ID
   vehicleTypes: Vehicle[] = []; // To store the available vehicle types
   vehicleTypeArray: { vehicleType: string }[] = []
-  @ViewChild('selectedtype') selectedtype: ElementRef     
+  vehicleId: string = ''; 
+  maxCapacity: number = null;
   pricingControls = [
     { name: 'driverProfit', label: 'Driver Profit', placeholder: 'Driver Profit' },
     { name: 'minFare', label: 'Min. Fare', placeholder: 'Min. Fare' },
@@ -52,7 +54,7 @@ export class VehiclePricingComponent implements OnInit {
       basePrice: [{value: 20, disabled:true}, [Validators.required, Validators.min(0)]],
       pricePerUnitDistance: [{value: 10, disabled:true}, [Validators.required, Validators.min(0)]],
       pricePerUnitTime: [{value: 1, disabled:true}, [Validators.required, Validators.min(0)]],
-      maxSpace: [{value:0}, [Validators.required, Validators.min(0)]],
+      maxSpace: [{value:this.maxCapacity|| 0, disabled:true}, [Validators.required, Validators.min(0)]],
     });
     
   }
@@ -107,6 +109,7 @@ export class VehiclePricingComponent implements OnInit {
     this.cd.detectChanges();
     
     
+    
   }
   
     getVehicleData() {
@@ -132,14 +135,35 @@ export class VehiclePricingComponent implements OnInit {
   }
 
    onSubmit() {
-    if (this.pricingForm.valid) {
+     if (this.pricingForm.valid) {
+      this.pricingForm.enable()
       console.log('Form Submitted!', this.pricingForm.value);
     } else {
       console.log('Form is invalid');
-    }
+     }
+     this.pricingForm.disable()
   }
-  getSelectedVehicleType(vehicleType) {
-    console.log(vehicleType);
+    getSelectedVehicleType(event: Event) {
+    const vehicleType = (event.target as HTMLSelectElement).value;
+    this.vehicleId = vehicleType;
+      console.log(this.vehicleId);
+      if ((this.vehicleId) === 'HatchBack') {
+        this.maxCapacity = 5;
+        console.log("inside hatchback");
+        
+      }
+      if (this.vehicleId === 'Sedan') {
+        this.maxCapacity = 5;
+        console.log("inside sedan");
+        
+      }
+      if (this.vehicleId === 'SUV') {
+        this.maxCapacity = 7;
+        console.log("inside suv");
+      }
+      // Update the maxSpace form control value and enable it
+    this.pricingForm.get('maxSpace').setValue(this.maxCapacity);
+      this.pricingForm.get('maxSpace').disable();
     
   }
   }

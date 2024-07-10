@@ -23,10 +23,10 @@
                 <!-- Dropdown for selecting vehicle type -->
                 <div class="mb-3">
                     <label for="vehicleTypeSelect" class="form-label">Select Vehicle Type</label>
-                    <select id="vehicleTypeSelect" class="form-select" formControlName="vehicleType">
+                    <select id="vehicleTypeSelect" class="form-select" formControlName="vehicleType"
+                        (change)="getSelectedVehicleType($event)">
                         <option value="" disabled selected>Select Vehicle Type</option>
-                        <option *ngFor="let vehicle of vehicleTypeArray"
-                        (click)="getSelectedVehicleType(vehicle._id)"  [value]="vehicle._id">{{vehicle}}</option>
+                        <option *ngFor="let vehicle of vehicleTypeArray" [value]="vehicle">{{vehicle}}</option>
                     </select>
                 </div>
                 <!-- Pricing inputs for each pricing type -->
