@@ -1,9 +1,10 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CountryApiService } from '../../services/countryApi.service.ts/country-api.service';
 import { Country } from '../../shared/country';
 import { CityService } from '../../services/city/city.service';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { Vehicle } from '../../shared/vehicle';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-vehicle-pricing',
@@ -11,22 +12,48 @@ import { Vehicle } from '../../shared/vehicle';
   styleUrls: ['./vehicle-pricing.component.css']
 })
 export class VehiclePricingComponent implements OnInit {
+    pricingForm: FormGroup;
   countries: Country[] = [];
   cityArray = [];
   filteredCityArray = []; // Array to hold filtered cities
   selectedCountryId: string | null = null;
   selectedCityId: string | null = null; // To store the selected city's ID
   vehicleTypes: Vehicle[] = []; // To store the available vehicle types
-  vehicleTypeArray: {vehicleType:string}[] = []
+  vehicleTypeArray: { vehicleType: string }[] = []
+  @ViewChild('selectedtype') selectedtype: ElementRef     
+  pricingControls = [
+    { name: 'driverProfit', label: 'Driver Profit', placeholder: 'Driver Profit' },
+    { name: 'minFare', label: 'Min. Fare', placeholder: 'Min. Fare' },
+    { name: 'distanceForBasePrice', label: 'Distance For Base Price', placeholder: 'Distance For Base Price' },
+    { name: 'basePrice', label: 'Base Price', placeholder: 'Base Price' },
+    { name: 'pricePerUnitDistance', label: 'Price Per Unit Distance', placeholder: 'Price Per Unit Distance' },
+    { name: 'pricePerUnitTime', label: 'Price Per Unit Time(min)', placeholder: 'Price Per Unit Time(min)' },
+    { name: 'maxSpace', label: 'Max Space', placeholder: 'Max Space' },
+  ];
+
+
   constructor(
     private countryApiService: CountryApiService,
     private cityService: CityService,
     private cd: ChangeDetectorRef,
-    private vehicleTypeService: VehicleTypeService
+    private vehicleTypeService: VehicleTypeService,
+    private fb : FormBuilder
   ) {}
 
   ngOnInit(): void {
     this.getCountries();
+    this.pricingForm = this.fb.group({
+      country: ['', Validators.required],
+      city: ['', Validators.required],
+      vehicleType: ['', Validators.required],
+      driverProfit: [{value: 80, disabled:true}, [Validators.required, Validators.min(0)]],
+      minFare: [{value: 25, disabled:true}, [Validators.required, Validators.min(0)]],
+      distanceForBasePrice: [{value: 1, disabled:true}, [Validators.required, Validators.min(0)]],
+      basePrice: [{value: 20, disabled:true}, [Validators.required, Validators.min(0)]],
+      pricePerUnitDistance: [{value: 10, disabled:true}, [Validators.required, Validators.min(0)]],
+      pricePerUnitTime: [{value: 1, disabled:true}, [Validators.required, Validators.min(0)]],
+      maxSpace: [{value:0}, [Validators.required, Validators.min(0)]],
+    });
     
   }
 
@@ -76,8 +103,9 @@ export class VehiclePricingComponent implements OnInit {
 
   getVehicleTypesByCity() {  
     this.vehicleTypeArray = this.vehicleTypeService.vehicleTypeArray
-    this.getVehicleData()
+    this.getVehicleData() 
     this.cd.detectChanges();
+    
     
   }
   
@@ -95,11 +123,24 @@ export class VehiclePricingComponent implements OnInit {
         
         this.vehicleTypeArray = [...new Set(vehicleType)]
         console.log(this.vehicleTypeArray);
+        
       },
       (error: any) => {
         console.error('Error fetching vehicles:', error);
       }
     );
+  }
+
+   onSubmit() {
+    if (this.pricingForm.valid) {
+      console.log('Form Submitted!', this.pricingForm.value);
+    } else {
+      console.log('Form is invalid');
+    }
+  }
+  getSelectedVehicleType(vehicleType) {
+    console.log(vehicleType);
+    
   }
   }
 

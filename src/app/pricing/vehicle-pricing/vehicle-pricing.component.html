@@ -1,11 +1,12 @@
 <div class="container text-white p-3 ml-3">
     <div class="row">
         <div class="col-12 col-md-6 bg-dark p-3">
-            <form>
+            <form [formGroup]="pricingForm" (ngSubmit)="onSubmit()">
                 <!-- Dropdown for selecting country -->
                 <div class="mb-3">
                     <label for="countrySelect" class="form-label">Select Country</label>
-                    <select id="countrySelect" class="form-select" (change)="onCountryChange($event)">
+                    <select id="countrySelect" class="form-select" formControlName="country"
+                        (change)="onCountryChange($event)">
                         <option value="" disabled selected>Select Country</option>
                         <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
                         </option>
@@ -14,7 +15,7 @@
                 <!-- Dropdown for selecting city/zone -->
                 <div class="mb-3">
                     <label for="citySelect" class="form-label">Select City/Zone</label>
-                    <select id="citySelect" class="form-select" (change)="onCityChange($event)">
+                    <select id="citySelect" class="form-select" formControlName="city" (change)="onCityChange($event)">
                         <option value="" disabled selected>Select City/Zone</option>
                         <option *ngFor="let city of filteredCityArray" [value]="city._id">{{city.city}}</option>
                     </select>
@@ -22,31 +23,20 @@
                 <!-- Dropdown for selecting vehicle type -->
                 <div class="mb-3">
                     <label for="vehicleTypeSelect" class="form-label">Select Vehicle Type</label>
-                    <select id="vehicleTypeSelect" class="form-select">
+                    <select id="vehicleTypeSelect" class="form-select" formControlName="vehicleType">
                         <option value="" disabled selected>Select Vehicle Type</option>
-                        <option *ngFor="let vehicle of vehicleTypeArray" [value]="vehicle._id">{{vehicle}}
-                        </option>
+                        <option *ngFor="let vehicle of vehicleTypeArray"
+                        (click)="getSelectedVehicleType(vehicle._id)"  [value]="vehicle._id">{{vehicle}}</option>
                     </select>
                 </div>
                 <!-- Pricing inputs for each pricing type -->
-                <div class="mb-3">
-                    <label class="form-label">Time Price</label>
-                    <input type="number" class="form-control" placeholder="Time Price">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Distance Price</label>
-                    <input type="number" class="form-control" placeholder="Distance Price">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Min Price</label>
-                    <input type="number" class="form-control" placeholder="Min Price">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Driver Profit</label>
-                    <input type="number" class="form-control" placeholder="Driver Profit">
+                <div class="mb-3" *ngFor="let control of pricingControls">
+                    <label class="form-label">{{control.label}}</label>
+                    <input type="number" class="form-control" [placeholder]="control.placeholder"
+                        [formControlName]="control.name">
                 </div>
                 <!-- Button to submit pricing -->
-                <button type="submit" class="btn btn-primary">Set Pricing</button>
+                <button type="submit" class="btn btn-primary" [disabled]="pricingForm.invalid">Set Pricing</button>
             </form>
         </div>
     </div>
