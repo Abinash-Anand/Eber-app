@@ -35,7 +35,9 @@
     const params = new HttpParams()
       .set('username', searchObject.searchBy === 'username' ? searchObject.searchInput : '')
       .set('userProfile', searchObject.searchBy === 'userProfile' ? searchObject.searchInput : '')
-      .set('email', searchObject.searchBy === 'email' ? searchObject.searchInput : '');
+      .set('email', searchObject.searchBy === 'email' ? searchObject.searchInput : '')
+      .set('phone', searchObject.searchBy === 'phone' ? searchObject.searchInput : null);
+
     return this.http.get<User[]>(`${environment.backendServerPORT}/user/specific-user`, { params });
   }
     updateUser(userData) {

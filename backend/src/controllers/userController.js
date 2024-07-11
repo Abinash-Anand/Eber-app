@@ -67,12 +67,14 @@ const createNewUser = async (req, res) => {
 
 const searchUser = async (req, res) => {
   try {
-    const { username, userProfile, email } = req.query;
+    const { username, userProfile, email, phone } = req.query;
     const searchCriteria = {};
 
     if (username) searchCriteria.username = username;
     if (userProfile) searchCriteria.userProfile = userProfile;
     if (email) searchCriteria.email = email;
+    if (phone) searchCriteria.phone = phone;
+
 
     const users = await User.find(searchCriteria); // Adjust this line to match your actual database query method
     res.status(200).json(users);

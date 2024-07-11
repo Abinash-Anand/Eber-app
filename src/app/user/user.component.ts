@@ -48,7 +48,7 @@ export class UserComponent implements OnInit {
     userProfile: '', username: '', email: '', phone: '', countryCode: ''
   }
 
-  searchObject: { searchBy: string, searchInput: string } = { searchBy: '', searchInput: '' }
+  searchObject: { searchBy: string, searchInput: any } = { searchBy: '', searchInput: null }
 
   @ViewChild('searchForm') searchFormData!: NgForm;
   @ViewChild('form') userForm!: NgForm;

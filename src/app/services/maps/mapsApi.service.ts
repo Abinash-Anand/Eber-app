@@ -12,10 +12,10 @@ export class MapService {
 
   private autocompleteService: google.maps.places.AutocompleteService;
   private geocoder: google.maps.Geocoder;
-  private directionsRenderer: google.maps.DirectionsRenderer; // Added directionsRenderer
-  private markers: google.maps.Marker[] = []; // Array to keep track of markers
+  private directionsRenderer: google.maps.DirectionsRenderer;
+  private markers: google.maps.Marker[] = [];
 
-  private destroy$ = new Subject<void>(); // Subject to handle unsubscription
+  private destroy$ = new Subject<void>();
 
   constructor(
     private distanceTimeService: DistanceTimeService, 
@@ -24,7 +24,7 @@ export class MapService {
   ) {
     this.initAutocompleteService();
     this.initGeocoder();
-    this.initDirectionsRenderer(); // Initialize directionsRenderer
+    this.initDirectionsRenderer();
   }
 
   private initAutocompleteService() {
@@ -75,7 +75,7 @@ export class MapService {
     onMarkerDragEnd: (location: { lat: number, lng: number }) => void): Promise<google.maps.Map> {
     return this.googleMapsLoaderService.load().then(() => {
       const map = this.initializeMap(mapElement, location, onMarkerDragEnd);
-      this.directionsRenderer.setMap(map); // Set the map for directionsRenderer
+      this.directionsRenderer.setMap(map);
       this.zonesService.createNewZone(map);
       return map;
     }).catch((err) => {
@@ -98,7 +98,7 @@ export class MapService {
       title: 'Current Location'
     });
 
-    this.markers.push(marker); // Track the marker
+    this.markers.push(marker);
 
     google.maps.event.addListener(marker, 'dragend', (event: google.maps.KmlMouseEvent) => {
       onMarkerDragEnd({
@@ -156,18 +156,19 @@ export class MapService {
       }
     });
 
-    this.markers.push(marker); // Track the marker
+    this.markers.push(marker);
 
     return marker;
   }
 
-  getDirections(fromLocation: { lat: number, lng: number }, toLocation: { lat: number, lng: number }): Promise<google.maps.DirectionsResult> {
+  getDirections(fromLocation: { lat: number, lng: number }, toLocation: { lat: number, lng: number }, waypoints: google.maps.DirectionsWaypoint[] = []): Promise<google.maps.DirectionsResult> {
     return new Promise((resolve, reject) => {
       const directionsService = new google.maps.DirectionsService();
       directionsService.route({
         origin: new google.maps.LatLng(fromLocation.lat, fromLocation.lng),
         destination: new google.maps.LatLng(toLocation.lat, toLocation.lng),
-        travelMode: google.maps.TravelMode.DRIVING // Default travel mode
+        waypoints: waypoints,
+        travelMode: google.maps.TravelMode.DRIVING
       }, (result, status) => {
         if (status === google.maps.DirectionsStatus.OK) {
           resolve(result);
@@ -185,9 +186,8 @@ export class MapService {
   }
 
   clearMarkers() {
-    // Clear all markers from the map
     this.markers.forEach(marker => marker.setMap(null));
-    this.markers = []; // Reset the markers array
+    this.markers = [];
   }
 
   addPolygon(map: google.maps.Map, coords: { lat: number, lng: number }[]): google.maps.Polygon {
