@@ -82,7 +82,7 @@ const searchUser = async (req, res) => {
     console.error('Error fetching specific user:', error);
     res.status(500).send({ message: 'Server Error' });
   }
-};
+}; 
 
 module.exports = { searchUser };
 

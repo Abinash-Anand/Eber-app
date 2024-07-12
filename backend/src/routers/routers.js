@@ -9,7 +9,8 @@ const { createVehicleCityAssociation, VehicleTypesByCity } = require('../control
 const { createNewUser, allUsers, updateUser, deleteUser, searchUser } = require('../controllers/userController');
 const { createNewDriver, allDrivers, updateDriver, deleteDriver, searchDriver } = require('../controllers/driverController');
 const auth = require('../middlewares/authMiddleware');
-
+const { setPricing, getAllPricing } = require('../controllers/pricingController')
+const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -74,4 +75,12 @@ router.patch('/driver/update-driver', updateDriver);
 //5. delete User
 router.delete('/driver/delete-driver/:id', deleteDriver);
 
+//--------------------------Setting Pricing Routes--------------------------------
+//1.Post 
+router.post('/submit-pricing', setPricing);
+router.get('/get-pricing-data', getAllPricing)
+//-----------------------------Setting Settings of the App------------------------
+router.post('/set-settings', setSettings)
+router.get('/check-settings/:id', searchDefaultSettings);
+router.patch('/update-settings', updateSettings)
 module.exports = router;

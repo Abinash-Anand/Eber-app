@@ -1,9 +1,15 @@
+// create-ride.component.ts
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { UserService } from '../../services/users/user.service';
 import { CreateRideService } from '../../services/rides/create-ride.service';
 import { MapService } from '../../services/maps/mapsApi.service';
 import { SettingsService } from '../../services/settings/settings.service';
+import { VehiclePricingService } from '../../services/pricing/vehicle-pricing.service';
+import { CityService } from '../../services/city/city.service';
+import { Pricing } from '../../shared/pricing';
+import { Zone } from 'zone.js/lib/zone-impl';
+import { PricingArray } from '../../shared/pricing-array';
 
 @Component({
   selector: 'app-create-ride',
@@ -18,7 +24,6 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   stopControls: { control: FormControl }[] = [];
   stopLocations: { address: string, location: { lat: number, lng: number } }[] = [];
   estimate: { time: string, distance: string };
-  serviceTypes: any[] = [];
   userFoundAlert: boolean = false;
   suggestions: google.maps.places.QueryAutocompletePrediction[] = [];
   activeInput: 'pickupLocation' | 'dropOffLocation' | 'stopLocation' = 'pickupLocation';
@@ -36,12 +41,25 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   waypoints: google.maps.DirectionsWaypoint[] = [];
   numberOfStops: number;
   requestAcceptTime: number;
+  serviceTypes: Pricing[] = [];
+  cityMap: { id: string, name: string }[] = [];
+  cities: Zone[] = [];
+  pricings: Pricing[] = [];
+  serviceType: PricingArray={
+    cityName: '', vehicleType: '',
+    distance: null, estimatedTime: null,
+    vehicleImage: '', vehicleName: '',
+    rideTotalFare:null, seatingCapacity: null,
+  }
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private createRideService: CreateRideService,
     private mapService: MapService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private vehiclePricingService: VehiclePricingService,
+    private pricingService: VehiclePricingService,
+    private cityService: CityService
   ) { }
 
   ngOnInit(): void {
@@ -51,14 +69,40 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
       pickupLocation: [{ value: '', disabled: true }],
       dropOffLocation: [{ value: '', disabled: true }],
       serviceType: [{ value: '', disabled: true }],
-      bookingOption: ['',],
+      bookingOption: [''],
       scheduleDateTime: [{ value: '', disabled: true }]
     });
     this.getUserLocation();
+   
   }
 
   ngAfterViewInit() {
     this.initializeMap();
+  }
+
+  loadInitialData(): void {
+    this.cityService.getCitiesData().subscribe(cities => {
+      this.cities = cities.body;
+      cities.body.forEach(city => {
+        this.cityMap.push({ id: city._id, name: city.city });
+      });
+      // console.log(this.cityMap);
+      
+    });
+
+    this.pricingService.getPricingData().subscribe(pricings => {
+      this.pricings = pricings.body;
+    });
+  }
+
+  filterPricingByCityName(cityName) {
+  
+    const value = this.pricings.filter(pricing => {
+      // console.log(pricing.city , ' === ', cityName);
+      return pricing.city === cityName
+    });
+    console.log(value);
+    
   }
 
   fetchUserDetails() {
@@ -78,9 +122,10 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           this.requestForm.get('dropOffLocation').enable();
           this.requestForm.get('serviceType').enable();
           this.requestForm.get('scheduleDateTime').enable();
-          this.numberOfStops = this.settingsService.settingArray[0].numberOfStops
-          this.requestAcceptTime = this.settingsService.settingArray[0].requestAcceptTime
-
+          this.numberOfStops = this.settingsService.settingArray[0].numberOfStops;
+          this.requestAcceptTime = this.settingsService.settingArray[0].requestAcceptTime;
+          this.loadInitialData();
+            console.log( this.cityMap);
         } else {
           this.userError = 'User does not exist';
           this.isFormEnabled = false;
@@ -125,11 +170,30 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.mapService.clearMarkers();
     if (type === 'pickupLocation') {
       this.fromAddress = suggestion.description;
+    
+      
+      const foundCity = this.cityMap.find(city => {
+        const normalizedCityName = city.name.toLowerCase().trim();
+        const normalizedFromAddress = this.fromAddress.toLowerCase().trim();
+
+        return normalizedFromAddress.includes(normalizedCityName);
+      });
+      
+      if (foundCity) {
+        console.log('City found:', foundCity.name);
+      } else {
+        console.log('No city found in the suggestion description');
+      }
+
+      
       this.mapService.geocodeAddress(this.fromAddress).then(results => {
         this.fromLocation = { lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() };
         this.mapService.addMarker(this.map, this.fromLocation, 'Start', 'red');
         if (this.fromLocation && this.toLocation) {
           this.calculateRoute();
+          
+          this.filterPricingByCityName(foundCity.id)
+          console.log(this.pricings);
         }
       }).catch(error => {
         console.error('Error geocoding address:', error);
@@ -224,8 +288,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   }
 
   onSubmit() {
-    console.log('Form Valid:', this.requestForm.valid);  // Log form validity
-    console.log('Form Value:', this.requestForm.value);  // Log form value
+    console.log('Form Valid:', this.requestForm.valid);
+    console.log('Form Value:', this.requestForm.value);
 
     if (this.requestForm.invalid) {
       console.error('Form is invalid');
@@ -244,7 +308,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     formData.totalDistance = this.totalDistance;
     formData.EstimatedTime = this.EstimatedTime;
 
-    console.log('Form Data:', formData);  // Log form data to be submitted
+    console.log('Form Data:', formData);
 
     this.createRideService.bookRide(formData).subscribe(
       response => {

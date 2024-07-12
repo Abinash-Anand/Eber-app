@@ -18,12 +18,13 @@ import { DriversComponent } from './drivers/drivers.component';
 import { RunningRequestComponent } from './drivers/running-request/running-request.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ErrorPageComponent } from './error-page/error-page.component';
-import { HomeComponent } from './home/home.component';
+// import { HomeComponent } from './home/home.component';
 import { VehicleListComponent } from './pricing/vehicle-type/vehicle-list/vehicle-list.component';
 import { CityListComponent } from './pricing/city/city-list/city-list.component';
 import { CountryListComponent } from './pricing/country/country-list/country-list.component';
 import { UserComponent } from './user/user.component';
 import { DriverListComponent } from './drivers/driver-list/driver-list.component';
+import { HomeComponent } from './home/home.component';
 
 const routes: Routes = [
   {path:'', component:HomeComponent},

@@ -1,17 +1,26 @@
 import { Injectable } from '@angular/core';
 import { Settings } from '../../shared/settings';
+import { HttpClient, HttpParams, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService {
 settingArray:[Settings]
-  constructor() { 
-    this.settingArray = [{ requestAcceptTime: 30, numberOfStops: 2 }];
+  constructor(private http:HttpClient) { 
+    this.settingArray = [{ id:"DEFAULT", requestAcceptTime: 30, numberOfStops: 2 }];
   }
-  logArray() {
-  console.log(this.settingArray);
+  postDefaultSettings(settingsObject):Observable<HttpResponse<Settings[]>> {
+  return this.http.post<Settings[]>(`${environment.backendServerPORT}/set-settings`,settingsObject,{observe:'response'} )
   
 }
-
+ getDefaultSettings(id: string): Observable<HttpResponse<Settings>> {
+    return this.http.get<Settings>(`${environment.backendServerPORT}/check-settings/${id}`, { observe: 'response' });
+  }
+  updateDefaultSettings(newSettings): Observable<HttpResponse<Settings[]>> {
+    return this.http.patch<Settings[]>(`${environment.backendServerPORT}/update-settings`,newSettings, {observe:'response'} )
+    
+  }
 }

@@ -67,13 +67,8 @@
 
                 <!-- Service Type List -->
                  <hr>
-                 <h2>Services</h2>
-                 <img src="" alt="carImage">
-                 <ul>
-                    <li>Car Type: Sedan <span>Capacity:4</span></li>
-                    <li>Total Fare: Rs 250</li>
-                    <li>Request Accept Time: {{requestAcceptTime}} sec</li>
-                 </ul>
+           
+
                 <div *ngIf="serviceTypes.length">
                     <label for="serviceType" class="form-label">Service Type</label>
                     <select id="serviceType" formControlName="serviceType" class="form-select">

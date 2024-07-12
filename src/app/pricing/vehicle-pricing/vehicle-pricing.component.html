@@ -7,8 +7,8 @@
                     <label for="countrySelect" class="form-label">Select Country</label>
                     <select id="countrySelect" class="form-select" formControlName="country"
                         (change)="onCountryChange($event)">
-                        <option value="" disabled selected>Select Country</option>
-                        <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                        <option value="" disabled #selectCountryOption selected>Select Country</option>
+                        <option *ngFor="let country of countries" [id]="country._id" [value]="country.countryCode">{{country.name}}
                         </option>
                     </select>
                 </div>

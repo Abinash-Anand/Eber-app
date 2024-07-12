@@ -6,6 +6,8 @@ import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicl
 import { Vehicle } from '../../shared/vehicle';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { LowerCasePipe } from '@angular/common';
+import { Pricing } from '../../shared/pricing';
+import { VehiclePricingService } from '../../services/pricing/vehicle-pricing.service';
 
 @Component({
   selector: 'app-vehicle-pricing',
@@ -13,7 +15,7 @@ import { LowerCasePipe } from '@angular/common';
   styleUrls: ['./vehicle-pricing.component.css']
 })
 export class VehiclePricingComponent implements OnInit {
-    pricingForm: FormGroup;
+  pricingForm: FormGroup;
   countries: Country[] = [];
   cityArray = [];
   filteredCityArray = []; // Array to hold filtered cities
@@ -23,6 +25,10 @@ export class VehiclePricingComponent implements OnInit {
   vehicleTypeArray: { vehicleType: string }[] = []
   vehicleId: string = ''; 
   maxCapacity: number = null;
+  pricingObject: Pricing;
+  countryObjectId: string = '';
+  // @ViewChild('selectCountry') selectCountry: ElementRef;
+  @ViewChild('selectCountryOption') selectCountryOption:ElementRef
   pricingControls = [
     { name: 'driverProfit', label: 'Driver Profit', placeholder: 'Driver Profit' },
     { name: 'minFare', label: 'Min. Fare', placeholder: 'Min. Fare' },
@@ -39,7 +45,8 @@ export class VehiclePricingComponent implements OnInit {
     private cityService: CityService,
     private cd: ChangeDetectorRef,
     private vehicleTypeService: VehicleTypeService,
-    private fb : FormBuilder
+    private fb: FormBuilder,
+    private vehiclePricingService: VehiclePricingService
   ) {}
 
   ngOnInit(): void {
@@ -84,8 +91,10 @@ export class VehiclePricingComponent implements OnInit {
   onCountryChange(event: Event) {
     const selectElement = (event.target as HTMLSelectElement);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
+    console.log(selectedOption.id);
+    
     this.selectedCountryId = selectedOption.value;
-
+    this.countryObjectId = selectedOption.id
     this.filterCitiesByCountry();
   }
 
@@ -137,13 +146,27 @@ export class VehiclePricingComponent implements OnInit {
    onSubmit() {
      if (this.pricingForm.valid) {
       this.pricingForm.enable()
-      console.log('Form Submitted!', this.pricingForm.value);
+       this.pricingObject = this.pricingForm.value
+       this.pricingObject.country = this.countryObjectId
+      console.log('Form Submitted!', this.pricingObject);
+       this.vehiclePricingService.postPricingData(this.pricingObject).subscribe((pricingResponse) => {
+         console.log(pricingResponse);
+        
+       })
+       setTimeout(() => {
+        
+         this.pricingForm.enable()
+       }, 1000);
+
+        //  this.selectCountry.nativeElement.enable()
+         
     } else {
       console.log('Form is invalid');
      }
      this.pricingForm.disable()
   }
-    getSelectedVehicleType(event: Event) {
+    
+  getSelectedVehicleType(event: Event) {
     const vehicleType = (event.target as HTMLSelectElement).value;
     this.vehicleId = vehicleType;
       console.log(this.vehicleId);
@@ -154,11 +177,20 @@ export class VehiclePricingComponent implements OnInit {
       if (this.vehicleId === 'Sedan') {
         this.maxCapacity = 4;
         console.log("inside sedan");
-        
       }
-      if (this.vehicleId === 'SUV') {
+      if (this.vehicleId === 'Electric') {
+        this.maxCapacity = 4;
+        console.log("inside Electric Car");
+      }
+      if (this.vehicleId === 'Rikshaw') {
+        this.maxCapacity = 3;
+        console.log("inside Rikshaw");
+        
+    }
+       if (this.vehicleId === 'SUV') {
         this.maxCapacity = 6;
-        console.log("inside suv");
+        console.log("inside SUV");
+        
       }
       // Update the maxSpace form control value and enable it
     this.pricingForm.get('maxSpace').setValue(this.maxCapacity);

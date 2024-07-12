@@ -1,4 +1,5 @@
 export interface Settings {
+    id:string
     requestAcceptTime: number,
-    numberOfStops:number
+    numberOfStops:number,
 }
