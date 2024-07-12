@@ -148,17 +148,16 @@ export class VehiclePricingComponent implements OnInit {
     this.vehicleId = vehicleType;
       console.log(this.vehicleId);
       if ((this.vehicleId) === 'HatchBack') {
-        this.maxCapacity = 5;
+        this.maxCapacity = 3;
         console.log("inside hatchback");
-        
       }
       if (this.vehicleId === 'Sedan') {
-        this.maxCapacity = 5;
+        this.maxCapacity = 4;
         console.log("inside sedan");
         
       }
       if (this.vehicleId === 'SUV') {
-        this.maxCapacity = 7;
+        this.maxCapacity = 6;
         console.log("inside suv");
       }
       // Update the maxSpace form control value and enable it

@@ -1,7 +1,12 @@
 
-<div class="mb-3 settings mt-4 ">
-    <label for="acceptRequestTime" class="form-label display-4">Time for Driver to Accept Request (seconds)</label>
-    <select id="acceptRequestTime" class="form-select" [(ngModel)]="acceptRequestTime" name="acceptRequestTime">
+<div class="row m-4 px-3 pt-3 pb-5">
+    <h2>Settings</h2>
+    <hr>
+<div class="mb-3 settings col-12 mt-4 ">
+    <label for="acceptRequestTime" class="form-label    ">Time for Driver to Accept Request (seconds)</label>
+    <select id="acceptRequestTime" class="form-select mx-3 p-1"
+     [(ngModel)]="acceptRequestTime" name="acceptRequestTime"
+     (change)="onSelectWaitingTime($event)">
         <option value="10">10 seconds</option>
         <option value="20">20 seconds</option>
         <option value="30">30 seconds</option>
@@ -12,14 +17,16 @@
     </select>
 </div>
 
-<div class="mb-3 settings ">
-    <label for="maxStops" class="form-label display-4 ">Maximum Stops Between Locations</label>
-    <br>
-    <select id="maxStops" class="form-select" [(ngModel)]="maxStops" name="maxStops">
+<div class="mb-3 settings col-12 ">
+    <label for="maxStops" class="form-label">Maximum Stops Between Locations</label>
+    <select id="maxStops" class="form-select mx-3 p-1"
+     [(ngModel)]="maxStops" name="maxStops"
+     (change)="onSelectStop($event)">
         <option value="1">1 stop</option>
         <option value="2">2 stops</option>
         <option value="3">3 stops</option>
         <option value="4">4 stops</option>
         <option value="5">5 stops</option>
     </select>
+</div>
 </div>

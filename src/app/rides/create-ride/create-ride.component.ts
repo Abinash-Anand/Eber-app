@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms'
 import { UserService } from '../../services/users/user.service';
 import { CreateRideService } from '../../services/rides/create-ride.service';
 import { MapService } from '../../services/maps/mapsApi.service';
+import { SettingsService } from '../../services/settings/settings.service';
 
 @Component({
   selector: 'app-create-ride',
@@ -21,7 +22,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   userFoundAlert: boolean = false;
   suggestions: google.maps.places.QueryAutocompletePrediction[] = [];
   activeInput: 'pickupLocation' | 'dropOffLocation' | 'stopLocation' = 'pickupLocation';
-  currentStopIndex: number | null = null; // Track the current stop index
+  currentStopIndex: number | null = null;
   fromAddress: string = '';
   toAddress: string = '';
   stopAddress: string = '';
@@ -32,25 +33,25 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   totalDistance: string = '';
   EstimatedTime: string = '';
   mapActive: boolean = false;
-  waypoints: any[] = [];
-  startJourney: string = '';
-  journeyStops: string = '';
-  endJourney: string = '';
+  waypoints: google.maps.DirectionsWaypoint[] = [];
+  numberOfStops: number;
+  requestAcceptTime: number;
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
     private createRideService: CreateRideService,
-    private mapService: MapService
+    private mapService: MapService,
+    private settingsService: SettingsService
   ) { }
 
   ngOnInit(): void {
     this.requestForm = this.fb.group({
       phone: [null, Validators.required],
-      paymentOption: [{ value: null, disabled: true }, Validators.required],
-      pickupLocation: [{ value: '', disabled: true }, Validators.required],
-      dropOffLocation: [{ value: '', disabled: true }, Validators.required],
-      serviceType: [{ value: '', disabled: true }, Validators.required],
-      bookingOption: ['', Validators.required],
+      paymentOption: [{ value: null, disabled: true }],
+      pickupLocation: [{ value: '', disabled: true }],
+      dropOffLocation: [{ value: '', disabled: true }],
+      serviceType: [{ value: '', disabled: true }],
+      bookingOption: ['',],
       scheduleDateTime: [{ value: '', disabled: true }]
     });
     this.getUserLocation();
@@ -65,7 +66,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     const searchObject: { searchBy: string, searchInput: any } = { searchBy: 'phone', searchInput: phoneNumber };
     this.userService.getSpecificUser(searchObject).subscribe(
       user => {
-        if (user) {
+        if (user.length !== 0) {
           this.isFormEnabled = true;
           this.userFoundAlert = true;
           setTimeout(() => {
@@ -76,6 +77,10 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           this.requestForm.get('pickupLocation').enable();
           this.requestForm.get('dropOffLocation').enable();
           this.requestForm.get('serviceType').enable();
+          this.requestForm.get('scheduleDateTime').enable();
+          this.numberOfStops = this.settingsService.settingArray[0].numberOfStops
+          this.requestAcceptTime = this.settingsService.settingArray[0].requestAcceptTime
+
         } else {
           this.userError = 'User does not exist';
           this.isFormEnabled = false;
@@ -89,16 +94,23 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   }
 
   addStop() {
-    if (this.stopControls.length < 3) { // Assuming max 3 stops
+    if (this.stopControls.length < this.numberOfStops) {
       const control = new FormControl('', Validators.required);
       this.stopControls.push({ control });
     }
   }
 
+  removeStop(index: number) {
+    this.stopControls.splice(index, 1);
+    this.stopLocations.splice(index, 1);
+    this.calculateRoute();
+    this.mapService.clearMarkers();
+  }
+
   onSearchChange(search: string, type: 'pickupLocation' | 'dropOffLocation' | 'stopLocation', index?: number) {
     this.activeInput = type;
     if (type === 'stopLocation' && index !== undefined) {
-      this.currentStopIndex = index; // Set the current stop index
+      this.currentStopIndex = index;
     }
     if (search === '') {
       return this.suggestions = [];
@@ -113,8 +125,6 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.mapService.clearMarkers();
     if (type === 'pickupLocation') {
       this.fromAddress = suggestion.description;
-      console.log(this.fromAddress);
-      
       this.mapService.geocodeAddress(this.fromAddress).then(results => {
         this.fromLocation = { lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() };
         this.mapService.addMarker(this.map, this.fromLocation, 'Start', 'red');
@@ -197,26 +207,52 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.mapService.getDirections(this.fromLocation, this.toLocation, this.waypoints).then(result => {
       this.mapService.renderDirections(this.map, result);
       const route = result.routes[0];
+
       if (route) {
-        const leg = route.legs[0];
-        this.EstimatedTime = leg.duration.text;
-        this.totalDistance = leg.distance.text;
+        let totalDistance = 0;
+        let totalDuration = 0;
+        for (let i = 0; i < route.legs.length; i++) {
+          totalDistance += route.legs[i].distance.value;
+          totalDuration += route.legs[i].duration.value;
+        }
+        this.totalDistance = `${(totalDistance / 1000).toFixed(2)} km`;
+        this.EstimatedTime = `${Math.floor(totalDuration / 60)} min`;
       }
     }).catch(error => {
-      console.error('Directions error:', error);
+      console.error('Error calculating route:', error);
     });
   }
 
   onSubmit() {
-    if (this.requestForm.valid) {
-      this.createRideService.bookRide(this.requestForm.value).subscribe(
-        response => {
-          console.log('Ride booked successfully', response);
-        },
-        error => {
-          console.error('Error booking ride', error);
-        }
-      );
+    console.log('Form Valid:', this.requestForm.valid);  // Log form validity
+    console.log('Form Value:', this.requestForm.value);  // Log form value
+
+    if (this.requestForm.invalid) {
+      console.error('Form is invalid');
+      return;
     }
+
+    if (!this.isFormEnabled) {
+      console.error('Form is not enabled');
+      return;
+    }
+
+    const formData = this.requestForm.value;
+    formData.fromLocation = this.fromLocation;
+    formData.toLocation = this.toLocation;
+    formData.stopLocations = this.stopLocations;
+    formData.totalDistance = this.totalDistance;
+    formData.EstimatedTime = this.EstimatedTime;
+
+    console.log('Form Data:', formData);  // Log form data to be submitted
+
+    this.createRideService.bookRide(formData).subscribe(
+      response => {
+        console.log('Ride created successfully:', response);
+      },
+      error => {
+        console.error('Error creating ride:', error);
+      }
+    );
   }
 }

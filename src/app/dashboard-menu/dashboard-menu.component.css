@@ -71,6 +71,8 @@ ul>li,
     /* background-color: #0c0c0fdb; */
     /* padding: 35px;
     border-radius: 0px; */
+    /* border-radius: 0px;
+    background-image: linear-gradient(to left bottom, #121313, #161617, #191a1a, #1d1d1d, #202020); */
 }
 
 @media (max-width: 768px) {

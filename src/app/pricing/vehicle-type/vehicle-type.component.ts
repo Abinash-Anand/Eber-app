@@ -16,7 +16,8 @@ export class VehicleTypeComponent implements OnInit {
   imageSize: number = 0;
   warningText: string = "";
   formSubmit: boolean = true;
-  vehicleTypeArray: {vehicleType:string}[] = []
+  vehicleTypeArray: { vehicleType: string }[] = []
+  cars: Vehicle[] =[]
   constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
 ngOnInit(): void {
    
@@ -63,6 +64,9 @@ ngOnInit(): void {
       (response: any) => {
         // console.log(response.vehicles);
         this.vehicleTypeService.vehicleDataArray = response.vehicles
+        this.cars = response.vehicles
+        console.log(this.cars);
+        
         const vehicleType  = []
         
         for (const vehicle of response.vehicles) {

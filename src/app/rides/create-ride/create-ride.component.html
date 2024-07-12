@@ -1,100 +1,118 @@
 <div class="user-found-alert" *ngIf="userFoundAlert">
     <h1>User Found!</h1>
 </div>
-<div class="container">
-    <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
-        <!-- Phone Number Field -->
-        <div class="mb-3">
-            <label for="phone" class="form-label">Phone Number</label>
-            <input type="number" id="phone" formControlName="phone" class="form-control"
-                (keydown.enter)="fetchUserDetails()">
-            <div *ngIf="userError" class="text-danger">{{ userError }}</div>
-        </div>
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-4">
+            <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" #createRideForm="ngForm">
+                <!-- Phone Number Field -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Phone Number</label>
+                    <input type="number" id="phone" formControlName="phone" class="form-control"
+                        (keydown.enter)="fetchUserDetails()">
+                    <div *ngIf="userError" class="text-danger">{{ userError }}</div>
+                </div>
 
-        <!-- Payment Options -->
-        <div class="mb-3">
-            <label class="form-label">Payment Options</label><br>
-            <input type="radio" id="cash" formControlName="paymentOption" value="cash"> <label
-                for="cash">Cash</label><br>
-            <input type="radio" id="card" formControlName="paymentOption" value="card"> <label for="card">Card</label>
-        </div>
+                <!-- Payment Options -->
+                <div class="mb-3 ">
+                    <label class="form-label">Payment Options</label><br>
+                    <input type="radio" id="cash" formControlName="paymentOption" value="cash"> 
+                    <label for="cash">Cash</label><br>
+                    <input type="radio" id="card" formControlName="paymentOption" value="card"> <label
+                        for="card">Card</label>
+                </div>
 
-        <!-- Ride Details -->
-        <div class="mb-3">
-            <label for="pickupLocation" class="form-label">Pickup Location</label>
-            <input type="text" (input)="onSearchChange($event.target.value, 'pickupLocation')" id="pickupLocation"
-                formControlName="pickupLocation" class="form-control" [disabled]="!isFormEnabled" [(ngModel)]="fromAddress">
-            <ul *ngIf="suggestions.length > 0 && activeInput === 'pickupLocation'" class="suggestions-list">
-                <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'pickupLocation')">
-                    {{ suggestion.description }}
-                </li>
-            </ul>
-        </div>
-        <div class="mb-3">
-            <label for="dropOffLocation" class="form-label">Drop-off Location</label>
-            <input type="text" (input)="onSearchChange($event.target.value, 'dropOffLocation')" id="dropOffLocation"
-                formControlName="dropOffLocation" class="form-control" [disabled]="!isFormEnabled" [(ngModel)]="toAddress">
-            <ul *ngIf="suggestions.length > 0 && activeInput === 'dropOffLocation'" class="suggestions-list">
-                <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'dropOffLocation')">
-                    {{ suggestion.description }}
-                </li>
-            </ul>
-        </div>
+                <!-- Ride Details -->
+                <div class="mb-3">
+                    <label for="pickupLocation" class="form-label">Pickup Location</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'pickupLocation')"
+                        id="pickupLocation" formControlName="pickupLocation" class="form-control"
+                        [disabled]="!isFormEnabled" [(ngModel)]="fromAddress">
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'pickupLocation'" class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'pickupLocation')">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <label for="dropOffLocation" class="form-label">Drop-off Location</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'dropOffLocation')"
+                        id="dropOffLocation" formControlName="dropOffLocation" class="form-control"
+                        [disabled]="!isFormEnabled" [(ngModel)]="toAddress">
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'dropOffLocation'" class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'dropOffLocation')">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
 
-        <!-- Stops -->
-        <div class="mb-3" *ngFor="let stop of stopControls; let i = index">
-            <label for="stop{{i}}" class="form-label">Stop {{i + 1}}</label>
-            <input type="text" (input)="onSearchChange($event.target.value, 'stopLocation', i)" [id]="'stop' + i"
-                [formControl]="stop.control" class="form-control" [disabled]="!isFormEnabled" [(ngModel)]="stopAddress">
-            <ul *ngIf="suggestions.length > 0 && activeInput === 'stopLocation' && currentStopIndex === i"
-                class="suggestions-list">
-                <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'stopLocation', i)">
-                    {{ suggestion.description }}
-                </li>
-            </ul>
+                <!-- Stops -->
+                <div class="mb-3" *ngFor="let stop of stopControls; let i = index">
+                    <label for="stop{{i}}" class="form-label">Stop {{i + 1}}</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'stopLocation', i)"
+                        [id]="'stop' + i" [formControl]="stop.control" class="form-control" [disabled]="!isFormEnabled">
+                    <button type="button" class="btn btn-danger btn-sm" (click)="removeStop(i)">Remove</button>
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'stopLocation' && currentStopIndex === i"
+                        class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'stopLocation', i)">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
+                <button type="button" class="btn mt-2 btn-primary mb-3" (click)="addStop()" [disabled]="!isFormEnabled">Add
+                    Stop ({{numberOfStops}})</button>
+
+                <!-- Service Type List -->
+                 <hr>
+                 <h2>Services</h2>
+                 <img src="" alt="carImage">
+                 <ul>
+                    <li>Car Type: Sedan <span>Capacity:4</span></li>
+                    <li>Total Fare: Rs 250</li>
+                    <li>Request Accept Time: {{requestAcceptTime}} sec</li>
+                 </ul>
+                <div *ngIf="serviceTypes.length">
+                    <label for="serviceType" class="form-label">Service Type</label>
+                    <select id="serviceType" formControlName="serviceType" class="form-select">
+                        <option *ngFor="let service of serviceTypes" [value]="service.id">{{ service.name }} ({{
+                            service.estimateFare }})</option>
+                    </select>
+                </div>
+                <hr>
+                <!-- Booking Options -->
+                <div class="my-3">
+                    <label for="bookingOption" class="form-label">
+                        <h5><strong>Booking Option</strong></h5>
+                    </label>
+                    <select id="bookingOption" formControlName="bookingOption" class="form-select form-control col-4">
+                        <option value="now">Now</option>
+                        <option value="schedule">Schedule</option>
+                    </select>
+                </div>
+                <div class="mb-3" *ngIf="requestForm.value.bookingOption === 'schedule'">
+                    <label for="scheduleDateTime" class="form-label">Schedule Date & Time</label>
+                    <input type="datetime-local" id="scheduleDateTime" formControlName="scheduleDateTime"
+                        class="form-control">
+                </div>
+
+                <!-- Book Ride Button -->
+                <button type="submit" class="btn my-3 btn-success" >Book Ride</button>
+            </form>
         </div>
-        <button type="button" class="btn btn-primary mb-3" (click)="addStop()" [disabled]="!isFormEnabled">Add
-            Stop</button>
 
         <!-- Map -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card" style="width: 18rem;" *ngIf="mapActive">
-                    <div class="card-body">
-                        <h5 class="card-title">Distance info</h5>
-                        <h5>Distance: {{totalDistance}}</h5>
-                        <h5>Estimated Time: {{EstimatedTime}}</h5>
-                    </div>
+        <div class="col-8">
+            <div class="card" *ngIf="mapActive">
+                <div class="card-body col-12">
+                    <h5 class="card-title">Distance info</h5>
+                    <h5>Distance: {{totalDistance}}</h5>
+                    <h5>Estimated Time: {{EstimatedTime}}</h5>
                 </div>
-                <div id="map" #mapRef style="height: 500px; width: 100%; border: 1px solid #212121;"></div>
             </div>
+            <div id="map" #mapRef style="height: 500px; width: 100%; border: 1px solid #212121;"></div>
         </div>
-
-        <!-- Service Type List -->
-        <div *ngIf="serviceTypes.length">
-            <label for="serviceType" class="form-label">Service Type</label>
-            <select id="serviceType" formControlName="serviceType" class="form-select">
-                <option *ngFor="let service of serviceTypes" [value]="service.id">{{ service.name }} ({{
-                    service.estimateFare }})</option>
-            </select>
-        </div>
-
-        <!-- Booking Options -->
-        <div class="my-3">
-            <label for="bookingOption" class="form-label">
-                <h5><strong>Booking Option</strong></h5>
-            </label>
-            <select id="bookingOption" formControlName="bookingOption" class="form-select form-control col-4">
-                <option value="now">Now</option>
-                <option value="schedule">Schedule</option>
-            </select>
-        </div>
-        <div class="mb-3" *ngIf="requestForm.value.bookingOption === 'schedule'">
-            <label for="scheduleDateTime" class="form-label">Schedule Date & Time</label>
-            <input type="datetime-local" id="scheduleDateTime" formControlName="scheduleDateTime" class="form-control">
-        </div>
-
-        <!-- Book Ride Button -->
-        <button type="submit" class="btn btn-success" [disabled]="!requestForm.valid">Book Ride</button>
-    </form>
+    </div>
 </div>
