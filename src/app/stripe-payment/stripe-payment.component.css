@@ -1,0 +1,11 @@
+#card-element {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+.stripe-payment-form{
+    
+    text-align: center;
+background-image: linear-gradient(to bottom, #7340e9, #563db5, #413682, #302c4f, #202020);
+}

@@ -1,0 +1,7 @@
+<div class="stripe-payment-form col-6 mt-4 p-3">
+    <h3 class="text-light my-3 ">Stripe Payment</h3>
+    <form class="p-3" (submit)="handlePayment(); $event.preventDefault()">
+        <div id="card-element" class="form-control col-12"></div>
+        <button type="submit" class="btn btn-primary mt-3 px-5 py-2">Pay with Card</button>
+    </form>
+</div>

@@ -1,6 +1,7 @@
 <div class="alert alert-success" role="alert" *ngIf="userCreated">
     User Successfully Deleted
 </div>
+
 <form class="m-3 bg-dark" (ngSubmit)="onCreateUser()" #form="ngForm">
     <h3 class="text-light ml-3 p-2">Create a New User</h3>
     <div class="row  text-light px-4 pt-2 pb-3">
@@ -104,13 +105,39 @@
                 <button type="button" class="btn btn-success" data-toggle="modal" 
                 data-target="#exampleModal" data-whatever="@mdo">
                     Edit</button>
-                <button class="btn btn-info m-1">Stripe</button>
+                <button class="btn btn-info m-1" data-toggle="modal" data-target="#paymentModal"  (click)="pay(20)">Stripe</button>
                 <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
             </td>
         </tr>
     </tbody>
 </table>
+<!-- Payment Modal -->
 
+<div class="modal fade stripe-payment-form" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+<div class="card-saved" *ngIf="cardSaved">
+    <h1>New Card Added</h1>
+</div>
+<div class="card bg-danger text-light" *ngIf="cardValidity">
+    <h1>Try Different Card</h1>
+</div>
+    <div class="modal-dialog">
+        <div class="modal-content  stripe-payment">
+            <div class="modal-header ">
+                <h3 class="heading-text text-light" >Stripe Payment</h3>
+                
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form (submit)="handlePayment(); $event.preventDefault()">
+                    <div id="card-element" class="form-control py-4  col-12"></div>
+                    <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">
         <li class="page-item" [class.disabled]="currentPage === 1">

@@ -5,7 +5,8 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors'); // Import cors
 const bodyParser = require('body-parser');
 const routers = require('./routers/routers'); // Ensure this path is correct
-
+const stripe = require('stripe')('sk_test_51PcXjn2LMAO7sEDSdVod5R47ukNwnau4hFlaBKDsbMjUcyf6m0Ygstlz2Cx54tvcSEsuSPWioNDxY6u5o0CFVVAj00dNAY2Tyn');
+// console.log(stripe);
 const app = express();
 const port = process.env.PORT || 3000; // Use environment variable or default to 5000
 
@@ -19,7 +20,7 @@ app.use(express.json()); // Parse JSON bodies
 
 // CORS configuration to allow only localhost:4200
 const corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: true,
     optionsSuccessStatus: 200 ,// Some legacy browsers choke on 204
     credentials: true // Allow credentials (cookies)
 

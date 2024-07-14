@@ -44,6 +44,7 @@ import { CityService } from './services/city/city.service';
 import { DriverlistService } from './services/drivers/driverlist.service';
 import { UserService } from './services/users/user.service';
 import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
+import { StripePaymentComponent } from './stripe-payment/stripe-payment.component';
 
 @NgModule({
   declarations: [
@@ -72,6 +73,7 @@ import { cityVehicleTypeService } from './services/city-vehicle-type-association
     VehicleListComponent,
     CityListComponent,
     CountryListComponent,
+    StripePaymentComponent,
    
 
   ],

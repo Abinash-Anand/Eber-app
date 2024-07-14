@@ -7,6 +7,7 @@ import { User } from '../shared/user';
 import { CountryApiService } from '../services/countryApi.service.ts/country-api.service';
 import { Country } from '../shared/country';
 import { CityService } from '../services/city/city.service';
+import { PaymentService } from '../services/payment/payment.service';
 
 @Component({
   selector: 'app-user',
@@ -37,12 +38,13 @@ export class UserComponent implements OnInit {
   selectedCountryId: string | null = null;
   filteredCityArray: any[] = [];
   countries: Country[] = [];
-
+  cardValidity: boolean = false
+  cardSaved:boolean = false
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
-    userProfile: '', username: '', email: '', phone: null, userId: '', countryCode: ''
-  }
+      userProfile: '', username: '', email: '', phone: null, userId: '', countryCode: ''
+    }
 
   user: { userProfile: string, username: string, email: string, phone: string, countryCode: string } = {
     userProfile: '', username: '', email: '', phone: '', countryCode: ''
@@ -59,12 +61,14 @@ export class UserComponent implements OnInit {
     private userService: UserService,
     private cd: ChangeDetectorRef,
     private countryApiService: CountryApiService,
-    private cityService: CityService
-  ) {}
+    private cityService: CityService,
+    private paymentService: PaymentService
+  ) { }
 
   ngOnInit() {
     this.getAllUsers();
     this.getCountries();
+    this.paymentService.ngOnInit()
   }
 
   getCountries() {
@@ -224,4 +228,33 @@ export class UserComponent implements OnInit {
       }
     );
   }
+
+  //-------------stripe payment gateway-----------------------
+ 
+  async handlePayment() {
+    try {
+      const result = await this.paymentService.handlePayment();
+      console.log(result); // Output the result from handlePayment
+      await this.paymentService.sendTokenToServer(result.token).subscribe((response) => {
+        console.log(response.status);
+        if (response.status === 500) {
+          this.cardValidity = true;
+        }
+        else if (response.status === 200) {
+          this.cardSaved = true
+        }
+        setTimeout(() => {
+          this.cardSaved = false;
+          this.cardValidity = true;
+
+        }, 3000);
+        
+      });
+    } catch (error) {
+      console.error('Payment handling error:', error);
+    }
+  }
+
+  
 }
+
