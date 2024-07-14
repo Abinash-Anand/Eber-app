@@ -10,6 +10,8 @@ import { CityService } from '../../services/city/city.service';
 import { Pricing } from '../../shared/pricing';
 import { Zone } from 'zone.js/lib/zone-impl';
 import { PricingArray } from '../../shared/pricing-array';
+import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
+import { Vehicle } from '../../shared/vehicle';
 
 @Component({
   selector: 'app-create-ride',
@@ -39,18 +41,31 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   EstimatedTime: string = '';
   mapActive: boolean = false;
   waypoints: google.maps.DirectionsWaypoint[] = [];
-  numberOfStops: number;
-  requestAcceptTime: number;
+  numberOfStops: number = null;
+  requestAcceptTime: number = null;
   serviceTypes: Pricing[] = [];
+  filteredCityService: any[]=[]
   cityMap: { id: string, name: string }[] = [];
   cities: Zone[] = [];
   pricings: Pricing[] = [];
-  serviceType: PricingArray={
-    cityName: '', vehicleType: '',
-    distance: null, estimatedTime: null,
-    vehicleImage: '', vehicleName: '',
-    rideTotalFare:null, seatingCapacity: null,
-  }
+  // vehicleDataArray: Vehicle[] = [];
+  filteredVehicles: {}[] = []
+  user:string = ''
+  //----------Pricing Values---------------
+  drvierProfit: number = null;
+  time: number = null;
+  distance: number = null;
+  totalFare: number = null;
+  minFare: number = null;
+  distanceForBasePrice: number = null
+  driverProfit: number = null
+  pricePerUnitDistance: number = null
+  pricePerUnitTime: number = null
+  basePrice: number = null;
+  estimatedDistance: number = null;
+  // maxSpace: number = null;
+  //----------------------------------------
+  serviceType: PricingArray[]=[]
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -59,7 +74,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     private settingsService: SettingsService,
     private vehiclePricingService: VehiclePricingService,
     private pricingService: VehiclePricingService,
-    private cityService: CityService
+    private cityService: CityService,
+    private vehicleTypeService: VehicleTypeService
   ) { }
 
   ngOnInit(): void {
@@ -73,6 +89,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
       scheduleDateTime: [{ value: '', disabled: true }]
     });
     this.getUserLocation();
+      this.getSettings()
    
   }
 
@@ -94,14 +111,17 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
       this.pricings = pricings.body;
     });
   }
+//--------------calling filterpricing city by name which filters the services based on city----------
 
   filterPricingByCityName(cityName) {
-  
+    
     const value = this.pricings.filter(pricing => {
       // console.log(pricing.city , ' === ', cityName);
       return pricing.city === cityName
     });
-    console.log(value);
+    // console.log(value);
+    this.filteredCityService = value
+   
     
   }
 
@@ -111,19 +131,22 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.userService.getSpecificUser(searchObject).subscribe(
       user => {
         if (user.length !== 0) {
+          console.log(user);
+          this.user =  user[0].userProfile
+          
           this.isFormEnabled = true;
           this.userFoundAlert = true;
+         
           setTimeout(() => {
             this.userFoundAlert = false;
           }, 2000);
-          this.mapActive = true;
+          
           this.requestForm.get('paymentOption').enable();
           this.requestForm.get('pickupLocation').enable();
           this.requestForm.get('dropOffLocation').enable();
           this.requestForm.get('serviceType').enable();
-          this.requestForm.get('scheduleDateTime').enable();
-          this.numberOfStops = this.settingsService.settingArray[0].numberOfStops;
-          this.requestAcceptTime = this.settingsService.settingArray[0].requestAcceptTime;
+          this.requestForm.get('scheduleDateTime').enable();  
+
           this.loadInitialData();
             console.log( this.cityMap);
         } else {
@@ -137,6 +160,17 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
       }
     );
   }
+
+  
+  getSettings() {
+    this.settingsService.getDefaultSettings().subscribe((setting) => {
+        this.numberOfStops = setting.body[0].numberOfStops;
+          this.requestAcceptTime = setting.body[0].requestAcceptTime;
+          console.log("request time: ", this.requestAcceptTime);
+          console.log("numbe of stops: ", this.numberOfStops);
+  })
+}
+
 
   addStop() {
     if (this.stopControls.length < this.numberOfStops) {
@@ -191,9 +225,13 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
         this.mapService.addMarker(this.map, this.fromLocation, 'Start', 'red');
         if (this.fromLocation && this.toLocation) {
           this.calculateRoute();
+          // console.log("from Location: ", this.fromLocation, this.toLocation);
           
+//--------------calling filterpricing city by name which filters the services based on city----------
           this.filterPricingByCityName(foundCity.id)
-          console.log(this.pricings);
+       
+         
+          // console.log(this.pricings);
         }
       }).catch(error => {
         console.error('Error geocoding address:', error);
@@ -205,6 +243,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
         this.mapService.addMarker(this.map, this.toLocation, 'End', 'green');
         if (this.fromLocation && this.toLocation) {
           this.calculateRoute();
+          this.vehicleServices()
+          this.mapActive = true;
         }
       }).catch(error => {
         console.error('Error geocoding address:', error);
@@ -279,13 +319,152 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           totalDistance += route.legs[i].distance.value;
           totalDuration += route.legs[i].duration.value;
         }
-        this.totalDistance = `${(totalDistance / 1000).toFixed(2)} km`;
-        this.EstimatedTime = `${Math.floor(totalDuration / 60)} min`;
+        this.totalDistance = `${(totalDistance / 1000).toFixed(2)}`;
+        this.EstimatedTime = `${Math.floor(totalDuration / 60)}`;
+        this.time = +this.EstimatedTime
+        this.distance = +this.totalDistance
+//----After selecting to and from location-> calls the calculating engine -> calculates fare-------
+        this.calculateFarePrice()
+
       }
     }).catch(error => {
       console.error('Error calculating route:', error);
     });
   }
+
+  //-----------------calling the vehicle type service----------------------------------
+
+  vehicleServices() {
+  this.vehicleTypeService.onGetVehicle().subscribe((response: any) => {
+  console.log(response); // Output: 'Vehicle data received!'
+  const vehiclesArray = response.vehicles; // Access the vehicles array
+  console.log("Output: Array of vehicles: ", vehiclesArray); // Output: Array of vehicles
+  
+  // Filter the vehicles based on the filteredCityService
+  const filteredService = vehiclesArray.filter((vehicle) => {
+    return this.filteredCityService.some((carType) => carType.vehicleType === vehicle.vehicleType);
+  });
+
+  // Create a map to keep track of unique vehicles and their counts
+  const vehicleCountMap = new Map();
+
+  // Populate the map with vehicle counts and related properties from filteredCityService
+  filteredService.forEach((vehicle) => {
+    const matchingPricing = this.filteredCityService.find(carType => carType.vehicleType === vehicle.vehicleType);
+    if (matchingPricing) {
+      if (vehicleCountMap.has(vehicle.vehicleType)) {
+        const existingVehicle = vehicleCountMap.get(vehicle.vehicleType);
+        existingVehicle.count += 1;
+      } else {
+        vehicleCountMap.set(vehicle.vehicleType, {
+          count: 1,
+          vehicleType: vehicle.vehicleType,
+          maxSpace: matchingPricing.maxSpace,
+          distanceForBasePrice: matchingPricing.distanceForBasePrice,
+          driverProfit: matchingPricing.driverProfit,
+          minFare: matchingPricing.minFare,
+          pricePerUnitDistance: matchingPricing.pricePerUnitDistance,
+          pricePerUnitTime: matchingPricing.pricePerUnitTime,
+          vehicle: vehicle // Reference to the original vehicle object for other properties
+        });
+      }
+    }
+  });
+
+  // Create an array of unique vehicles with counts and additional properties
+  const uniqueFilteredService = Array.from(vehicleCountMap.values());
+
+  this.filteredVehicles = uniqueFilteredService;
+  // Log the unique filtered vehicles with counts and additional properties
+  console.log("Unique Filtered Vehicles are: ", this.filteredVehicles);
+});
+
+      /* 
+    serviceType =   [{
+      -------1st array------
+      vehicleType: 'Sedan',
+      vehicleName: 'Hyundai Verna',
+      vehicleImage: 'Vehicle Image', 
+      totalVehicleCount: 10
+      seatingCapacity: 6,
+      -------2nd array-----
+      katraj--->kothrud
+      distance: 9km,
+      estimatedTime: 30mins,
+      rideTotalFare: 120,
+      }]
+      */
+
+  }
+  
+
+
+  //--------------------------CALCULATING FARE FOR JOURNEY-----------------------
+  calculateFarePrice() {
+    console.log("Unique Filtered Vehicles are: ", this.filteredCityService);
+    /* 
+  drvierProfit: number = 80;
+  minFare: number = 25;
+  basePrice: number = 20;
+  unitDistance: number = 10;
+  unitTimePrice: number = 1;
+  basePriceDistance: number = 1;
+
+  -----calculations for pricing
+  example: total distance = 7.53, total time = 10 min
+            base price = 20 for a mile which is fixed
+            unit distance price = 10 * 6.53 = 65.3
+            time price = unitTimePrice * 10 // 1 *10 = 10
+            totalFair = time price + unit distance price + base  price 
+            totalFair = 10 + 65.3 + 20 = 95.3
+            Driver profit = (95.3/100) * 80 = 67.24 
+            comission to the platform =  95.3 -67-24 = 28.06 
+
+    */
+    //  const drvierProfit: number = 80;
+    //  const minFare: number = 25;
+    //  const basePrice: number = 20; //for 1 km
+    //  const unitDistancePrice: number = 10;
+    const unitTimePrice: number = 1; //for 1min in $
+    const basePriceDistance: number = 1;
+  
+
+
+
+    //------------------------
+    this.distanceForBasePrice = this.filteredCityService[0].distanceForBasePrice
+    this.driverProfit = this.filteredCityService[0].driverProfit
+    this.minFare = this.filteredCityService[0].minFare
+    // this.basePrice = this.filteredCityService[0].basePrice
+    this.pricePerUnitDistance = this.filteredCityService[0].pricePerUnitDistance
+    this.pricePerUnitTime = this.filteredCityService[0].pricePerUnitTime
+    console.log("distance: ", this.totalDistance, " + ", "Estimated time " + this.EstimatedTime);
+    
+    //-------------------------------------------------------------
+      if (+this.totalDistance <= basePriceDistance && +this.EstimatedTime <= unitTimePrice ){
+        this.totalFare = this.minFare
+        console.log("Total Fare: ",this.totalFare);
+        
+      }
+      else if (+this.totalDistance && +this.EstimatedTime) {
+    
+      const totalDistanceExculudingBaseDistance = +this.totalDistance - this.distanceForBasePrice;
+      const unitDistancePrice = +totalDistanceExculudingBaseDistance * this.pricePerUnitDistance;
+      const timePrice = this.pricePerUnitTime * +this.EstimatedTime;
+        this.totalFare = +(timePrice + unitDistancePrice + this.basePrice).toFixed(2)
+        this.driverProfit = (this.totalFare / 100) * 80;
+        
+        console.log("Total Fare: ",this.totalFare);
+        console.log("total Distance: ", this.totalDistance);
+
+    }
+  
+    
+  }
+
+
+
+
 
   onSubmit() {
     console.log('Form Valid:', this.requestForm.valid);

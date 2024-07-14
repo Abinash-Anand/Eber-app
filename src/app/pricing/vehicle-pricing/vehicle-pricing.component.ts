@@ -126,6 +126,8 @@ export class VehiclePricingComponent implements OnInit {
       (response: any) => {
         // console.log(response.vehicles);
         this.vehicleTypeService.vehicleDataArray = response.vehicles
+        console.log(response.vehicles);
+        
         const vehicleType  = []
         
         for (const vehicle of response.vehicles) {

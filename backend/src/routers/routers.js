@@ -81,6 +81,6 @@ router.post('/submit-pricing', setPricing);
 router.get('/get-pricing-data', getAllPricing)
 //-----------------------------Setting Settings of the App------------------------
 router.post('/set-settings', setSettings)
-router.get('/check-settings/:id', searchDefaultSettings);
+router.get('/check-settings', searchDefaultSettings);
 router.patch('/update-settings', updateSettings)
 module.exports = router;

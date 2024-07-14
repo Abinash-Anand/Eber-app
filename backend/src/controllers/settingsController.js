@@ -12,10 +12,10 @@ const setSettings = async (req, res) => {
 
 // settings.controller.js
 const searchDefaultSettings = async (req, res) => {
-    console.log(req.params.id);
+    // console.log(req.params.id);
     try {
-        const id = req.params.id;
-        const search = await Settings.findOne({ id });
+        // const id = req.params.id;
+        const search = await Settings.find();
         if (!search) {
             return res.status(404).send("Settings not found");
         }

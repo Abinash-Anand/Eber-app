@@ -82,8 +82,32 @@ border: none;   */
 
 .card {
     position: absolute;
-    top: 10%;
-    left: 2.5%;
+    top: 5%;
+    left: 3%;
     z-index: 1;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.service{
+    border: 1px solid black;
+    background-color: white;
+    
+}
+.service:hover{
+    background-color: rgba(0, 0, 0, 0.84);
+    color: white;
+    box-shadow: 10px 20px 10px rgb(133, 132, 132);
+    transition: 0.3s ease;
+}
+.vehicle-img{
+    width: 100%;
+    height: max-content;
+    border-radius: 10px
+}
+.vehicleCount{
+    font-size: normal !important;
+}
+.user{
+    background-color: rgba(9, 203, 9, 0.258);
+    width: 50%;
+    
 }

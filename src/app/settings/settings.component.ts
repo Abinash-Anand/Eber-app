@@ -25,7 +25,7 @@ export class SettingsComponent implements OnInit{
   disableDefaultSettings() {
      const id = 'DEFAULT';
 
-    this.settingsService.getDefaultSettings(id).subscribe(response => {
+    this.settingsService.getDefaultSettings().subscribe(response => {
       if (response.status === 200 && response.body !== null) {
         this.DefaultSettings = true;
         this.settingsService.settingArray[0].requestAcceptTime = response.body.requestAcceptTime
