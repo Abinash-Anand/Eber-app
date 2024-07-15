@@ -46,6 +46,7 @@ import { UserService } from './services/users/user.service';
 import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
 import { StripePaymentComponent } from './stripe-payment/stripe-payment.component';
 import { LottieDirective } from './animation/lottie.directive';
+import { NgxSpinnerModule } from 'ngx-spinner';
 
 @NgModule({
   declarations: [
@@ -75,8 +76,7 @@ import { LottieDirective } from './animation/lottie.directive';
     CityListComponent,
     CountryListComponent,
     StripePaymentComponent,
-    LottieDirective,
-   
+   LottieDirective
 
   ],
   imports: [
@@ -88,6 +88,8 @@ import { LottieDirective } from './animation/lottie.directive';
     GoogleMapsModule,
     ReactiveFormsModule,
     CommonModule,
+    NgxSpinnerModule
+
   ],
   providers: [
     provideClientHydration(),
