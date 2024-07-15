@@ -15,6 +15,7 @@ export class SettingsComponent implements OnInit{
     requestAcceptTime: null,
     numberOfStops:null,
   };
+  newSettings: boolean = false;
   DefaultSettings:boolean = false
   settingId: string = '';
   constructor(private settingsService: SettingsService) { }
@@ -28,8 +29,10 @@ export class SettingsComponent implements OnInit{
     this.settingsService.getDefaultSettings().subscribe(response => {
       if (response.status === 200 && response.body !== null) {
         this.DefaultSettings = true;
-        this.settingsService.settingArray[0].requestAcceptTime = response.body.requestAcceptTime
-        this.settingsService.settingArray[0].numberOfStops =response.body.numberOfStops
+        this.acceptRequestTime = response.body[0].requestAcceptTime
+        this.maxStops  =  response.body[0].numberOfStops
+        this.settingsService.settingArray[0].requestAcceptTime = response.body[0].requestAcceptTime
+        this.settingsService.settingArray[0].numberOfStops =response.body[0].numberOfStops
       } else {
         this.DefaultSettings = false;
       }
@@ -69,8 +72,11 @@ export class SettingsComponent implements OnInit{
       if (newSettingResponse.status === 200 && newSettingResponse.body !== null) {
         this.disableDefaultSettings()
         console.log("New Settings have been added");
-        
+        this.newSettings = true
       }
+      setTimeout(() => {
+        this.newSettings =  false
+      }, 2500);
       
     })
 

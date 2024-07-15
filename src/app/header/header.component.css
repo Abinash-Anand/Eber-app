@@ -30,3 +30,9 @@ nav > a{
     /* padding: 14px 16px; */
     text-decoration: none;
 }
+.logo{
+    display: flex;
+    flex-direction: row-reverse;
+width: 100px;
+    height: min-content;
+}

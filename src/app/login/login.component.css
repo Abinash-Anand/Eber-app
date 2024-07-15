@@ -4,9 +4,9 @@
     max-width: 50%;
     height: 70vh;
     box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.521);
-    background-image: linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12);
-    
+background-image: linear-gradient(to right bottom, #69192a, #bb3375, #c892bd, #875ca1, #5e329c);
     /* box-shadow: 5px 5px 5px rgb(71, 71, 71); */
+    
 }
 
 .nav, .container{

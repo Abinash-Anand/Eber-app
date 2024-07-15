@@ -1,6 +1,9 @@
-.container {
+.signup{
     margin-top: 1%;
-    padding: 5% 10%;
-    background-color: #5687cd78;
+    padding: 5% 5%;
+background-image: linear-gradient(to right bottom, #6a6a70, #52525a, #3a3b46, #242532, #0f101f);
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.331);
+    color: white;
+    position: relative;
+    left: 25%;
 }

@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
-
+  lottieOptions = {
+    path:  '../../assets/icons/animation2.json'         // URL to your JSON file
+  };
 }

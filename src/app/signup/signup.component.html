@@ -1,9 +1,9 @@
-<div class="container">
-    <div class="alert alert-success " role="alert" *ngIf="redirectlogin">
+
+    <div class="alert alert-success  " role="alert" *ngIf="redirectlogin">
         Signup Successful!
     </div>
-    <div class="col-6">
-    <h1>SignUp</h1>
+    <div class="col-6 signup mt-5">
+    <h1 style="text-align: center;">SignUp</h1>
     <form (ngSubmit)="onSignup()" #form="ngForm">
         <div class="form-group">
             <label for="exampleInputEmail1">Name</label>
@@ -18,7 +18,6 @@
     
     </div>
 
-        <button type="submit" class="btn btn-success" [disabled]="!form.valid">Submit</button>
+        <button  type="submit" class="btn btn-outline-light px-5 py-2" [disabled]="!form.valid">Submit</button>
     </form>
     </div>
-</div>

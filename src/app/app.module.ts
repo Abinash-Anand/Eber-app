@@ -45,6 +45,7 @@ import { DriverlistService } from './services/drivers/driverlist.service';
 import { UserService } from './services/users/user.service';
 import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
 import { StripePaymentComponent } from './stripe-payment/stripe-payment.component';
+import { LottieDirective } from './animation/lottie.directive';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import { StripePaymentComponent } from './stripe-payment/stripe-payment.componen
     CityListComponent,
     CountryListComponent,
     StripePaymentComponent,
+    LottieDirective,
    
 
   ],
@@ -85,7 +87,7 @@ import { StripePaymentComponent } from './stripe-payment/stripe-payment.componen
     FormsModule,
     GoogleMapsModule,
     ReactiveFormsModule,
-    CommonModule
+    CommonModule,
   ],
   providers: [
     provideClientHydration(),
@@ -110,3 +112,6 @@ import { StripePaymentComponent } from './stripe-payment/stripe-payment.componen
   bootstrap: [AppComponent]
 })
 export class AppModule { }
+export function playerFactory() {
+  return import('lottie-web');
+}

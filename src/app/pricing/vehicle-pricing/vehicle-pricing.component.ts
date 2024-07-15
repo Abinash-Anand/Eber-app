@@ -27,6 +27,7 @@ export class VehiclePricingComponent implements OnInit {
   maxCapacity: number = null;
   pricingObject: Pricing;
   countryObjectId: string = '';
+  newPricing:boolean = false
   // @ViewChild('selectCountry') selectCountry: ElementRef;
   @ViewChild('selectCountryOption') selectCountryOption:ElementRef
   pricingControls = [
@@ -153,12 +154,14 @@ export class VehiclePricingComponent implements OnInit {
       console.log('Form Submitted!', this.pricingObject);
        this.vehiclePricingService.postPricingData(this.pricingObject).subscribe((pricingResponse) => {
          console.log(pricingResponse);
-        
+         if (pricingResponse.status === 200) {
+          this.newPricing = true
+        }
        })
        setTimeout(() => {
-        
+         this.newPricing = false;
          this.pricingForm.enable()
-       }, 1000);
+       }, 2000);
 
         //  this.selectCountry.nativeElement.enable()
          
