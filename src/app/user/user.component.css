@@ -29,11 +29,14 @@ font-family: 'fantasy';
 .card-saved {
 background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, #685396);
    color: white;
-   padding: 4% 10%;
-   width: 50%;
+   /* padding: %; */
+   width: 35%;
    z-index: 100;
-
+   position: absolute;
+   bottom: 10%;
+   right: 30%;
 }
 .card{
    z-index: 1000;
+   text-align: center;
 }

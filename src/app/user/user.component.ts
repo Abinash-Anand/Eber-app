@@ -39,7 +39,8 @@ export class UserComponent implements OnInit {
   filteredCityArray: any[] = [];
   countries: Country[] = [];
   cardValidity: boolean = false
-  cardSaved:boolean = false
+  cardSaved: boolean = false
+  userObjectId: string = '';
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -234,18 +235,20 @@ export class UserComponent implements OnInit {
   async handlePayment() {
     try {
       const result = await this.paymentService.handlePayment();
+      // Object.defineProperty(result.token, 'userId', { value: this.userObjectId})
+        (result.token as any).userId = this.userObjectId; // Cast to any to add userId
       console.log(result); // Output the result from handlePayment
-      await this.paymentService.sendTokenToServer(result.token).subscribe((response) => {
+      await this.paymentService.sendTokenToServer(result.token).subscribe((response:any) => {
         console.log(response.status);
         if (response.status === 500) {
           this.cardValidity = true;
         }
-        else if (response.status === 200) {
+        else if (response.status === "succeeded") {
           this.cardSaved = true
         }
         setTimeout(() => {
           this.cardSaved = false;
-          this.cardValidity = true;
+          this.cardValidity = false;
 
         }, 3000);
         
@@ -253,6 +256,10 @@ export class UserComponent implements OnInit {
     } catch (error) {
       console.error('Payment handling error:', error);
     }
+  }
+  onAddPayment(user:any) {
+    console.log(user._id);
+    this.userObjectId = user._id
   }
 
   

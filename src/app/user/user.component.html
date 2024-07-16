@@ -107,7 +107,7 @@
                 <button type="button" class="btn btn-success" data-toggle="modal" 
                 data-target="#exampleModal" data-whatever="@mdo">
                     Edit</button>
-                <button class="btn btn-info m-1" data-toggle="modal" data-target="#paymentModal"  (click)="pay(20)">Stripe</button>
+                <button class="btn btn-info m-1" data-toggle="modal" data-target="#paymentModal" (click)="onAddPayment(user)">Stripe</button>
                 <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
             </td>
         </tr>
@@ -116,7 +116,7 @@
 <!-- Payment Modal -->
 
 <div class="modal fade stripe-payment-form" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
-<div class="card-saved" *ngIf="cardSaved">
+<div class="card bg-success text-light" *ngIf="cardSaved">
     <h1>New Card Added</h1>
 </div>
 <div class="card bg-danger text-light" *ngIf="cardValidity">

@@ -33,7 +33,9 @@ export class PaymentService {
     }
   }
 
-  sendTokenToServer(token: any):Observable<HttpResponse<any>> {
+  sendTokenToServer(token: any): Observable<HttpResponse<any>> {
+    console.log(token);
+    
     return this.http.post<any>(`${environment.backendServerPORT}/create-payment-intent`, { token , observe:'response'});
   }
 }
