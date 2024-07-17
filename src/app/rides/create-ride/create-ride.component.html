@@ -84,8 +84,8 @@
                     <hr>    
                     </div>
                    
-                    <div class="row service m-2 p-3 " *ngFor="let vehicle of filteredVehicles" >
-
+                    <div class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles"  (click)="onSelectService(vehicle)">
+                        
                         <div class="col p-1">
                             <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL"  alt="Vehicle Image"
                               >
@@ -96,7 +96,7 @@
                             <h6 >🟢({{vehicle.count}})</h6>
 
                         </div>
-                        <div class="col-sm p-1">
+                        <div class="col-sm p-1 " >
                             <h4>{{totalFare | currency:"INR"}}</h4>
                             <h6>
                                 <img width="20px" height="20px"
@@ -107,6 +107,32 @@
 
                         </div>
                     </div>
+                    <!-- <div class="row service m-2 p-3 buy"  *ngIf="vehicle">
+                    
+                        <div class="col p-1">
+                            <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL" alt="Vehicle Image">
+                        </div>
+                        <div class="col-sm p-1">
+                            <h5>{{vehicle.vehicle.vehicleName}}</h5>
+                            <h5>{{vehicle.vehicle.vehicleType}}👤{{vehicle.maxSpace}}</h5>
+                            <h6>🟢({{vehicle.count}})</h6>
+                    
+                        </div>
+                        <div class="col-sm p-1 ">
+                            <h4>{{totalFare | currency:"INR"}}</h4>
+                            <h6>
+                                <img width="20px" height="20px"
+                                    src="https://img.icons8.com/external-those-icons-lineal-those-icons/24/external-distance-maps-locations-those-icons-lineal-those-icons-1.png"
+                                    alt="external-distance-maps-locations-those-icons-lineal-those-icons-1" /> {{distance}} km
+                            </h6>
+                            <h6>
+                                <img width="20px" height="20px" src="https://img.icons8.com/color/48/time-machine--v1.png"
+                                    alt="time-machine--v1" /> {{time}} mins
+                            </h6>
+                    
+                        </div>
+                    </div> -->
+                    
 
                 <hr>
                 <!-- Booking Options -->

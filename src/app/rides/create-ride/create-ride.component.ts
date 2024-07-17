@@ -12,6 +12,7 @@ import { Zone } from 'zone.js/lib/zone-impl';
 import { PricingArray } from '../../shared/pricing-array';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { Vehicle } from '../../shared/vehicle';
+import { CreateRideForm } from '../../shared/create-ride-form';
 
 @Component({
   selector: 'app-create-ride',
@@ -50,7 +51,23 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   pricings: Pricing[] = [];
   // vehicleDataArray: Vehicle[] = [];
   filteredVehicles: {}[] = []
-  user:string = ''
+  user: string = ''
+  newBookingObject: CreateRideForm = {
+    userId:'',
+    phone:null,
+    paymentOption:'',
+    fromLocation:'',
+    toLocation:'',
+    pickupLocation:'',
+    dropOffLocation:'',
+    stopLocations:'',
+    totalDistance:'',
+    EstimatedTime: '',
+    serviceType:'',
+    bookingOption:'',
+    scheduleDateTime: '',
+    
+}
   //----------Pricing Values---------------
   drvierProfit: number = null;
   time: number = null;
@@ -64,8 +81,10 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   basePrice: number = null;
   estimatedDistance: number = null;
   // maxSpace: number = null;
+  serviceSelected: boolean = false
+  userId:string =''
   //----------------------------------------
-  serviceType: PricingArray[]=[]
+  serviceType: string = '';
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -129,9 +148,12 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     const phoneNumber = this.requestForm.get('phone').value;
     const searchObject: { searchBy: string, searchInput: any } = { searchBy: 'phone', searchInput: phoneNumber };
     this.userService.getSpecificUser(searchObject).subscribe(
-      user => {
+     ( user:any) => {
         if (user.length !== 0) {
           console.log(user);
+          this.userId = user[0]._id
+          console.log(this.userId);
+          
           this.user =  user[0].userProfile
           
           this.isFormEnabled = true;
@@ -461,14 +483,18 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   
     
   }
+  //------------------------Get Service ---------------------------------
 
-
-
-
+   onSelectService(vehicleDetails) {
+    this.serviceType = vehicleDetails.vehicleType;
+    this.serviceSelected = true;
+     this.requestForm.get('serviceType').setValue(this.serviceType);
+     
+  }
 
   onSubmit() {
     console.log('Form Valid:', this.requestForm.valid);
-    console.log('Form Value:', this.requestForm.value);
+    // console.log('Form Value:', this.requestForm.value);
 
     if (this.requestForm.invalid) {
       console.error('Form is invalid');
@@ -481,15 +507,32 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     }
 
     const formData = this.requestForm.value;
-    formData.fromLocation = this.fromLocation;
-    formData.toLocation = this.toLocation;
-    formData.stopLocations = this.stopLocations;
+    formData.fromLocation = JSON.stringify(this.fromLocation) ;
+    formData.toLocation = JSON.stringify(this.toLocation);
+    formData.stopLocations = JSON.stringify(this.stopLocations);
     formData.totalDistance = this.totalDistance;
     formData.EstimatedTime = this.EstimatedTime;
+    this.newBookingObject = formData
+    this.newBookingObject.userId = this.userId
+    console.log('Form Data:', this.newBookingObject);
+    // this.newBookingObject = {
+    //   phone:formData.phone,
+    // paymentOption:formData.paymentOption,
+    // fromLocation:formData.fromLocation,
+    // toLocation:formData.toLocation,
+    // pickupLocation:formData.pickupLocation,
+    // dropOffLocation:formData.dropOffLocation,
+    // stopLocations:formData.stopLocation,
+    // totalDistance:formData.totalDistance,
+    // EstimatedTime: formData.estimatedTime,
+    // serviceType:formData.serviceType,
+    // bookingOption:formData.bookingOption,
+    // scheduleDateTime: formData.scheduleDateTime,
+    // }
+    // console.log(this.newBookingObject);
+    
 
-    console.log('Form Data:', formData);
-
-    this.createRideService.bookRide(formData).subscribe(
+    this.createRideService.bookRide(this.newBookingObject).subscribe(
       response => {
         console.log('Ride created successfully:', response);
       },

@@ -11,7 +11,8 @@ const { createNewDriver, allDrivers, updateDriver, deleteDriver, searchDriver } 
 const auth = require('../middlewares/authMiddleware');
 const { setPricing, getAllPricing } = require('../controllers/pricingController')
 const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
-const {createNewPayment} = require('../controllers/stripePayment')
+const { createNewPayment } = require('../controllers/stripePayment');
+const {createNewRide} = require('../controllers/createRideController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -86,4 +87,6 @@ router.get('/check-settings', searchDefaultSettings);
 router.patch('/update-settings', updateSettings)
 //------------------------------Stripe payment gateway------------------------------
 router.post('/create-payment-intent', createNewPayment)
+//------------------------------Create Rides Section--------------------------------
+router.post('/book-ride', createNewRide)
 module.exports = router;
