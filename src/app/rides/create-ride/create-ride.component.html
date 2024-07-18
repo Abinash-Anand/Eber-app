@@ -1,6 +1,7 @@
 <div class="user-found-alert" *ngIf="userFoundAlert">
     <h1>User Found!</h1>
 </div>
+
 <div class="container mt-3">
     <div class="row">
         <div class="col-md-6 bg-light">
@@ -17,11 +18,22 @@
                 <!-- Payment Options -->
                 <div class="mb-3 ">
                     <label class="form-label font-weight-bold">Payment Options</label><br>
-                    <input type="radio" id="cash" formControlName="paymentOption" value="cash"> 
+                    <input type="radio" id="cash" formControlName="paymentOption" value="cash"
+                        (click)="onSelectCardPayment('cash')"> 
                     <label for="cash">Cash</label><br>
-                    <input type="radio" id="card" formControlName="paymentOption" value="card"> <label
+                    <input type="radio" id="card" (click)="onSelectCardPayment('card')" formControlName="paymentOption" value="card"> <label
                         for="card">Card</label>
+                <div class="payment-container" *ngIf="cardId === 'card'">
+                    <select name="cards" class="form-control select-card col-12" id="cardPayment" formControlName="selectedCard"
+                        (change)="onSelectedCard($event)">
+                        <option *ngFor="let card of cards" [value]="card.token_id">
+                            XXXX-XXXX-XXXX-{{ card.card_last4 }}
+                        </option>
+                    </select>
                 </div>
+                </div>
+
+
 
                 <!-- Ride Details -->
                 <div class="mb-3">
@@ -152,10 +164,16 @@
                 </div>
 
                 <!-- Book Ride Button -->
-                <button type="submit" class="btn my-3 btn-success" >Book Ride</button>
+                <div class="alert-success customAlerts px-4 py-2" *ngIf="formSubmitted">
+                    <h4>New Ride Booking Just Created</h4>
+                </div>
+                <button type="submit" class="btn my-3 btn-outline-primary">Book Ride</button>
+                
+                
             </form>
+           
         </div>
-
+      
         <!-- Map -->
         <div class="col ">
             <div class="card" *ngIf="mapActive">

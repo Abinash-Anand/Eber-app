@@ -115,3 +115,16 @@ border: none;   */
     cursor: pointer;
     /* background-color: rgba(81, 78, 78, 0.89); */
 }
+
+.select-card {
+    background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, #685396);
+    color: white;
+}
+.select-card option{
+    color: black;
+}
+/* .customAlerts{
+    position: absolute;
+    top: 0%;
+    z-index: 100;
+} */

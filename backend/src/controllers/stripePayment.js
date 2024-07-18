@@ -45,4 +45,20 @@ const createNewPayment = async (req, res) => {
     }
 };
 
-module.exports = { createNewPayment };
+
+
+const fetchUserCardDetails = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        console.log(req.params.id);
+    const cards = await PaymentToken.find({userId})//---expect an object as argument
+    if (!cards) {
+        return res.status(404).send(cards);
+    }
+    res.status(201).send(cards);
+    
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
+module.exports = { createNewPayment , fetchUserCardDetails};

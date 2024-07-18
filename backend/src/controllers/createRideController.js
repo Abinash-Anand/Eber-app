@@ -2,7 +2,7 @@ const Ride = require('../models/createRideModel')
 
 const createNewRide = async (req, res) => {
     try {
-        const { userId,phone, paymentOption, fromLocation, toLocation,
+        const { userId,phone, paymentOption,selectedCard, fromLocation, toLocation,
                  pickupLocation, dropOffLocation, stopLocations,
                  totalDistance, EstimatedTime, serviceType, bookingOption,
             scheduleDateTime } = req.body;
@@ -10,7 +10,7 @@ const createNewRide = async (req, res) => {
         const validatedStopLocations = stopLocations || '';
         // const validatedEstimatedTime = EstimatedTime || '';
            // Validate required fields
-        if (!userId || !phone || !paymentOption || !fromLocation || !toLocation ||
+        if (!userId || !phone || !paymentOption || !selectedCard || !fromLocation || !toLocation ||
             !pickupLocation || !dropOffLocation || !totalDistance ||
             !EstimatedTime || !serviceType || !bookingOption) {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
@@ -20,6 +20,7 @@ const createNewRide = async (req, res) => {
             userId,
             phone,
             paymentOption,
+            selectedCard,
             fromLocation,
             toLocation,
             pickupLocation,

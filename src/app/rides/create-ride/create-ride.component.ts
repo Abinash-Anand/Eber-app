@@ -13,6 +13,8 @@ import { PricingArray } from '../../shared/pricing-array';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { Vehicle } from '../../shared/vehicle';
 import { CreateRideForm } from '../../shared/create-ride-form';
+import { PaymentService } from '../../services/payment/payment.service';
+import { response } from 'express';
 
 @Component({
   selector: 'app-create-ride',
@@ -33,6 +35,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   currentStopIndex: number | null = null;
   fromAddress: string = '';
   toAddress: string = '';
+  cards: {}[] = []
   stopAddress: string = '';
   userGeolocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
   fromLocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
@@ -41,6 +44,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   totalDistance: string = '';
   EstimatedTime: string = '';
   mapActive: boolean = false;
+  cardId:string= '' 
   waypoints: google.maps.DirectionsWaypoint[] = [];
   numberOfStops: number = null;
   requestAcceptTime: number = null;
@@ -49,6 +53,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   cityMap: { id: string, name: string }[] = [];
   cities: Zone[] = [];
   pricings: Pricing[] = [];
+  formSubmitted:boolean = false
   // vehicleDataArray: Vehicle[] = [];
   filteredVehicles: {}[] = []
   user: string = ''
@@ -94,6 +99,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     private vehiclePricingService: VehiclePricingService,
     private pricingService: VehiclePricingService,
     private cityService: CityService,
+    private paymentService: PaymentService,
     private vehicleTypeService: VehicleTypeService
   ) { }
 
@@ -101,6 +107,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.requestForm = this.fb.group({
       phone: [null, Validators.required],
       paymentOption: [{ value: null, disabled: true }],
+      selectedCard:[{value:''},Validators.required ],
       pickupLocation: [{ value: '', disabled: true }],
       dropOffLocation: [{ value: '', disabled: true }],
       serviceType: [{ value: '', disabled: true }],
@@ -144,6 +151,24 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     
   }
 
+  //fetch user card details
+  fetchUserCardDetails(userId) {
+    console.log(userId);
+    
+    this.paymentService.fetchUserCards(userId).subscribe((response) => {
+      console.log(response);
+      this.cards = response.body;
+      
+    })
+  }
+  onSelectedCard(event: Event) {
+    console.log(event);
+    const target = event.target as HTMLSelectElement
+    const value = target.value
+    
+    this.requestForm.value.selectedCard = value
+}
+
   fetchUserDetails() {
     const phoneNumber = this.requestForm.get('phone').value;
     const searchObject: { searchBy: string, searchInput: any } = { searchBy: 'phone', searchInput: phoneNumber };
@@ -153,9 +178,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           console.log(user);
           this.userId = user[0]._id
           console.log(this.userId);
-          
-          this.user =  user[0].userProfile
-          
+          this.user = user[0].userProfile;
           this.isFormEnabled = true;
           this.userFoundAlert = true;
          
@@ -533,12 +556,30 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     
 
     this.createRideService.bookRide(this.newBookingObject).subscribe(
-      response => {
+     ( response:any) => {
         console.log('Ride created successfully:', response);
+        
+          this.formSubmitted = response.success;
       },
       error => {
         console.error('Error creating ride:', error);
       }
     );
+  }
+
+  //selecting card payment
+  onSelectCardPayment(value: string) {
+    this.cardId = value;
+    
+    if (this.cardId !== 'cash') {
+          console.log("payment type: ", this.cardId);
+            this.fetchUserCardDetails(this.userId)
+    } else {
+          console.log("payment type: ", this.cardId);
+            this.requestForm.value.selectedCard ='cash'
+          }
+  }
+  validateCard() {
+    
   }
 }

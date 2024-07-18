@@ -13,6 +13,9 @@ const rideSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    selectedCard: {
+        type: String,
+    },
     fromLocation: {
         type: String,
         required: true,

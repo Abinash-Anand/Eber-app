@@ -38,4 +38,9 @@ export class PaymentService {
     
     return this.http.post<any>(`${environment.backendServerPORT}/create-payment-intent`, { token , observe:'response'});
   }
+   fetchUserCards(id:string){
+    console.log(id);
+    
+    return this.http.get<any>(`${environment.backendServerPORT}/fetch-all-cards/${id}`, {  observe:'response'});
+  }
 }
