@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SettingsService } from '../services/settings/settings.service';
 import { Settings } from '../shared/settings';
 
@@ -20,14 +20,14 @@ export class SettingsComponent implements OnInit{
   settingId: string = '';
   constructor(private settingsService: SettingsService) { }
   ngOnInit(): void {
-    // this.getDefaultSettings()
     this.disableDefaultSettings()
   }
+
   disableDefaultSettings() {
      const id = 'DEFAULT';
 
     this.settingsService.getDefaultSettings().subscribe(response => {
-      if (response.status === 200 && response.body !== null) {
+       if (response.status === 200 && response.body && response.body.length > 0) {
         this.DefaultSettings = true;
         this.acceptRequestTime = response.body[0].requestAcceptTime
         this.maxStops  =  response.body[0].numberOfStops
@@ -90,7 +90,13 @@ export class SettingsComponent implements OnInit{
       numberOfStops,
     }
     this.settingsService.postDefaultSettings(defaultSettings).subscribe((settingResponse) => {
-    
+      if (settingResponse.status === 200) {
+        this.DefaultSettings = true;
+        setTimeout(() => {
+        alert("Settings set to Default")
+      }, 1000);
+      }
+          
     })
     
     

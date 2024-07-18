@@ -16,8 +16,8 @@ settingArray:[Settings]
   return this.http.post<Settings[]>(`${environment.backendServerPORT}/set-settings`,settingsObject,{observe:'response'} )
   
 }
- getDefaultSettings(): Observable<HttpResponse<Settings>> {
-    return this.http.get<Settings>(`${environment.backendServerPORT}/check-settings`, { observe: 'response' });
+ getDefaultSettings(): Observable<HttpResponse<Settings[]>> {
+    return this.http.get<Settings[]>(`${environment.backendServerPORT}/check-settings`, { observe: 'response' });
   }
   updateDefaultSettings(newSettings): Observable<HttpResponse<Settings[]>> {
     return this.http.patch<Settings[]>(`${environment.backendServerPORT}/update-settings`,newSettings, {observe:'response'} )
