@@ -1,17 +1,19 @@
 import { Injectable } from '@angular/core';
-// import * as io from 'socket.io-client';
+import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environment';
-import { io } from 'socket.io-client';
-// import { environment } from 'src/environments/environment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class SocketService {
-  private socket: any;
+  private socket: Socket;
 
   constructor() {
-    this.socket = io(environment.backendServerPORT);
+    this.socket = io(environment.socketUrl, {
+      withCredentials: true,
+      transports: ['websocket', 'polling'],
+    });
   }
 
   on(eventName: string, callback: (data: any) => void) {
@@ -20,5 +22,9 @@ export class SocketService {
 
   emit(eventName: string, data: any) {
     this.socket.emit(eventName, data);
+  }
+
+  disconnect() {
+    this.socket.disconnect();
   }
 }

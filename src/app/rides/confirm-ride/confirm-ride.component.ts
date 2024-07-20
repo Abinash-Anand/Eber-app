@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { RideService } from '../../services/confirm-ride/ride.service';
-import { SocketService } from '../../services/sockets/socket.service';
 // import { RideService } from '../services/ride.service';
-// import { SocketService } from '../services/socket.service';
-
+import { Socket } from 'socket.io-client';
+import { RideService } from '../../services/confirm-ride/ride.service';
+// import { Socket } from 'ngx-socket-io';
 
 @Component({
   selector: 'app-confirm-ride',
@@ -11,68 +10,63 @@ import { SocketService } from '../../services/sockets/socket.service';
   styleUrl: './confirm-ride.component.css'
 })
 export class ConfirmRideComponent implements OnInit {
-
-  rides: any[] = [];
+rides: any[] = [];
   filteredRides: any[] = [];
-  selectedRide: any = null;
-  filters: any = {
-    username: '',
-    phone: '',
-    requestId: '',
-    status: ''
-  };
+  filterStatus: string = '';
+  filterVehicle: string = '';
+  searchUsername: string = '';
+  searchPhoneNumber: string = '';
+  searchRequestId: string = '';
+  fromDate: string = '';
+  toDate: string = '';
 
-  constructor(private rideService: RideService, private socketService: SocketService) { }
+  constructor(private rideService: RideService, private socket: Socket) {}
 
   ngOnInit(): void {
-    // this.fetchRides();
-    // this.setupSocketListeners();
-  }
+    this.getConfirmedRides();
 
-  fetchRides(): void {
-    this.rideService.getConfirmedRides().subscribe((data: any) => {
-      this.rides = data;
-      this.applyFilters();
+    // Listen to real-time updates
+    this.socket.on('rideUpdated', (ride) => {
+      this.updateRideInList(ride);
     });
   }
 
-  setupSocketListeners(): void {
-    this.socketService.on('rideStatusUpdate', (ride: any) => {
-      const index = this.rides.findIndex(r => r.requestId === ride.requestId);
-      if (index > -1) {
-        this.rides[index].status = ride.status;
-      }
-      this.applyFilters();
+  getConfirmedRides(): void {
+    this.rideService.getConfirmedRides().subscribe((rides) => {
+      this.rides = rides;
+      this.filteredRides = rides;
     });
   }
 
-  onFilterChange(filterKey: string, filterValue: string): void {
-    this.filters[filterKey] = filterValue;
-    this.applyFilters();
+  updateRideInList(updatedRide): void {
+    const index = this.rides.findIndex(ride => ride._id === updatedRide._id);
+    if (index !== -1) {
+      this.rides[index] = updatedRide;
+    }
   }
 
   applyFilters(): void {
     this.filteredRides = this.rides.filter(ride => {
-      return (!this.filters.username || ride.userName.includes(this.filters.username)) &&
-             (!this.filters.phone || ride.userPhone.includes(this.filters.phone)) &&
-             (!this.filters.requestId || ride.requestId.includes(this.filters.requestId)) &&
-             (!this.filters.status || ride.status === this.filters.status);
+      return (!this.filterStatus || ride.status === this.filterStatus)
+        && (!this.filterVehicle || ride.vehicleType === this.filterVehicle)
+        && (!this.searchUsername || ride.username.includes(this.searchUsername))
+        && (!this.searchPhoneNumber || ride.phoneNumber.includes(this.searchPhoneNumber))
+        && (!this.searchRequestId || ride.requestId.includes(this.searchRequestId))
+        && (!this.fromDate || new Date(ride.createdAt) >= new Date(this.fromDate))
+        && (!this.toDate || new Date(ride.createdAt) <= new Date(this.toDate));
     });
   }
 
-  cancelRide(requestId: string): void {
-    this.rideService.cancelRide(requestId).subscribe(() => {
-      this.fetchRides();
+  cancelRide(id: string): void {
+    this.rideService.cancelRide(id).subscribe(() => {
+      this.rides = this.rides.filter(ride => ride._id !== id);
+      this.applyFilters();
     });
   }
 
-  assignDriver(requestId: string): void {
-    // Logic to assign driver (e.g., open a modal to select a driver)
-  }
-
-  viewRideDetails(requestId: string): void {
-    this.selectedRide = this.rides.find(ride => ride.requestId === requestId);
-    // Show the ride details modal
-    // $('#rideDetailsModal').modal('show');
+  assignDriver(rideId: string, driverId: string): void {
+    this.rideService.assignDriver(rideId, driverId).subscribe((updatedRide) => {
+      this.updateRideInList(updatedRide);
+    });
   }
 }

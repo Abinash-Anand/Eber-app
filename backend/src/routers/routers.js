@@ -12,7 +12,9 @@ const auth = require('../middlewares/authMiddleware');
 const { setPricing, getAllPricing } = require('../controllers/pricingController')
 const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
 const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripePayment');
-const {createNewRide} = require('../controllers/createRideController')
+const { createNewRide } = require('../controllers/createRideController')
+const { ensureAuthenticated } = require('../middlewares/authMiddleware');
+const {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}= require('../controllers/confirmRideController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -90,5 +92,11 @@ router.post('/create-payment-intent', createNewPayment)
 router.get('/fetch-all-cards/:id', fetchUserCardDetails)
 //------------------------------Create Rides Section--------------------------------
 router.post('/book-ride', createNewRide)
-
+//-------------------------------Confirm Ride Section-------------------------------
+    router.get('/confirmed-rides',  confirmedRide)// -confirmed ride
+    router.put('/ride-status/:id',  updateRideStatus ) //-update ride status
+    router.put('/assign-driver/:id',  assignDriverToRide)// - assign driver to ride
+    router.delete('/cancel-ride/:id',  cancelRide)// - cancel ride
+    router.get('/filter-rides',  filterRide) //- filter ride
+// {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}
 module.exports = router;

@@ -1,36 +1,44 @@
-require('dotenv').config(); // Load environment variables at the top
-const express = require("express");
+require('dotenv').config();
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
 require('./db/mongoose'); // Ensure this path is correct
 const cookieParser = require('cookie-parser');
-const cors = require('cors'); // Import cors
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const routers = require('./routers/routers'); // Ensure this path is correct
-const stripe = require('stripe')('sk_test_51PcXjn2LMAO7sEDSdVod5R47ukNwnau4hFlaBKDsbMjUcyf6m0Ygstlz2Cx54tvcSEsuSPWioNDxY6u5o0CFVVAj00dNAY2Tyn');
-// console.log(stripe);
-const app = express();
-const port = process.env.PORT || 3000; // Use environment variable or default to 5000
 
-// Debugging statements
+const app = express();
+const server = http.createServer(app);
+const io = socketIo(server);
+
+const port = process.env.PORT || 3000;
+
 console.log('Loaded .env file:', process.env.PORT);
 console.log('Port used by server:', port);
 
-// Middleware to parse JSON bodies
 app.use(cookieParser());
-app.use(express.json()); // Parse JSON bodies
+app.use(express.json());
 
-// CORS configuration to allow only localhost:4200
 const corsOptions = {
     origin: true,
-    optionsSuccessStatus: 200 ,// Some legacy browsers choke on 204
-    credentials: true // Allow credentials (cookies)
-
+    optionsSuccessStatus: 200,
+    credentials: true
 };
-app.use(cors(corsOptions)); // Enable CORS with specific options
-
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use('/uploads', express.static('uploads'));
-app.use(routers); // Use routers
+app.use(routers);
 
-app.listen(port, () => {
+// Socket.io connection
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+server.listen(port, () => {
     console.log(`The server is live at port: ${port}`);
 });

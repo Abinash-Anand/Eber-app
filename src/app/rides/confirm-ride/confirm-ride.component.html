@@ -1,99 +1,56 @@
-<div class="container mt-4">
-    <h2>Confirmed Rides</h2>
+<div class="container">
+  <h2>Confirmed Rides</h2>
+  <div class="filters">
+    <input type="text" [(ngModel)]="searchUsername" placeholder="Search by username" (input)="applyFilters()">
+    <input type="text" [(ngModel)]="searchPhoneNumber" placeholder="Search by phone number" (input)="applyFilters()">
+    <input type="text" [(ngModel)]="searchRequestId" placeholder="Search by request ID" (input)="applyFilters()">
+    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Status</option>
+      <option value="Accepted">Accepted</option>
+      <option value="Arrived">Arrived</option>
+      <option value="Picked">Picked</option>
+      <option value="Started">Started</option>
+      <option value="Completed">Completed</option>
+    </select>
+    <select [(ngModel)]="filterVehicle" (change)="applyFilters()">
+      <option value="">All Vehicles</option>
+      <option value="Sedan">Sedan</option>
+      <option value="SUV">SUV</option>
+      <!-- Add more vehicle types as needed -->
+    </select>
+    <input type="date" [(ngModel)]="fromDate" (change)="applyFilters()">
+    <input type="date" [(ngModel)]="toDate" (change)="applyFilters()">
+  </div>
 
-    <!-- Filters -->
-    <div class="row mb-3">
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Search by Username"
-                (input)="onFilterChange('username', $event.target.value)">
-        </div>
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Search by Phone Number"
-                (input)="onFilterChange('phone', $event.target.value)">
-        </div>
-        <div class="col">
-            <input type="text" class="form-control" placeholder="Search by Request ID"
-                (input)="onFilterChange('requestId', $event.target.value)">
-        </div>
-        <div class="col">
-            <select class="form-control" (change)="onFilterChange('status', $event.target.value)">
-                <option value="">All Statuses</option>
-                <option value="Accepted">Accepted</option>
-                <option value="Arrived">Arrived</option>
-                <option value="Picked">Picked</option>
-                <option value="Started">Started</option>
-                <option value="Completed">Completed</option>
-            </select>
-        </div>
-    </div>
-
-    <!-- Ride Requests Table -->
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>User Name</th>
-                <th>User ID</th>
-                <th>Pick Up Time</th>
-                <th>Pick Up Address</th>
-                <th>Drop Off Address</th>
-                <th>Service Type</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let ride of filteredRides">
-                <td>{{ ride.requestId }}</td>
-                <td>{{ ride.userName }}</td>
-                <td>{{ ride.userId }}</td>
-                <td>{{ ride.pickUpTime }}</td>
-                <td>{{ ride.pickUpAddress }}</td>
-                <td>{{ ride.dropOffAddress }}</td>
-                <td>{{ ride.serviceType }}</td>
-                <td>{{ ride.status }}</td>
-                <td>
-                    <button *ngIf="ride.status === 'Pending'" class="btn btn-danger"
-                        (click)="cancelRide(ride.requestId)">Cancel</button>
-                    <button *ngIf="ride.status !== 'Completed'" class="btn btn-primary"
-                        (click)="assignDriver(ride.requestId)">Assign</button>
-                    <button class="btn btn-info" (click)="viewRideDetails(ride.requestId)">View Details</button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- Ride Details Modal -->
-    <div class="modal fade" id="rideDetailsModal" tabindex="-1" role="dialog" aria-labelledby="rideDetailsModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rideDetailsModalLabel">Ride Details</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div *ngIf="selectedRide">
-                        <p><strong>Request ID:</strong> {{ selectedRide.requestId }}</p>
-                        <p><strong>User Name:</strong> {{ selectedRide.userName }}</p>
-                        <p><strong>User ID:</strong> {{ selectedRide.userId }}</p>
-                        <p><strong>Pick Up Time:</strong> {{ selectedRide.pickUpTime }}</p>
-                        <p><strong>Pick Up Address:</strong> {{ selectedRide.pickUpAddress }}</p>
-                        <p><strong>Drop Off Address:</strong> {{ selectedRide.dropOffAddress }}</p>
-                        <p><strong>Service Type:</strong> {{ selectedRide.serviceType }}</p>
-                        <p><strong>Status:</strong> {{ selectedRide.status }}</p>
-                        <p><strong>Estimated Distance:</strong> {{ selectedRide.estimatedDistance }} km</p>
-                        <p><strong>Estimated Time:</strong> {{ selectedRide.estimatedTime }} mins</p>
-                        <p><strong>Fare:</strong> {{ selectedRide.fare }} $</p>
-                        <p><strong>Create Time:</strong> {{ selectedRide.createTime }}</p>
-                        <p><strong>Schedule Time:</strong> {{ selectedRide.scheduleTime }}</p>
-                        <p><strong>User Details:</strong> <img [src]="selectedRide.userProfile" alt="User Profile"
-                                class="img-thumbnail" width="100"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Request ID</th>
+        <th>Username</th>
+        <th>User ID</th>
+        <th>Pickup Time</th>
+        <th>Pickup Address</th>
+        <th>Dropoff Address</th>
+        <th>Service Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let ride of filteredRides">
+        <td>{{ ride._id }}</td>
+        <td>{{ ride.username }}</td>
+        <td>{{ ride.userId }}</td>
+        <td>{{ ride.pickupTime | date: 'short' }}</td>
+        <td>{{ ride.pickupAddress }}</td>
+        <td>{{ ride.dropoffAddress }}</td>
+        <td>{{ ride.serviceType }}</td>
+        <td>{{ ride.status }}</td>
+        <td>
+          <button *ngIf="ride.status === 'Confirmed'" (click)="assignDriver(ride._id, 'someDriverId')">Assign</button>
+          <button *ngIf="ride.status !== 'Completed'" (click)="cancelRide(ride._id)">Cancel</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>
