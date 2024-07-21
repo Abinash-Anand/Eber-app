@@ -35,7 +35,10 @@ rides: any[] = [];
     this.rideService.getConfirmedRides().subscribe((rides) => {
       this.rides = rides;
       this.filteredRides = rides;
+  console.log(rides);
+  
     });
+  
   }
 
   updateRideInList(updatedRide): void {
