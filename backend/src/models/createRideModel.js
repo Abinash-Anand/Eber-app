@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+
 const rideSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userModel',
-        required:true
+        required: true
     },
     phone: {
         type: Number,
@@ -34,7 +35,6 @@ const rideSchema = mongoose.Schema({
     },
     stopLocations: {
         type: String,
-       
     },
     totalDistance: {
         type: String,
@@ -54,9 +54,13 @@ const rideSchema = mongoose.Schema({
     },
     scheduleDateTime: {
         type: String,
-      
     },
-},{timestamps:true});
+    status: {
+        type: String,
+        enum: ['Pending', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
+        default: 'Pending'
+    }
+}, { timestamps: true });
 
 const Ride = mongoose.model('Ride', rideSchema);
 module.exports = Ride;

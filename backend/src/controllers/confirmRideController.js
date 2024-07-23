@@ -1,67 +1,69 @@
-
 const Ride = require('../models/createRideModel');
+const User = require('../models/usersModel');
 
-// Get all confirmed rides
-const confirmedRide =  async (req, res) => {
-  try {
-    const rides = await Ride.find({ status: { $in: ['Confirmed', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'] } });
-    res.status(200).json(rides);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Fetch all confirmed rides
+const getConfirmedRides = async (req, res) => {
+    try {
+        const rides = await Ride.find().populate('userId', 'username');
+        res.status(200).json(rides);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
-// Update ride status
-const updateRideStatus =  async (req, res) => {
-  const { status } = req.body;
-  try {
-    const ride = await Ride.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    res.status(200).json(ride);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Assign a driver to a ride
+const assignDriver = async (req, res) => {
+    const { id } = req.params;
+    const { driverId } = req.body;
+    try {
+        const ride = await Ride.findById(id);
+        if (ride) {
+            ride.driverId = driverId;
+            ride.status = 'Assigned';
+            await ride.save();
+            res.status(200).json({ message: 'Driver assigned successfully', ride });
+        } else {
+            res.status(404).json({ message: 'Ride not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
-// Assign driver to ride
-const assignDriverToRide = async (req, res) => {
-  const { driverId } = req.body;
-  try {
-    const ride = await Ride.findByIdAndUpdate(req.params.id, { driver: driverId, status: 'Assigned' }, { new: true });
-    res.status(200).json(ride);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Cancel a ride
+const cancelRide = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const ride = await Ride.findById(id);
+        if (ride) {
+            if (ride.status === 'Pending') {
+                await Ride.deleteOne({ _id: id });
+                res.status(200).json({ message: 'Ride canceled successfully' });
+            } else {
+                res.status(400).json({ message: 'Cannot cancel a ride that has been accepted' });
+            }
+        } else {
+            res.status(404).json({ message: 'Ride not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 };
 
-// Cancel ride
-const cancelRide =  async (req, res) => {
-  try {
-    await Ride.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Ride cancelled successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+// Method to update the status of a ride
+const updateRideStatus = async (req, res) => {
+    try {
+        const { rideId, status } = req.body;
+        const ride = await Ride.findByIdAndUpdate(rideId, { status }, { new: true });
+        if (!ride) {
+            return res.status(404).send({ error: 'Ride not found' });
+        }
+        res.send(ride);
+    } catch (error) {
+        res.status(500).send({ error: 'Server error' });
+    }
 };
 
-// Filtering rides
-const filterRide = async (req, res) => {
-  const { status, vehicleType, username, phoneNumber, requestId, fromDate, toDate } = req.query;
-  let filters = {};
+module.exports = { updateRideStatus };
 
-  if (status) filters.status = status;
-  if (vehicleType) filters.vehicleType = vehicleType;
-  if (username) filters.username = username;
-  if (phoneNumber) filters.phoneNumber = phoneNumber;
-  if (requestId) filters.requestId = requestId;
-  if (fromDate) filters.createdAt = { $gte: new Date(fromDate) };
-  if (toDate) filters.createdAt = { ...filters.createdAt, $lte: new Date(toDate) };
-
-  try {
-    const rides = await Ride.find(filters);
-    res.status(200).json(rides);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-module.exports = {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}
+module.exports = { getConfirmedRides, assignDriver, cancelRide, updateRideStatus };

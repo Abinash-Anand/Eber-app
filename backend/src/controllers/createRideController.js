@@ -1,6 +1,6 @@
 const Ride = require('../models/createRideModel')
 
-const createNewRide = async (req, res) => {
+const createNewRide = async (req, res, io) => {
     try {
         const { userId,phone, paymentOption,selectedCard, fromLocation, toLocation,
                  pickupLocation, dropOffLocation, stopLocations,
@@ -32,13 +32,15 @@ const createNewRide = async (req, res) => {
             bookingOption,
             scheduleDateTime
         });
-
         await newRideBooking.save();
         
+    io.emit('newRide', newRideBooking); // 'newRide' is the event name, newRideBooking is the data sent with the event
+
         res.status(200).json({ success: true, data: newRideBooking }); // Ensure the response format is correct
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 }
+
 
 module.exports = {createNewRide}

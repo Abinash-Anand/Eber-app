@@ -47,6 +47,11 @@ import { cityVehicleTypeService } from './services/city-vehicle-type-association
 import { StripePaymentComponent } from './stripe-payment/stripe-payment.component';
 import { LottieDirective } from './animation/lottie.directive';
 import { NgxSpinnerModule } from 'ngx-spinner';
+import { SocketService } from './services/sockets/socket.service';
+import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
+import { environment } from '../environment';
+
+const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
 @NgModule({
   declarations: [
@@ -88,7 +93,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     GoogleMapsModule,
     ReactiveFormsModule,
     CommonModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
+    SocketIoModule.forRoot(config)
 
   ],
   providers: [
@@ -109,7 +115,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
     DriverlistService,
     UserService,
     cityVehicleTypeService,
-
+    SocketService
   ],
   bootstrap: [AppComponent]
 })

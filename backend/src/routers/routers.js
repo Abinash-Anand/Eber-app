@@ -14,7 +14,8 @@ const {setSettings, searchDefaultSettings, updateSettings} = require('../control
 const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripePayment');
 const { createNewRide } = require('../controllers/createRideController')
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
-const {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}= require('../controllers/confirmRideController')
+const { getConfirmedRides, updateRideStatus } = require('../controllers/confirmRideController')
+// const {emitNewRideEvent} = require('../controllers/rideSockets')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -91,12 +92,17 @@ router.patch('/update-settings', updateSettings)
 router.post('/create-payment-intent', createNewPayment)
 router.get('/fetch-all-cards/:id', fetchUserCardDetails)
 //------------------------------Create Rides Section--------------------------------
-router.post('/book-ride', createNewRide)
+router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
+
 //-------------------------------Confirm Ride Section-------------------------------
-    router.get('/confirmed-rides',  confirmedRide)// -confirmed ride
-    router.put('/ride-status/:id',  updateRideStatus ) //-update ride status
-    router.put('/assign-driver/:id',  assignDriverToRide)// - assign driver to ride
-    router.delete('/cancel-ride/:id',  cancelRide)// - cancel ride
-    router.get('/filter-rides',  filterRide) //- filter ride
+router.get('/confirmed-rides', getConfirmedRides)// -confirmed ride
+router.patch('/update-ride-status', updateRideStatus);
+
+    // router.put('/ride-status/:id',  updateRideStatus ) //-update ride status
+    // router.put('/assign-driver/:id',  assignDriverToRide)// - assign driver to ride
+    // router.delete('/cancel-ride/:id',  cancelRide)// - cancel ride
+    // router.get('/filter-rides',  filterRide) //- filter ride
 // {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}
+//-------------------------------Ride Socket connections------------------------------
+// router.post('/book-ride',emitNewRideEvent)
 module.exports = router;

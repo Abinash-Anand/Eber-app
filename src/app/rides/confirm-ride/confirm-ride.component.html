@@ -1,56 +1,68 @@
-<div class="container">
-  <h2>Confirmed Rides</h2>
-  <div class="filters">
-    <input type="text" [(ngModel)]="searchUsername" placeholder="Search by username" (input)="applyFilters()">
-    <input type="text" [(ngModel)]="searchPhoneNumber" placeholder="Search by phone number" (input)="applyFilters()">
-    <input type="text" [(ngModel)]="searchRequestId" placeholder="Search by request ID" (input)="applyFilters()">
-    <select [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Status</option>
-      <option value="Accepted">Accepted</option>
-      <option value="Arrived">Arrived</option>
-      <option value="Picked">Picked</option>
-      <option value="Started">Started</option>
-      <option value="Completed">Completed</option>
-    </select>
-    <select [(ngModel)]="filterVehicle" (change)="applyFilters()">
-      <option value="">All Vehicles</option>
-      <option value="Sedan">Sedan</option>
-      <option value="SUV">SUV</option>
-      <!-- Add more vehicle types as needed -->
-    </select>
-    <input type="date" [(ngModel)]="fromDate" (change)="applyFilters()">
-    <input type="date" [(ngModel)]="toDate" (change)="applyFilters()">
-  </div>
+<!-- confirmed-rides.component.html -->
 
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Request ID</th>
-        <th>Username</th>
-        <th>User ID</th>
-        <th>Pickup Time</th>
-        <th>Pickup Address</th>
-        <th>Dropoff Address</th>
-        <th>Service Type</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let ride of filteredRides">
-        <td>{{ ride._id }}</td>
-        <td>{{ ride.username }}</td>
-        <td>{{ ride.userId }}</td>
-        <td>{{ ride.pickupTime | date: 'short' }}</td>
-        <td>{{ ride.pickupAddress }}</td>
-        <td>{{ ride.dropoffAddress }}</td>
-        <td>{{ ride.serviceType }}</td>
-        <td>{{ ride.status }}</td>
-        <td>
-          <button *ngIf="ride.status === 'Confirmed'" (click)="assignDriver(ride._id, 'someDriverId')">Assign</button>
-          <button *ngIf="ride.status !== 'Completed'" (click)="cancelRide(ride._id)">Cancel</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+    <h2 class="">Confirmed Rides</h2>
+<hr>
+    <!-- Filter Section -->
+    <div class="filter-section mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="statusFilter" class="form-label">Filter by Status:</label>
+                <select id="statusFilter" class="form-select" (change)="filterByStatus($event)">
+                    <option value="">All</option>
+                    <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="vehicleFilter" class="form-label">Filter by Vehicle:</label>
+                <select id="vehicleFilter" class="form-select" (change)="filterByVehicle($event)">
+                    <option value="">All</option>
+                    <option *ngFor="let vehicle of vehicleOptions" [value]="vehicle">{{vehicle}}</option>
+                </select>
+            </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <label for="searchInput" class="input-group-text">Search:</label>
+                <input id="searchInput" type="text" class="form-control" placeholder="Search by username, phone, or request ID"
+                    (input)="searchRides($event)">
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Rides Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Request ID</th>
+                    <th>User Name</th>
+                    <th>User ID</th>
+                    <th>Pick Up Time</th>
+                    <th>Pick Up Address</th>
+                    <th>Drop Off Address</th>
+                    <th>Service Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let ride of filteredRides">
+                    <td>{{ride._id}}</td>
+                    <td>{{ride.userId.username}}</td>
+                    <td>{{ride.userId._id}}</td>
+                    <td>{{ride.scheduleDateTime | date:'medium'}} </td>
+                    <td>{{ride.pickupLocation}}</td>
+                    <td>{{ride.dropOffLocation}}</td>
+                    <td>{{ride.serviceType}}</td>
+                    <td>{{ride.status}}</td>
+                    <td>
+                        <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm"
+                            (click)="assignDriver(ride)">Assign</button>
+                        <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm"
+                            (click)="cancelRide(ride)">Cancel</button>
+                        <span *ngIf="ride.status !== 'Pending'" class="badge bg-success">{{ride.status}}</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>

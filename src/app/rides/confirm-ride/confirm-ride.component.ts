@@ -1,75 +1,76 @@
+// confirm-ride.component.ts
 import { Component, OnInit } from '@angular/core';
-// import { RideService } from '../services/ride.service';
-import { Socket } from 'socket.io-client';
-import { RideService } from '../../services/confirm-ride/ride.service';
-// import { Socket } from 'ngx-socket-io';
+import { SocketService } from '../../services/sockets/socket.service';
+import { RideService } from '../../services/rides/ride.service';
 
 @Component({
-  selector: 'app-confirm-ride',
+  selector: 'app-confirmed-rides',
   templateUrl: './confirm-ride.component.html',
-  styleUrl: './confirm-ride.component.css'
+  styleUrls: ['./confirm-ride.component.css']
 })
 export class ConfirmRideComponent implements OnInit {
-rides: any[] = [];
+  rides: any[] = [];
   filteredRides: any[] = [];
-  filterStatus: string = '';
-  filterVehicle: string = '';
-  searchUsername: string = '';
-  searchPhoneNumber: string = '';
-  searchRequestId: string = '';
-  fromDate: string = '';
-  toDate: string = '';
+  statusOptions: string[] = ['Accepted', 'Arrived', 'Picked', 'Started', 'Completed'];
+  vehicleOptions: string[] = ['SUV', 'Sedan', 'Rikshaw', 'Electric', 'HatchBack'];
 
-  constructor(private rideService: RideService, private socket: Socket) {}
+  constructor(private rideService: RideService, private socketService: SocketService) {}
 
   ngOnInit(): void {
-    this.getConfirmedRides();
-
-    // Listen to real-time updates
-    this.socket.on('rideUpdated', (ride) => {
-      this.updateRideInList(ride);
-    });
+    this.fetchConfirmedRides();
+    this.listenForNewRides();
   }
 
-  getConfirmedRides(): void {
+  fetchConfirmedRides(): void {
     this.rideService.getConfirmedRides().subscribe((rides) => {
       this.rides = rides;
       this.filteredRides = rides;
-  console.log(rides);
-  
-    });
-  
-  }
-
-  updateRideInList(updatedRide): void {
-    const index = this.rides.findIndex(ride => ride._id === updatedRide._id);
-    if (index !== -1) {
-      this.rides[index] = updatedRide;
-    }
-  }
-
-  applyFilters(): void {
-    this.filteredRides = this.rides.filter(ride => {
-      return (!this.filterStatus || ride.status === this.filterStatus)
-        && (!this.filterVehicle || ride.vehicleType === this.filterVehicle)
-        && (!this.searchUsername || ride.username.includes(this.searchUsername))
-        && (!this.searchPhoneNumber || ride.phoneNumber.includes(this.searchPhoneNumber))
-        && (!this.searchRequestId || ride.requestId.includes(this.searchRequestId))
-        && (!this.fromDate || new Date(ride.createdAt) >= new Date(this.fromDate))
-        && (!this.toDate || new Date(ride.createdAt) <= new Date(this.toDate));
     });
   }
 
-  cancelRide(id: string): void {
-    this.rideService.cancelRide(id).subscribe(() => {
-      this.rides = this.rides.filter(ride => ride._id !== id);
-      this.applyFilters();
+  listenForNewRides(): void {
+    this.socketService.onNewRide().subscribe((newRide) => {
+      this.rides.push(newRide);
+      this.filteredRides = this.rides;
+      console.log("New Ride Received: ", newRide);
     });
   }
 
-  assignDriver(rideId: string, driverId: string): void {
-    this.rideService.assignDriver(rideId, driverId).subscribe((updatedRide) => {
-      this.updateRideInList(updatedRide);
-    });
+  filterByStatus(event: Event): void {
+    const status = (event.target as HTMLSelectElement).value;
+    this.filteredRides = this.rides.filter(ride => !status || ride.status === status);
+  }
+
+  filterByVehicle(event: Event): void {
+    const vehicle = (event.target as HTMLSelectElement).value;
+    this.filteredRides = this.rides.filter(ride => !vehicle || ride.vehicleType === vehicle);
+  }
+
+  searchRides(event: Event): void {
+    const query = (event.target as HTMLInputElement).value.toLowerCase();
+    this.filteredRides = this.rides.filter(ride =>
+      ride.userName.toLowerCase().includes(query) ||
+      ride.phone.toLowerCase().includes(query) ||
+      ride.requestId.toLowerCase().includes(query)
+    );
+  }
+
+  updateStatus(ride: any, status: string): void {
+    this.rideService.updateRideStatus(ride._id, status).subscribe(
+      updatedRide => {
+        ride.status = updatedRide.status;
+      },
+      error => {
+        console.error('Error updating status:', error);
+      }
+    );
+  }
+
+  assignDriver(ride: any): void {
+    // Logic to assign a driver
+  }
+
+  cancelRide(ride: any): void {
+    // Logic to cancel the ride
   }
 }
