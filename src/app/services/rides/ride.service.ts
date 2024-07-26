@@ -17,10 +17,11 @@ export class RideService {
     return this.http.get<any>(`${this.apiUrl}/confirmed-rides`);
   }
 
-  updateRideStatus(rideId: string, status: string): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/update-ride-status/${rideId}`, { status });
+  updateRideStatus(rideId: string, ride): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/update-ride-status/${rideId}`, ride);
   }
-    cancelRide(rideId: string): Observable<any> {
+
+  cancelRide(rideId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/cancel-ride/${rideId}`);
   }
 }

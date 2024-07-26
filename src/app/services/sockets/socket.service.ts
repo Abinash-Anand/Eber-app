@@ -10,10 +10,6 @@ export class SocketService {
 
   constructor(private socket: Socket) { }
 
-  onNewRideRequest(): Observable<any> {
-    return this.socket.fromEvent('newRideRequest');
-  }
-
   onNewRide(): Observable<any> {
     return this.socket.fromEvent('newRide');
   }

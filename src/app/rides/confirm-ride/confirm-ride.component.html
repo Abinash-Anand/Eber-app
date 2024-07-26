@@ -1,5 +1,4 @@
 <!-- confirmed-rides.component.html -->
-
 <h2 class="">Confirmed Rides</h2>
 <hr>
 <!-- Filter Section -->
@@ -48,8 +47,8 @@
         <tbody>
             <tr *ngFor="let ride of filteredRides">
                 <td>{{ride._id}}</td>
-                <td>{{ride.userId.username}}</td>
-                <td>{{ride.userId._id}}</td>
+                <td>{{ride.userId?.username}}</td>
+                <td>{{ride.userId?._id}}</td>
                 <td>{{ride.scheduleDateTime | date:'medium'}} </td>
                 <td>{{ride.pickupLocation}}</td>
                 <td>{{ride.dropOffLocation}}</td>
@@ -68,7 +67,6 @@
                         (click)="assignDriver(ride, 'Accepted')">Assign</button>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm m-2"
                         (click)="cancelRide(ride._id)">Cancel</button>
-                    <!-- <span *ngIf="ride.status !== 'Pending'" class="badge bg-success px-3 py-3 text-light">{{ride.status}}</span> -->
                 </td>
             </tr>
         </tbody>

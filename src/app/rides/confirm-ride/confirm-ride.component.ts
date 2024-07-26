@@ -2,7 +2,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
-import { stat } from 'fs';
 
 @Component({
   selector: 'app-confirmed-rides',
@@ -44,29 +43,24 @@ export class ConfirmRideComponent implements OnInit {
 
   filterByVehicle(event: Event): void {
     const vehicle = (event.target as HTMLSelectElement).value;
-    this.filteredRides = this.rides.filter(ride => !vehicle || ride.vehicleType === vehicle);
+    this.filteredRides = this.rides.filter(ride => !vehicle || ride.serviceType === vehicle);
   }
 
   searchRides(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase();
     this.filteredRides = this.rides.filter(ride =>
-      ride.userName.toLowerCase().includes(query) ||
-      ride.phone.toLowerCase().includes(query) ||
-      ride.requestId.toLowerCase().includes(query)
+      (ride.userId?.username && ride.userId.username.toLowerCase().includes(query)) ||
+      (ride.userId?.phone && ride.userId.phone.toLowerCase().includes(query)) ||
+      (ride._id && ride._id.toLowerCase().includes(query))
     );
   }
-
-  //Assign rider
-
-
 
   updateStatus(ride: any): void {
     this.rideService.updateRideStatus(ride._id, ride).subscribe(
       updatedRide => {
-        console.log("Checking ride status: ",ride);
+        console.log("Checking ride status: ", ride);
         ride.status = updatedRide.status;
-         console.log("Checking ride status 2: ",updatedRide.status);
-
+        console.log("Checking ride status 2: ", updatedRide.status);
       },
       error => {
         console.error('Error updating status:', error);
@@ -75,19 +69,16 @@ export class ConfirmRideComponent implements OnInit {
   }
 
   assignDriver(ride: any, status: string): void {
-    this.rideObject = ride
+    this.rideObject = ride;
     this.rideObject.status = status;
-    console.log("logging asign event: ", ride);
-    this.updateStatus(ride);
-    
+    console.log("logging assign event: ", ride);
+    this.updateStatus(this.rideObject);
   }
 
-  cancelRide(rideId:string): void {
+  cancelRide(rideId: string): void {
     this.rideService.cancelRide(rideId).subscribe((cancelledRide) => {
       console.log("Ride Cancelled: ", cancelledRide);
-      
-    this.fetchConfirmedRides();
-      
-    })
+      this.fetchConfirmedRides();
+    });
   }
 }
