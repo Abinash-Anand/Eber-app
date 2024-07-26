@@ -1,0 +1,11 @@
+a{
+    color: white;
+    text-decoration: none;
+}
+li:hover{
+    background-color: black;
+   
+}
+.nav{
+    border-radius: 10px;
+}

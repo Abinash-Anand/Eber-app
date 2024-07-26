@@ -1,0 +1,42 @@
+.card-body{
+   /* border: 2px solid black; */
+   /* box-shadow: 2px 5px 10px black; */
+background-image: linear-gradient(to right top, #bdb6ff, #f1b0e7, #ffb2c7, #ffbeac, #fccfa1);
+box-shadow: 3px 5px 10px #a0bde9;
+font-family: 'fantasy';
+
+}
+.stripe-payment-form {
+   background-image: linear-gradient(to bottom, #7340e9, #563db5, #413682, #302c4f, #202020);
+}
+.stripe-payment{
+      box-shadow: 20px 30px 20px rgb(8, 8, 8);
+   background-image: linear-gradient(to bottom, #ae91f2, #9f82e2, #9074d2, #8166c2, #7358b2);
+}
+.modal-body,.modal-header{
+   text-align: center;
+   border: none;
+
+
+}
+#card-element{
+   font-size: 2rem !important;
+   height: 100%;
+}
+.heading-text{
+   margin-left: 30%;
+}
+.card-saved {
+background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, #685396);
+   color: white;
+   /* padding: %; */
+   width: 35%;
+   z-index: 100;
+   position: absolute;
+   bottom: 10%;
+   right: 30%;
+}
+.card{
+   z-index: 1000;
+   text-align: center;
+}

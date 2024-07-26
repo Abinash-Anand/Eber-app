@@ -1,0 +1,27 @@
+.vehicle-container {
+    background: rgba(255, 255, 255, 0.2);
+    /* Semi-transparent background */
+    box-shadow: 5px 10px 20px rgba(0, 0, 0, 0.2);
+    /* Softer shadow */
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    /* Blur effect for the background */
+    -webkit-backdrop-filter: blur(10px);
+    /* Safari support */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    /* Subtle border for better visibility */
+    overflow: hidden;
+    /* Ensures the border-radius is applied to children */
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.vehicle-container img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+p {
+    margin: 0;
+}

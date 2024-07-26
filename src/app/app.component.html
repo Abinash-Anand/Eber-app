@@ -1,0 +1,21 @@
+<!-- <div class="dashboard" *ngIf="isLoggedIn"> -->
+    <app-header *ngIf="isLoggedIn"></app-header>
+    <app-dashboard-menu  (loginEvent)="stateChange()" *ngIf="isLoggedIn; else redirect"  ></app-dashboard-menu>
+    <!-- <app-login *ngIf="!isLoggedIn"></app-login> -->
+    <ng-template #redirect>
+        <!-- <div class="row"> -->
+            <!-- <div class="col-6"> -->
+
+                <app-login></app-login>
+            <!-- </div> -->
+            <!-- <div class="col-sm">
+
+                <app-signup></app-signup>
+            </div> -->
+        <!-- </div> -->
+    </ng-template>
+    
+    
+    <!-- <router-outlet></router-outlet> -->
+<!-- <div class="login-page" *ngIf="!isLoggedIn"> -->
+<!-- </div> -->

@@ -1,0 +1,76 @@
+<!-- confirmed-rides.component.html -->
+
+<h2 class="">Confirmed Rides</h2>
+<hr>
+<!-- Filter Section -->
+<div class="filter-section mb-4">
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label for="statusFilter" class="form-label">Filter by Status:</label>
+            <select id="statusFilter" class="form-select" (change)="filterByStatus($event)">
+                <option value="">All</option>
+                <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label for="vehicleFilter" class="form-label">Filter by Vehicle:</label>
+            <select id="vehicleFilter" class="form-select" (change)="filterByVehicle($event)">
+                <option value="">All</option>
+                <option *ngFor="let vehicle of vehicleOptions" [value]="vehicle">{{vehicle}}</option>
+            </select>
+        </div>
+        <div class="col-md-4">
+            <div class="input-group">
+                <label for="searchInput" class="input-group-text">Search:</label>
+                <input id="searchInput" type="text" class="form-control"
+                    placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rides Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Request ID</th>
+                <th>User Name</th>
+                <th>User ID</th>
+                <th>Pick Up Time</th>
+                <th>Pick Up Address</th>
+                <th>Drop Off Address</th>
+                <th>Service Type</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let ride of filteredRides">
+                <td>{{ride._id}}</td>
+                <td>{{ride.userId.username}}</td>
+                <td>{{ride.userId._id}}</td>
+                <td>{{ride.scheduleDateTime | date:'medium'}} </td>
+                <td>{{ride.pickupLocation}}</td>
+                <td>{{ride.dropOffLocation}}</td>
+                <td>{{ride.serviceType}}</td>
+                <td *ngIf="ride.status === 'Pending'; else accepted" class="badge bg-warning m-2 px-3  py-3 text-light">
+                    {{ride.status}}
+                </td>
+                <ng-template #accepted>
+                    <td class="badge bg-success m-2 px-3 py-3 text-light">
+                        {{ride.status}}
+                    </td>
+                </ng-template>
+
+                <td>
+                    <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm m-2"
+                        (click)="assignDriver(ride, 'Accepted')">Assign</button>
+                    <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm m-2"
+                        (click)="cancelRide(ride._id)">Cancel</button>
+                    <!-- <span *ngIf="ride.status !== 'Pending'" class="badge bg-success px-3 py-3 text-light">{{ride.status}}</span> -->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

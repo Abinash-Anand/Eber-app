@@ -1,0 +1,189 @@
+<div class="user-found-alert" *ngIf="userFoundAlert">
+    <h1>User Found!</h1>
+</div>
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-6 bg-light">
+            <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" #createRideForm="ngForm">
+                <!-- Phone Number Field -->
+                <div class="mb-3">
+                    <label for="phone" class="form-label font-weight-bold">Phone Number</label>
+                    <input type="number" id="phone" formControlName="phone" class="form-control"
+                        (keydown.enter)="fetchUserDetails()">
+                    <div *ngIf="userError" class="text-danger">{{ userError }}</div>
+                    <p class="p-2 user my-2" *ngIf="user !== ''"><strong>User: {{user | uppercase}}</strong></p>
+                </div>
+
+                <!-- Payment Options -->
+                <div class="mb-3 ">
+                    <label class="form-label font-weight-bold">Payment Options</label><br>
+                    <input type="radio" id="cash" formControlName="paymentOption" value="cash"
+                        (click)="onSelectCardPayment('cash')"> 
+                    <label for="cash">Cash</label><br>
+                    <input type="radio" id="card" (click)="onSelectCardPayment('card')" formControlName="paymentOption" value="card"> <label
+                        for="card">Card</label>
+                <div class="payment-container" *ngIf="cardId === 'card'">
+                    <select name="cards" class="form-control select-card col-12" id="cardPayment" formControlName="selectedCard"
+                        (change)="onSelectedCard($event)">
+                        <option *ngFor="let card of cards" [value]="card.token_id">
+                            XXXX-XXXX-XXXX-{{ card.card_last4 }}
+                        </option>
+                    </select>
+                </div>
+                </div>
+
+
+
+                <!-- Ride Details -->
+                <div class="mb-3">
+                    <label for="pickupLocation" class="form-label font-weight-bold">Pickup Location</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'pickupLocation')"
+                        id="pickupLocation" formControlName="pickupLocation" class="form-control"
+                        [disabled]="!isFormEnabled" [(ngModel)]="fromAddress">
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'pickupLocation'" class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'pickupLocation')">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="mb-3">
+                    <label for="dropOffLocation" class="form-label font-weight-bold">Drop-off Location</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'dropOffLocation')"
+                        id="dropOffLocation" formControlName="dropOffLocation" class="form-control"
+                        [disabled]="!isFormEnabled" [(ngModel)]="toAddress">
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'dropOffLocation'" class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'dropOffLocation')">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Stops -->
+                <div class="mb-3" *ngFor="let stop of stopControls; let i = index">
+                    <label for="stop{{i}}" class="form-label font-weight-bold">Stop {{i + 1}}</label>
+                    <input type="text" (input)="onSearchChange($event.target.value, 'stopLocation', i)"
+                        [id]="'stop' + i" [formControl]="stop.control" class="form-control" [disabled]="!isFormEnabled">
+                    <button type="button" class="btn btn-danger btn-sm" (click)="removeStop(i)">Remove</button>
+                    <ul *ngIf="suggestions.length > 0 && activeInput === 'stopLocation' && currentStopIndex === i"
+                        class="suggestions-list">
+                        <li *ngFor="let suggestion of suggestions"
+                            (click)="onSuggestionClick(suggestion, 'stopLocation', i)">
+                            {{ suggestion.description }}
+                        </li>
+                    </ul>
+                </div>
+                <button type="button" class="btn mt-2 btn-primary mb-3" (click)="addStop()" [disabled]="!isFormEnabled">Add
+                    Stop ({{numberOfStops}})</button>
+
+                    
+                    
+                    
+                    <!-- <div *ngIf="filteredVehicles.length !== 0">
+                        <label for="serviceType" class="form-label">Service Type</label>
+                        <select id="serviceType" formControlName="serviceType" class="form-select">
+                            <option *ngFor="let service of serviceTypes" [value]="service.id">{{ service.name }} ({{
+                                service.estimateFare }})</option>
+                            </select>
+                        </div> -->
+                        
+     <!----------------------- Service Type List ---------------------------------->
+                    <div *ngIf="filteredVehicles.length !== 0">
+                        <hr>
+                        <h4 ><strong>Choose a Ride</strong></h4>  
+                    <hr>    
+                    </div>
+                   
+                    <div class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles"  (click)="onSelectService(vehicle)">
+                        
+                        <div class="col p-1">
+                            <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL"  alt="Vehicle Image"
+                              >
+                        </div>
+                        <div class="col-sm p-1">
+                            <h5>{{vehicle.vehicle.vehicleName}}</h5>
+                            <h5>{{vehicle.vehicle.vehicleType}}👤{{vehicle.maxSpace}}</h5>
+                            <h6 >🟢({{vehicle.count}})</h6>
+
+                        </div>
+                        <div class="col-sm p-1 " >
+                            <h4>{{totalFare | currency:"INR"}}</h4>
+                            <h6>
+                                <img width="20px" height="20px"
+                                src="https://img.icons8.com/external-those-icons-lineal-those-icons/24/external-distance-maps-locations-those-icons-lineal-those-icons-1.png"
+                                alt="external-distance-maps-locations-those-icons-lineal-those-icons-1" /> {{distance}} km</h6>
+                            <h6>
+                                <img width="20px" height="20px" src="https://img.icons8.com/color/48/time-machine--v1.png" alt="time-machine--v1" /> {{time}} mins</h6>
+
+                        </div>
+                    </div>
+                    <!-- <div class="row service m-2 p-3 buy"  *ngIf="vehicle">
+                    
+                        <div class="col p-1">
+                            <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL" alt="Vehicle Image">
+                        </div>
+                        <div class="col-sm p-1">
+                            <h5>{{vehicle.vehicle.vehicleName}}</h5>
+                            <h5>{{vehicle.vehicle.vehicleType}}👤{{vehicle.maxSpace}}</h5>
+                            <h6>🟢({{vehicle.count}})</h6>
+                    
+                        </div>
+                        <div class="col-sm p-1 ">
+                            <h4>{{totalFare | currency:"INR"}}</h4>
+                            <h6>
+                                <img width="20px" height="20px"
+                                    src="https://img.icons8.com/external-those-icons-lineal-those-icons/24/external-distance-maps-locations-those-icons-lineal-those-icons-1.png"
+                                    alt="external-distance-maps-locations-those-icons-lineal-those-icons-1" /> {{distance}} km
+                            </h6>
+                            <h6>
+                                <img width="20px" height="20px" src="https://img.icons8.com/color/48/time-machine--v1.png"
+                                    alt="time-machine--v1" /> {{time}} mins
+                            </h6>
+                    
+                        </div>
+                    </div> -->
+                    
+
+                <hr>
+                <!-- Booking Options -->
+                <div class="my-3">
+                    <label for="bookingOption" class="form-label">
+                        <h5><strong>Booking Option</strong></h5>
+                    </label>
+                    <select id="bookingOption" formControlName="bookingOption" class="form-select form-control col-4">
+                        <option value="now">Now</option>
+                        <option value="schedule">Schedule</option>
+                    </select>
+                </div>
+                <div class="mb-3" *ngIf="requestForm.value.bookingOption === 'schedule'">
+                    <label for="scheduleDateTime" class="form-label">Schedule Date & Time</label>
+                    <input type="datetime-local" id="scheduleDateTime" formControlName="scheduleDateTime"
+                        class="form-control">
+                </div>
+
+                <!-- Book Ride Button -->
+                <div class="alert-success customAlerts px-4 py-2" *ngIf="formSubmitted">
+                    <h4>New Ride Booking Just Created</h4>
+                </div>
+                <button type="submit" class="btn my-3 btn-outline-primary">Book Ride</button>
+                
+                
+            </form>
+           
+        </div>
+      
+        <!-- Map -->
+        <div class="col ">
+            <div class="card" *ngIf="mapActive">
+                <div class="card-body col-12">
+                    <h6 class="card-title">Distance info</h6>
+                    <h6>Distance: {{totalDistance}} km</h6>
+                    <h6>Estimated Time: {{EstimatedTime}}</h6>
+                </div>
+            </div>
+            <div  id="map" #mapRef style="height: 500px; width: 100%; border: 1px solid #212121;"></div>
+        </div>
+    </div>
+</div>

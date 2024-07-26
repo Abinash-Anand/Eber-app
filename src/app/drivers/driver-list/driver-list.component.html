@@ -1,0 +1,263 @@
+<div class="alert alert-success" role="alert" *ngIf="userCreated">
+    Driver Successfully Deleted
+</div>
+<form class="m-3 bg-dark" (ngSubmit)="onCreateUser()" #form="ngForm">
+    <h3 class="text-light ml-3 p-2">Create a New Driver</h3>
+    <div class="row  text-light px-4 pt-2 pb-3">
+        <div class="col">
+            <label for="userProfile" name="userProfile">Driver Profile</label>
+            <input type="text" ngModel required name="userProfile" class="form-control" placeholder="User Profile">
+        </div>
+        <div class="col">
+            <label for="username" name="username">Name</label>
+            <input type="text" ngModel required name="username" class="form-control" placeholder="Username">
+        </div>
+        <div class="col">
+            <label for="name" name="email">Email</label>
+            <input type="text" ngModel required name="email" class="form-control" placeholder="User Email">
+        </div>
+        <div class="col">
+            <label for="name" name="phone">Phone No.</label>
+            <input type="text" ngModel required name="phone" class="form-control" placeholder="Phone">
+        </div>
+        <!-- Dropdown for selecting country -->
+        <div class="mb-3">
+            <label for="countrySelect" class="form-label">Select Country</label>
+            <select id="countrySelect" class="form-select form-control" ngModel required name="countryCode"
+                (change)="onCountryChange($event)">
+                <option value="" disabled selected>Select Country</option>
+                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                </option>
+            </select>
+        </div>
+        <!-- Dropdown for selecting city/zone -->
+        <div class="mb-3 mx-2">
+            <label for="citySelect" class="form-label">Select City/Zone</label>
+            <select ngModel required name="city" id="citySelect" class="form-select form-control"
+                (change)="onCityChange($event)">
+                <option value="" disabled selected>Select City/Zone</option>
+                <option *ngFor="let city of filteredCityArray" [value]="city.city">{{city.city}}</option>
+            </select>
+        </div>
+        <!-- <div class="col">
+            <label for="name" name="countryCode">Country Code</label>
+            <input type="text" ngModel required name="countryCode" class="form-control" placeholder="Country Code">
+        </div> -->
+    </div>
+    <button class="btn btn-success btn-lg m-4" [disabled]="!form.valid">Submit</button>
+</form>
+<hr>
+<div class="alert alert-success" role="alert" *ngIf="userDeleted">
+    Driver Successfully Deleted
+</div>
+<div class="row">
+    <h3 class="ml-3">Sort Table: </h3>
+    <div class="col-sm">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{sortType}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" (click)="onSortTable('date')">Date/Time</a>
+                <a class="dropdown-item" (click)="onSortTable('ascending')">Ascending</a>
+                <a class="dropdown-item" (click)="onSortTable('descending')">Descending</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Index</th>
+            <th scope="col">User Profile</th>
+            <th scope="col">Username</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone No.</th>
+            <th scope="col">Country Code</th>
+            <th scope="col">City</th>
+            <th scope="col">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let user of userList; let i = index">
+            <th scope="row">{{i+1}}</th>
+            <td>{{user.userProfile}}</td>
+            <td>{{user.username}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.phone}}</td>
+            <td>{{user.countryCode}}</td>
+            <td>{{user.city}}</td>
+
+            <td>
+                <!-- <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Edit
+                    </button>
+                    <div class="dropdown-menu p-3" aria-labelledby="dropdownMenuButton">
+                        <form>
+                            <input #userProfile class="px-2 m-1" type="text"
+                                placeholder="Change UserProfile" >
+                            <input #username  class="px-2 m-1" type="text"
+                                placeholder="Change Username">
+                            <input #email  class="px-2 m-1" type="email"
+                                placeholder="Change Email" >
+                            <input #phone name="phone" required class="px-2 m-1" type="text" placeholder="Change Phone"
+                               >
+                            <input #countryCode  class="px-2 m-1" type="text"
+                                placeholder="Country Code" >
+                            <button type="submit" (click)="onSubmitData()" class="btn btn-success p-2">Edit</button>
+                        </form>
+                    </div>
+                </div> -->
+
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateDriverModal"
+                    (click)="loveEditingThings(user._id)">
+                    Edit
+                </button>
+                <!-- <button class="btn btn-info m-1">Stripe</button> -->
+                <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
+                <button class="btn btn-info m-1 btn-md" (click)="onAssignVehicle(user.city)">Assign Vehicle</button>
+                <button class="btn btn-secondary m-1 btn-md dropdown-toggle" type="button" id="driverStatusDropdown"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Status
+                </button>
+                <div class="dropdown-menu" aria-labelledby="driverStatusDropdown">
+                    <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Approved')">Approve</a>
+                    <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Declined')">Decline</a>
+                </div>
+
+
+
+
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+            [class.active]="currentPage === i + 1">
+            <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">Next</a>
+        </li>
+    </ul>
+</nav>
+
+
+<hr>
+<h3>Search User: </h3>
+<div class="alert alert-success" role="alert" *ngIf="searchUser">
+    One User Found With search Params: Filter:{{searchByFilter}} and Input:{{searchObject.searchInput}}
+</div>
+<div class="row">
+    <nav class="navbar navbar-light bg-light">
+        <div class="dropdown my-2">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                {{searchByFilter}}
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <button class="dropdown-item" (click)="onSelectSearchFilter('userProfile')">User Profile</button>
+                <button class="dropdown-item" (click)="onSelectSearchFilter('username')">Username</button>
+                <button class="dropdown-item" (click)="onSelectSearchFilter('email')">Email</button>
+            </div>
+        </div>
+        <form class="form-inline mx-3" (ngSubmit)="onSearchUser()" #searchForm="ngForm">
+            <input ngModel required name="searchInput" class="form-control mr-sm-2" type="search" placeholder="Search"
+                aria-label="Search">
+            <button [disabled]="!searchForm.valid" class="btn btn-outline-success 
+                    my-2 my-sm-0" type="submit">Search</button>
+        </form>
+    </nav>
+
+    <div class="col-sm user" *ngIf="searchUser">
+        <div class="card fs-3" style="width: 20rem;">
+            <div class="card-body">
+                <img width="50" height="50" src="https://img.icons8.com/ios-filled/50/user-male-circle.png"
+                    alt="user-male-circle" />
+                <h5 class="card-title">User Profile: {{user.userProfile | uppercase}}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Username: {{user.username| uppercase}}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Email: {{user.email}}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Phone: {{user.phone}}</h6>
+                <h6 class="card-subtitle mb-2 text-muted">Country: {{user.countryCode}}</h6>
+                <p class="card-text"></p>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+
+<!-- Button to Open the Modal -->
+
+
+<!-- The Modal -->
+<div class="modal" id="updateDriverModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Update Driver</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <form class="m-3 bg-dark" (ngSubmit)="onUpdateDriver()" #updateForm="ngForm">
+                    <h3 class="text-light ml-3 p-2">Update Driver</h3>
+                    <div class="row text-light px-4 pt-2 pb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="driverProfile" name="driverProfile">Driver Profile</label>
+                            <input type="text" ngModel required name="driverProfile" class="form-control"
+                                placeholder="Driver Profile">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="driverName" name="driverName">Name</label>
+                            <input type="text" ngModel required name="driverName" class="form-control"
+                                placeholder="Name">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="driverEmail" name="driverEmail">Email</label>
+                            <input type="email" ngModel required name="driverEmail" class="form-control"
+                                placeholder="Email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="driverPhone" name="driverPhone">Phone No.</label>
+                            <input type="text" ngModel required name="driverPhone" class="form-control"
+                                placeholder="Phone">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="countrySelect" class="form-label">Select Country</label>
+                            <select id="countrySelect" class="form-select form-control" ngModel required
+                                name="countryCode" (change)="onCountryChange($event)">
+                                <option value="" disabled selected>Select Country</option>
+                                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="citySelect" class="form-label">Select City/Zone</label>
+                            <select ngModel required name="city" id="citySelect" class="form-select form-control"
+                                (change)="onCityChange($event)">
+                                <option value="" disabled selected>Select City/Zone</option>
+                                <option *ngFor="let city of filteredCityArray" [value]="city.city">{{city.city}}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-success btn-lg m-4" [disabled]="!updateForm.valid">Update</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

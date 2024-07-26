@@ -1,0 +1,76 @@
+
+            <!--MAPS Code-->
+            <!-- <input class="col-5 " type="text"  
+             (input)="onSearchChange($event.target.value)"
+             placeholder="Search for a place..."
+             >
+
+            <ul *ngIf="suggestions.length > 0" >
+                <li *ngFor="let suggestion of suggestions; let id = index"
+                (click)="onSelectAddress(suggestion, suggestion.place_id)">
+                    {{ suggestion.description }}
+                </li>
+            </ul> -->
+
+            
+            <!-- <div class="map " #mapRef style="width: 100%; height:70vh; border:1px solid black">
+                
+            </div> -->
+
+<div class="container">
+    <h1>Eber Maps</h1>
+    <input class="col-5" type="text"
+        placeholder="Search for a place..."
+        (input)="onSearchChange($event.target.value, 'search')"    >
+    <ul *ngIf="suggestions.length > 0 && activeInput === 'search'" class="suggestions-list">
+        <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'search')">
+            {{ suggestion.description }}
+        </li>
+    </ul>
+    <button class="mb-2 mx-2">
+        <img width="35" height="40"
+            src="https://img.icons8.com/external-solidglyph-m-oki-orlando/64/external-geolocation-geography-solid-solidglyph-m-oki-orlando.png"
+            alt="external-geolocation-geography-solid-solidglyph-m-oki-orlando"
+            (click)="getUserLiveLocation()" />
+    </button>
+
+    <button class="direction" (click)="onSelectDirection()">
+        <img src="../../assets/icons/directions.png" alt="">
+    </button>
+
+    <div class="row" *ngIf="activeClass">
+        <div class="col-md-6 position-relative">
+            <input type="text" [(ngModel)]="fromAddress" (ngModelChange)="onSearchChange($event, 'from')"
+                placeholder="From" class="form-control mb-3">
+            <ul *ngIf="suggestions.length > 0 && activeInput === 'from'" class="suggestions-list">
+                <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'from')">
+                    {{ suggestion.description }}
+                </li>
+            </ul>
+        </div>
+
+        <div class="col-md-6 position-relative" *ngIf="activeClass">
+            <input type="text" [(ngModel)]="toAddress" (ngModelChange)="onSearchChange($event, 'to')" placeholder="To"
+                class="form-control mb-3">
+            <ul *ngIf="suggestions.length > 0 && activeInput === 'to'" class="suggestions-list">
+                <li *ngFor="let suggestion of suggestions" (click)="onSuggestionClick(suggestion, 'to')">
+                    {{ suggestion.description }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="width: 18rem;" *ngIf="activeClass">
+                <div class="card-body">
+                    <h5 class="card-title">Distance info</h5>
+                    <h5>Distance: {{totalDistance}}</h5>
+                    <h5>Estimated Time: {{EstimatedTime}}</h5>
+                    <button (click)="onSelectDirection()" class="btn btn-danger">Close</button>
+                </div>
+            </div>
+            <div id="map" #mapRef style="height: 500px; width: 100%; border: 1px solid #212121;"></div>
+        </div>
+    </div>
+</div>

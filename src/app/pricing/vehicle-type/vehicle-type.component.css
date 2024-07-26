@@ -1,0 +1,21 @@
+.warning{
+    color: red;
+    font-size: larger;
+}
+.car-container{
+    max-width: 18rem;
+    min-height: max-content;
+    border: 1px solid #212121;
+    border-radius: 0px;
+background-color: white;
+}
+.car-container img{
+    width: 14.8em;
+    height: max-content;
+}
+.car-container:hover{
+box-shadow: 10px 20px 10px #21212194;
+background-color: rgb(33, 32, 32);
+transition: 0.3s ease-in;
+color: white;
+}

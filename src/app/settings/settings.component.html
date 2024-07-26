@@ -1,0 +1,37 @@
+
+<div class="card-saved" *ngIf="newSettings">
+    <h4>Settings Updated</h4>
+</div>
+<div class="row m-4 px-3 pt-3 pb-5">
+    <h2>Settings</h2>
+    <hr>
+<div class="mb-3 settings col-12 mt-4 ">
+    <label for="acceptRequestTime" class="form-label    ">Time for Driver to Accept Request (seconds)</label>
+    <select id="acceptRequestTime" class="form-select mx-3 p-1"
+     [(ngModel)]="acceptRequestTime" name="acceptRequestTime"
+     (change)="onSelectWaitingTime($event)">
+        <option value="10">10 seconds</option>
+        <option value="20">20 seconds</option>
+        <option value="30">30 seconds</option>
+        <option value="45">45 seconds</option>
+        <option value="60">60 seconds</option>
+        <option value="90">90 seconds</option>
+        <option value="120">120 seconds</option>
+    </select>
+</div>
+
+<div class="mb-3 settings col-12 ">
+    <label for="maxStops" class="form-label">Maximum Stops Between Locations</label>
+    <select id="maxStops" class="form-select mx-3 p-1"
+     [(ngModel)]="maxStops" name="maxStops"
+     (change)="onSelectStop($event)">
+        <option value="1">1 stop</option>
+        <option value="2">2 stops</option>
+        <option value="3">3 stops</option>
+        <option value="4">4 stops</option>
+        <option value="5">5 stops</option>
+    </select>
+</div>
+<button class="btn btn-dark mr-3" [disabled]="DefaultSettings" (click)="setDefaultSettings()">Default Settings</button>
+<button class="btn btn-dark" (click)="updateSettings()">Set Settings</button>
+</div>
