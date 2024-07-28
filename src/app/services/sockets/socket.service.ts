@@ -13,7 +13,9 @@ export class SocketService {
   onNewRide(): Observable<any> {
     return this.socket.fromEvent('newRide');
   }
-
+   onAssignDriverToRide(): Observable<any> {
+    return this.socket.fromEvent('driverAssigned');
+  }
   disconnect() {
     this.socket.disconnect();
   }

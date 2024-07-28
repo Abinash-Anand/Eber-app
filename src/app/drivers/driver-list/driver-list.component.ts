@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { SignupService } from '../../services/authentication/signup.service';
 import { UserService } from '../../services/users/user.service';
@@ -11,6 +11,7 @@ import { CityService } from '../../services/city/city.service';
 import { RideService } from '../../services/rides/ride.service';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { VehiclePricingService } from '../../services/pricing/vehicle-pricing.service';
+import { AssignedDriverBooking } from '../../shared/assigned-driver-booking';
 
 @Component({
   selector: 'app-driver-list',
@@ -30,7 +31,11 @@ export class DriverListComponent implements OnInit {
     countryCode: '',
     city: ''
   };
+  @ViewChild('selectedBooking') selectedBooking: ElementRef
   // filteredCityService: any[] = [];
+  confirmedRides: any[] = []
+  toggleActivityStatus: boolean = false;
+  toggleStatus: boolean = false;
   userList: any[] = [];
   sortType: string = 'Sort By';
   currentPage: number = 1;
@@ -41,7 +46,11 @@ export class DriverListComponent implements OnInit {
   userCreated: boolean = false;
   searchUser: boolean = false;
   searchByFilter: string = 'Search By';
+  driverObjectAssigned: AssignedDriverBooking;
   cityArray = [];
+  driverStatusArray: any[] = [];
+  filteredRidesByCity: any[] = []
+  driverObjectId: string = '';
   driverStatus: string = 'Status';
   countries: Country[] = [];
   selectedCountryId: string | null = null;
@@ -58,6 +67,7 @@ export class DriverListComponent implements OnInit {
   user: { userProfile: string, username: string, email: string, phone: string, countryCode: string, city: '' } = {
     userProfile: '', username: '', email: '', phone: '', countryCode: '', city: ''
   }
+  driverIndexId: string = '';
   searchObject: { searchBy: string, searchInput: string } = { searchBy: '', searchInput: '' }
   @ViewChild('searchForm') searchFormData: NgForm;
   @ViewChild('form') userForm: NgForm;
@@ -75,6 +85,7 @@ export class DriverListComponent implements OnInit {
   ngOnInit() {
     this.getAllUsers();
     this.getCountries();
+    this.getConfirmedRides()
   }
 
   getCountries() {
@@ -255,37 +266,78 @@ export class DriverListComponent implements OnInit {
   toggleDriverStatus(driver: any, status: string) {
     this.driverStatus = status;
     console.log(driver._id, status);
-
+    console.log(driver.city);
+    
     this.driverListService.updateDriverStatus(driver._id, this.driverStatus).subscribe((response) => {
       console.log(response);
+
+    
+      if (response.status === 'approved') {
+        this.toggleStatus = true;
+      }
+      else if (response.status === 'decline') {
+        this.toggleStatus =  false
+      }
+      this.onAssignVehicle(driver.city)
+
+    })
+      this.driverListService.getAllDriverStatus().subscribe((driverStatus) => {
+        // console.log("Driver Status : ",driverStatus);
+        this.checkDriverStatus(driverStatus.body, driver._id)
+      })
+  }
+
+  checkDriverStatus(driverStatus, currentDriverId) {
+    // console.log("Checking: ", driverStatus, currentDriverId);
+    
+    const filteredDriverStatusArray = driverStatus.filter((driver) => {
+      // console.log(driver._id);
+      return driver._id === currentDriverId;
+      
+    })
+    
+    this.driverStatusArray = filteredDriverStatusArray;
+    console.log("Driver status array: ",this.driverStatusArray);
+    if (this.driverStatusArray[0]._id === currentDriverId && this.driverStatusArray[0].status.toLowerCase() === 'approved') {
+      this.toggleActivityStatus = true;
+    } else {
+      this.toggleActivityStatus = false;
+    }
+  }
+
+  onAssignVehicle(driver) {
+    this.driverIndexId = driver._id
+    
+    const filteredRideList = this.confirmedRides.filter((ride) => {
+      return ride.pickupLocation.includes(driver.city);
+    })
+    console.log(filteredRideList);
+    this.filteredRidesByCity = filteredRideList
+  }
+
+  getConfirmedRides() {
+    this.rideService.getConfirmedRides().subscribe((response) => {
+      console.log(response);
+      this.confirmedRides = response;
+    })
+  } 
+
+  onAssignBooking(rideObject, i) {
+    console.log(rideObject, i);
+    console.log(this.driverIndexId);
+    
+    // this.driverListService.getSpecificUser()
+    // const assignDriverObject = rideObject
+    this.driverObjectAssigned = rideObject
+    this.driverObjectAssigned.driverObject  = this.driverIndexId
+    // assignDriverObject['driverId'] = this.driverIndexId;
+    this.driverListService.assingDriverToRide(this.driverObjectAssigned).subscribe((responseObject) => {
+      console.log(responseObject);
+      
     })
   }
-
-  onAssignVehicle(city:string) {
-    this.rideService.getConfirmedRides().subscribe((rides) => {
-      console.log("Confirmed Rides: ", rides);
-      const currentCity = rides.filter((ride) => {
-        return ride.pickupLocation.includes(city)
-      })
-      console.log("Current City Data: ", currentCity);
-      
-      // this.VehiclePricingService.getPricingData().subscribe((response: any) => {
-      //   const vehiclesArray = response.body;
-      //   // console.log("Vehicle Pricing data: ", vehiclesArray);
-
-      //   // Filter vehicles based on city and service type
-      //   const filteredVehicles = vehiclesArray.filter(vehicle => {
-      //     return rides.some(ride => {
-      //       ride.pickupLocation.includes(vehicle.city.city) &&
-      //       ride.serviceType === vehicle.vehicleType
-      //     // console.log( "Ride.type", ride.serviceType);
-          
-      //       }
-      //     );
-      //   });
-
-      //   // console.log("Filtered Vehicles: ", filteredVehicles);
-      // });
-    });
+  getAllBookings() {
+    
   }
+ 
 }

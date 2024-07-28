@@ -2,6 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
+import { DriverlistService } from '../../services/drivers/driverlist.service';
 
 @Component({
   selector: 'app-confirmed-rides',
@@ -14,7 +15,10 @@ export class ConfirmRideComponent implements OnInit {
   statusOptions: string[] = ['Accepted', 'Arrived', 'Picked', 'Started', 'Completed'];
   vehicleOptions: string[] = ['SUV', 'Sedan', 'Rikshaw', 'Electric', 'HatchBack'];
   rideObject: any;
-  constructor(private rideService: RideService, private socketService: SocketService) {}
+  driverAssigned: boolean = false;
+  constructor(private rideService: RideService,
+              private socketService: SocketService,
+              private driverListService: DriverlistService) { }
 
   ngOnInit(): void {
     this.fetchConfirmedRides();
@@ -73,6 +77,10 @@ export class ConfirmRideComponent implements OnInit {
     this.rideObject.status = status;
     console.log("logging assign event: ", ride);
     this.updateStatus(this.rideObject);
+    this.socketService.onAssignDriverToRide().subscribe((driverAssigned) => {
+      console.log(driverAssigned);
+      
+    })
   }
 
   cancelRide(rideId: string): void {
@@ -81,4 +89,7 @@ export class ConfirmRideComponent implements OnInit {
       this.fetchConfirmedRides();
     });
   }
+
+
+
 }

@@ -156,6 +156,14 @@ const toggleDriverStatus = async (req, res) => {
     }
 };
 
+const allDriversStatus = async (req, res) => {
+  try {
+    const driverStatus = await Driver.find();
+    res.status(200).send(driverStatus)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
 
 module.exports = { 
     createNewDriver, 
@@ -164,5 +172,6 @@ module.exports = {
     deleteDriver, 
     searchDriver,
     updateDriverServiceType,
-    toggleDriverStatus
+  toggleDriverStatus,
+    allDriversStatus
 };

@@ -64,7 +64,7 @@
 
                 <td>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm m-2"
-                        (click)="assignDriver(ride, 'Accepted')">Assign</button>
+                        (click)="assignDriver(ride, 'Accepted')" [disabled]="!driverAssigned">Assign</button>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm m-2"
                         (click)="cancelRide(ride._id)">Cancel</button>
                 </td>

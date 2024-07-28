@@ -45,4 +45,13 @@ export class DriverlistService {
   updateDriverServiceType(driverId: string, serviceType: string): Observable<any> {
     return this.http.patch<any>(`${environment.backendServerPORT}/driver/update-service-type`, { userId: driverId, serviceType });
   }
+  //post request to assing driver
+  assingDriverToRide(assignedDriver): Observable<HttpResponse<any[]>>{
+    return this.http.post<any[]>(`${environment.backendServerPORT}/driver-assigned`, assignedDriver, {observe:'response'})
+  }
+     getAllDriverStatus(): Observable<any> {
+    return this.http.get<any[]>(
+      `${environment.backendServerPORT}/all-drivers/status`, {observe:'response'}
+    );
+  }
 }

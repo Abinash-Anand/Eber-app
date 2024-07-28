@@ -1,3 +1,10 @@
 .form-container{
     margin-left: 7%;
 }
+.bookings:hover{
+background-color: black;
+color: white;
+list-style-type: none;
+transition: 0.3s ease-in;
+border-radius: 10px;
+}

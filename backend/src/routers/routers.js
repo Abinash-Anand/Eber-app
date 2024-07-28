@@ -1,3 +1,4 @@
+// routers/routers.js
 const express = require('express');
 const router = express.Router();
 const { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity } = require('../controllers/vehicleTypeController');
@@ -14,7 +15,8 @@ const {
     deleteDriver,
     searchDriver,
     updateDriverServiceType,
-    toggleDriverStatus
+    toggleDriverStatus,
+    allDriversStatus
 } = require('../controllers/driverController');
 const auth = require('../middlewares/authMiddleware');
 const { setPricing, getAllPricing } = require('../controllers/pricingController')
@@ -23,7 +25,8 @@ const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripe
 const { createNewRide } = require('../controllers/createRideController')
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
-// const {emitNewRideEvent} = require('../controllers/rideSockets')
+const { assignedDriver }  =  require('../controllers/driverAssignedRide');
+
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -91,31 +94,28 @@ router.delete('/driver/delete-driver/:id', deleteDriver);
 // New routes for updating service type and toggling status
 router.patch('/driver/update-service-type', updateDriverServiceType);
 router.patch('/driver/toggle-status', toggleDriverStatus);
-
+router.get('/all-drivers/status', allDriversStatus)
 
 //--------------------------Setting Pricing Routes--------------------------------
 //1.Post 
 router.post('/submit-pricing', setPricing);
-router.get('/get-pricing-data', getAllPricing)
+router.get('/get-pricing-data', getAllPricing);
 //-----------------------------Setting Settings of the App------------------------
-router.post('/set-settings', setSettings)
+router.post('/set-settings', setSettings);
 router.get('/check-settings', searchDefaultSettings);
-router.patch('/update-settings', updateSettings)
+router.patch('/update-settings', updateSettings);
 //------------------------------Stripe payment gateway------------------------------
-router.post('/create-payment-intent', createNewPayment)
-router.get('/fetch-all-cards/:id', fetchUserCardDetails)
+router.post('/create-payment-intent', createNewPayment);
+router.get('/fetch-all-cards/:id', fetchUserCardDetails);
 //------------------------------Create Rides Section--------------------------------
 router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 
 //-------------------------------Confirm Ride Section-------------------------------
-router.get('/confirmed-rides', getConfirmedRides)// -confirmed ride
+router.get('/confirmed-rides', getConfirmedRides); // -confirmed ride
 router.patch('/update-ride-status/:id', updateRideStatus);
-router.delete('/cancel-ride/:id',  cancelRide)// - cancel ride
+router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 
-    // router.put('/ride-status/:id',  updateRideStatus ) //-update ride status
-    // router.put('/assign-driver/:id',  assignDriverToRide)// - assign driver to ride
-    // router.get('/filter-rides',  filterRide) //- filter ride
-// {confirmedRide, updateRideStatus,assignDriverToRide, cancelRide, filterRide}
-//-------------------------------Ride Socket connections------------------------------
-// router.post('/book-ride',emitNewRideEvent)
+//-------------------------------Assign Driver socket connections----------------------
+router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
+
 module.exports = router;

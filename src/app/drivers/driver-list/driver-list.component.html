@@ -119,12 +119,38 @@
                 </button>
                 <!-- <button class="btn btn-info m-1">Stripe</button> -->
                 <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
-                <button class="btn btn-info m-1 btn-md" (click)="onAssignVehicle(user.city)">Assign Vehicle</button>
-                <button class="btn btn-secondary m-1 btn-md dropdown-toggle" type="button" id="driverStatusDropdown"
+                <!-- <label for="vehicleSelect">Assign Vehicle:</label> -->
+                 
+              
+                <!-- <button class="btn btn-info m-1 btn-md dropdown-toggle" id="assignDriverVehicle" 
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                (click)="onAssignVehicle(user.city)"
+                >Assign Vehicle</button>
+                    <div class="dropdown-menu" aria-labelledby="assignDriverVehicle">
+                        <div class="loop-container  p-2 bg-light"  >
+                          <ul class="my-2 bookings" *ngFor="let ride of filteredRidesByCity">
+                            <li>Order By: {{ride.userId.username}}</li>
+                            <li>Phone: {{ride.phone}}</li>
+                            <li>Pickup Location: {{ride.pickupLocation}}</li>
+                            <hr>
+                          </ul>
+                        </div>
+                    </div> -->
+
+                    <!-- Assign Vehicle Button -->
+                    <button class="btn btn-info m-1 btn-md" 
+                    (click)="onAssignVehicle(user)" data-toggle="modal" 
+                     data-target="#assignVehicleToDriver" 
+                     [disabled]="!toggleActivityStatus">
+                        Assign Vehicle
+                    </button>
+                    
+                 
+                <button class="btn btn-secondary m-1 btn-md dropdown-toggle" type="button" id="driverStatusDropdown{{i}}"
                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Status
                 </button>
-                <div class="dropdown-menu" aria-labelledby="driverStatusDropdown">
+                <div class="dropdown-menu" aria-labelledby="driverStatusDropdown{{i}}">
                     <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Approved')">Approve</a>
                     <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Declined')">Decline</a>
                 </div>
@@ -256,6 +282,34 @@
                     </div>
                     <button class="btn btn-success btn-lg m-4" [disabled]="!updateForm.valid">Update</button>
                 </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="assignVehicleToDriver">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">Confirmed Bookings</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <div class="loop-container p-2 bg-light">
+                    <ul class="my-2 bookings" 
+                     *ngFor="let ride of filteredRidesByCity; let i = index"
+                     (click)="onAssignBooking(ride, i)" >
+                        <li>Order By: {{ride.userId.username}}</li>
+                        <li>Phone: {{ride.phone}}</li>
+                        <li>Pickup Location: {{ride.pickupLocation}}</li>
+                        <hr>
+                    </ul>
+                </div>
             </div>
 
         </div>
