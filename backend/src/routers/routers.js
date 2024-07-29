@@ -19,13 +19,14 @@ const {
     allDriversStatus
 } = require('../controllers/driverController');
 const auth = require('../middlewares/authMiddleware');
-const { setPricing, getAllPricing } = require('../controllers/pricingController')
+const { setPricing, getAllPricing , fetchAllPricingData} = require('../controllers/pricingController')
 const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
 const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripePayment');
 const { createNewRide } = require('../controllers/createRideController')
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
-const { assignedDriver }  =  require('../controllers/driverAssignedRide');
+const { assignedDriver } = require('../controllers/driverAssignedRide');
+const {driverAssignedToVehicle, getSpecificDriver} =require('../controllers/driverModelController')
 
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
@@ -96,10 +97,14 @@ router.patch('/driver/update-service-type', updateDriverServiceType);
 router.patch('/driver/toggle-status', toggleDriverStatus);
 router.get('/all-drivers/status', allDriversStatus)
 
+//----Assigning driver to vehicle---------------------
+router.post('/assign/vehicle', driverAssignedToVehicle)
+router.get('/get/driverObject/:id', getSpecificDriver)
 //--------------------------Setting Pricing Routes--------------------------------
 //1.Post 
 router.post('/submit-pricing', setPricing);
 router.get('/get-pricing-data', getAllPricing);
+router.get('/fetch/pricing-data', fetchAllPricingData)
 //-----------------------------Setting Settings of the App------------------------
 router.post('/set-settings', setSettings);
 router.get('/check-settings', searchDefaultSettings);
@@ -117,5 +122,6 @@ router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 
 //-------------------------------Assign Driver socket connections----------------------
 router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
+
 
 module.exports = router;

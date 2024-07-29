@@ -2,9 +2,11 @@
     margin-left: 7%;
 }
 .bookings:hover{
-background-color: black;
+background-color: rgba(0, 0, 0, 0.792);
 color: white;
 list-style-type: none;
-transition: 0.3s ease-in;
+transition: 0.1s ease-in;
 border-radius: 10px;
+cursor: pointer;
+border: 2px solid black;
 }

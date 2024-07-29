@@ -12,6 +12,9 @@ import { RideService } from '../../services/rides/ride.service';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
 import { VehiclePricingService } from '../../services/pricing/vehicle-pricing.service';
 import { AssignedDriverBooking } from '../../shared/assigned-driver-booking';
+import { AssignVehicle } from '../../shared/assign-vehicle';
+import { Pricing } from '../../shared/pricing';
+import { Vehicle } from '../../shared/vehicle';
 
 @Component({
   selector: 'app-driver-list',
@@ -37,7 +40,11 @@ export class DriverListComponent implements OnInit {
   toggleActivityStatus: boolean = false;
   toggleStatus: boolean = false;
   userList: any[] = [];
+  driverAssignedVehicleObject: AssignVehicle;
   sortType: string = 'Sort By';
+  pricingDataArray: Pricing[] = [];
+  vehicleDataArray: Vehicle[] = [];
+  combinedPricingAndVehicleObject: any[]=[]
   currentPage: number = 1;
   pageSize: number = 5;
   totalPages: number = 0;
@@ -57,6 +64,7 @@ export class DriverListComponent implements OnInit {
   selectedCityId: string | null = null; // To store the selected city's ID
   driverIndex: string = null;
   filteredCityArray = []; // Array to hold filtered cities
+  driverObjectIncludeVehicle: any[] = [];
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string, userId: string,
     countryCode: string, city: string
@@ -79,13 +87,15 @@ export class DriverListComponent implements OnInit {
     private cityService: CityService,
     private cd: ChangeDetectorRef,
     private rideService: RideService,
-    private VehiclePricingService: VehiclePricingService
+    private VehiclePricingService: VehiclePricingService,
+    private vehicleTypeService: VehicleTypeService
   ) { }
 
   ngOnInit() {
     this.getAllUsers();
     this.getCountries();
-    this.getConfirmedRides()
+    this.getVehicleData();
+    
   }
 
   getCountries() {
@@ -306,34 +316,84 @@ export class DriverListComponent implements OnInit {
   }
 
   onAssignVehicle(driver) {
-    this.driverIndexId = driver._id
-    
-    const filteredRideList = this.confirmedRides.filter((ride) => {
-      return ride.pickupLocation.includes(driver.city);
-    })
-    console.log(filteredRideList);
-    this.filteredRidesByCity = filteredRideList
-  }
+  this.driverIndexId = driver._id;
+  console.log(driver.city);
+  
+  // Filtering the pricingDataArray according to the driver's city
+  const filteredPricingArray = this.pricingDataArray.filter((object: any) => {
+    return object.city.city === driver.city;
+  });
+  console.log("Filtered Pricing Array: ", filteredPricingArray);
+  
+  // Filtering vehicleDataArray with parameter vehicleType
+  const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
+    return filteredPricingArray.some((dataObject) => {
+      return vehicle.vehicleType === dataObject.vehicleType;
+    });
+  });
+  console.log("Filtered Vehicle Array: ", filteredVehicleType);
+  
+  // Combine and merge the filtered arrays based on vehicleType
+  const combinedArray = filteredVehicleType.map(vehicle => {
+    const pricing = filteredPricingArray.find(pricing => pricing.vehicleType === vehicle.vehicleType);
+    return { ...vehicle, ...pricing };
+  });
 
-  getConfirmedRides() {
-    this.rideService.getConfirmedRides().subscribe((response) => {
-      console.log(response);
-      this.confirmedRides = response;
+  // Create a map to remove duplicates by vehicleType
+  const uniqueCombinedArray = Array.from(new Map(combinedArray.map(item => [item.vehicleType, item])).values());
+
+  console.log("Combined and Unique Array: ", uniqueCombinedArray);
+  
+  // Update the vehicleDataArray with the unique combined array
+    this.combinedPricingAndVehicleObject = uniqueCombinedArray;
+      this.getDriver();
+}
+
+  getVehicleData() {
+    this.VehiclePricingService.fetchAllPricingData().subscribe((responseData) => {
+      if (responseData.status === 200) {
+        this.pricingDataArray= responseData.body;
+        // console.log("Displaying Pricing Data: ", this.pricingDataArray);
+        
+      }
     })
+    this.vehicleTypeService.onGetVehicle().subscribe((responseData:any) => {
+      if (responseData) {
+        this.vehicleDataArray =  responseData.vehicles
+        // console.log("Displaying Vehicle Data: ", this.vehicleDataArray);
+        
+      }
+    })
+    
   } 
 
-  onAssignBooking(rideObject, i) {
-    console.log(rideObject, i);
-    console.log(this.driverIndexId);
+onAssignBooking(vehicle, i) {
+  console.log(vehicle, i);
+  console.log(this.driverIndexId);
+  
+  this.driverObjectIncludeVehicle = { ...vehicle, driverObjectId: this.driverIndexId };
+  console.log(this.driverObjectIncludeVehicle);
+  
+  this.driverListService.assignDriverToVehicle(this.driverObjectIncludeVehicle).subscribe((payLoad) => {
+    console.log(payLoad);
     
-    // this.driverListService.getSpecificUser()
-    // const assignDriverObject = rideObject
-    this.driverObjectAssigned = rideObject
-    this.driverObjectAssigned.driverObject  = this.driverIndexId
-    // assignDriverObject['driverId'] = this.driverIndexId;
-    this.driverListService.assingDriverToRide(this.driverObjectAssigned).subscribe((responseObject) => {
-      console.log(responseObject);
-      
+    // Correct way to remove the element at index i from the array
+    this.combinedPricingAndVehicleObject.splice(i, 1);
+    
+  });
+
+}
+
+  getDriver() {
+    this.driverListService.getDriver(this.driverIndexId).subscribe((driver) => {
+      if (driver.status === 200) {
+        console.log("driver Exists");
+        
+      } else {
+        console.log("driver null");
+        console.log(driver.body);
+        
+      }
     })
   }
   getAllBookings() {

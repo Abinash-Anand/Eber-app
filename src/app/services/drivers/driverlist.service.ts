@@ -54,4 +54,11 @@ export class DriverlistService {
       `${environment.backendServerPORT}/all-drivers/status`, {observe:'response'}
     );
   }
+  //---post driver assinged to vehicle
+  assignDriverToVehicle(payload): Observable<HttpResponse<any[]>>{
+    return this.http.post<any[]>(`${environment.backendServerPORT}/assign/vehicle`, payload, {observe:'response'} )
+  }
+  getDriver(id): Observable<HttpResponse<any>>{
+    return this.http.get(`${environment.backendServerPORT}/get/driverObject/${id}`, {observe:'response'})
+  }
 }

@@ -16,5 +16,8 @@ export class VehiclePricingService {
 
    getPricingData(): Observable<HttpResponse<Pricing[]>> {
     return this.http.get<Pricing[]>(`${environment.backendServerPORT}/get-pricing-data`, {observe:'response'} )
+   }
+    fetchAllPricingData(): Observable<HttpResponse<any[]>> {
+    return this.http.get<any[]>(`${environment.backendServerPORT}/fetch/pricing-data`, {observe:'response'} )
   }
 }

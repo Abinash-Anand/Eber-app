@@ -140,8 +140,7 @@
                     <!-- Assign Vehicle Button -->
                     <button class="btn btn-info m-1 btn-md" 
                     (click)="onAssignVehicle(user)" data-toggle="modal" 
-                     data-target="#assignVehicleToDriver" 
-                     [disabled]="!toggleActivityStatus">
+                     data-target="#assignVehicleToDriver" >
                         Assign Vehicle
                     </button>
                     
@@ -292,25 +291,32 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
-            <!-- Modal Header -->
+
             <div class="modal-header">
-                <h4 class="modal-title">Confirmed Bookings</h4>
+                <h4 class="modal-title">Vehicles Available in this City</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <div class="loop-container p-2 bg-light">
-                    <ul class="my-2 bookings" 
-                     *ngFor="let ride of filteredRidesByCity; let i = index"
-                     (click)="onAssignBooking(ride, i)" >
-                        <li>Order By: {{ride.userId.username}}</li>
-                        <li>Phone: {{ride.phone}}</li>
-                        <li>Pickup Location: {{ride.pickupLocation}}</li>
-                        <hr>
-                    </ul>
+            
+        <div class="modal-body">
+            <div class="loop-container p-2">
+                <div class="row p-3 bookings" *ngFor="let vehicle of combinedPricingAndVehicleObject; let i = index"
+                    (click)="onAssignBooking(vehicle, i)">
+                    <div class="col-sm">
+                        <img [src]="vehicle.vehicleImageURL" style="width: 10rem; height: max-content" alt="">
+                    </div>
+                    <div class="col-sm">
+                        <h5>Country: {{vehicle.country?.name}}</h5>
+                        <h5>Vehicle: {{vehicle.vehicleType}}</h5>
+                    </div>
+                    <div class="col-sm">
+                        <h5>City: {{vehicle.city?.city}}</h5>
+                        <h5>Seating: {{vehicle.maxSpace}}</h5>
+                    </div>
                 </div>
             </div>
+        </div>
+
 
         </div>
     </div>
