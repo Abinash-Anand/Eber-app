@@ -346,7 +346,7 @@ export class DriverListComponent implements OnInit {
   
   // Update the vehicleDataArray with the unique combined array
     this.combinedPricingAndVehicleObject = uniqueCombinedArray;
-      this.getDriver();
+      // this.getDriver();
 }
 
   getVehicleData() {

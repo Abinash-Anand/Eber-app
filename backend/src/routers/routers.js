@@ -26,7 +26,7 @@ const { createNewRide } = require('../controllers/createRideController')
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
 const { assignedDriver } = require('../controllers/driverAssignedRide');
-const {driverAssignedToVehicle, getSpecificDriver} =require('../controllers/driverModelController')
+const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
 
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
@@ -100,6 +100,7 @@ router.get('/all-drivers/status', allDriversStatus)
 //----Assigning driver to vehicle---------------------
 router.post('/assign/vehicle', driverAssignedToVehicle)
 router.get('/get/driverObject/:id', getSpecificDriver)
+router.get('/get/drivers', driverList)
 //--------------------------Setting Pricing Routes--------------------------------
 //1.Post 
 router.post('/submit-pricing', setPricing);

@@ -13,7 +13,9 @@ const driverVehicleSchema = mongoose.Schema({
     driverObjectId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'driverModel',
-        required:true,
+        required: true,
+        unique:true
+        
     },
     basePrice: {
         type: Number, required: true

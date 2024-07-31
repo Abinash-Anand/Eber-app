@@ -1,0 +1,24 @@
+.vertical{
+    height: 8vw;
+    width: 0px;
+    border: 1px solid black;
+}
+/* .bookings{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} */
+ .driver-list{
+    background-color: aliceblue;
+    font-weight: bold;
+  
+ }
+ .row{
+    text-align: center;
+ }
+ .driver-list:hover{
+    background-color: #62cffd;
+    transition: 0.2s ease-in;
+    cursor: pointer;    
+ }
+

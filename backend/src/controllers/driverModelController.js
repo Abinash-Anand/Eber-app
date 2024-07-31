@@ -30,4 +30,21 @@ const getSpecificDriver = async (req, res) => {
         res.status(500).send({ message: "Internal Server Error", error });
     }
 };
-module.exports = { driverAssignedToVehicle, getSpecificDriver };
+const driverList = async (req, res) => {
+    try {
+        
+        
+        const drivers = await DriverVehicleModel.find().populate('driverObjectId').populate('country').populate('city');
+        console.log(drivers);
+        
+        if (!drivers) {
+            return res.status(404).send({ message: "Driver Not found!" });
+        }
+        
+        res.status(200).send(drivers);
+    } catch (error) {
+        console.error(error); // Log the error for debugging
+        res.status(500).send({ message: "Internal Server Error", error });
+    }
+};
+module.exports = { driverAssignedToVehicle, getSpecificDriver, driverList };

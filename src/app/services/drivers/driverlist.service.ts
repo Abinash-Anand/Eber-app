@@ -61,4 +61,7 @@ export class DriverlistService {
   getDriver(id): Observable<HttpResponse<any>>{
     return this.http.get(`${environment.backendServerPORT}/get/driverObject/${id}`, {observe:'response'})
   }
+  getDrivers(): Observable<HttpResponse<any>>{
+    return this.http.get(`${environment.backendServerPORT}/get/drivers`, {observe:'response'})
+  }
 }
