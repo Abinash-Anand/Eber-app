@@ -27,7 +27,7 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
 const { assignedDriver } = require('../controllers/driverAssignedRide');
 const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
-
+const {rideBooked, getAllAcceptedRides} = require('../controllers/bookedRidesController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -123,6 +123,7 @@ router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 
 //-------------------------------Assign Driver socket connections----------------------
 router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
-
-
+//-------------------------------Confirm Ride Booking-----------------------------------
+router.post('/create/new/ride-booking', rideBooked)
+router.get('/ride-bookings/accepted-rides',getAllAcceptedRides )
 module.exports = router;

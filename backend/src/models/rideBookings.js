@@ -1,0 +1,96 @@
+const mongoose = require('mongoose');
+
+const rideBookingSchema = new mongoose.Schema({
+  EstimatedTime: {
+    type: String,
+    required: true
+  },
+  bookingOption: {
+    type: String,
+    required: true
+  },
+  city: { 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "zoneModel",
+    required: true,
+  },
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Country",
+    required: true,
+  },
+  driverObjectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DriverVehicleModel',
+    required: true,
+    unique:true
+  },
+  dropOffLocation: {
+    type: String,
+    required: true
+  },
+  fromLocation: {
+    type: String,
+    required: true
+  },
+  paymentOption: {
+    type: String,
+    required: true
+  },
+  phone: {
+    type: Number,
+    required: true
+  },
+  pickupLocation: {
+    type: String,
+    required: true
+  },
+  scheduleDateTime: {
+    type: Date,
+    required: true
+  },
+  selectedCard: {
+    type: String,
+    required: true
+  },
+  serviceType: {
+    type: String,
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['Pending', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
+    default: 'Pending'
+  },
+  stopLocations: {
+    type: String,
+    default: "[]"
+  },
+  toLocation: {
+    type: String,
+    required: true
+  },
+  totalDistance: {
+    type: String,
+    required: true
+  },
+  vehicleImageURL: {
+    type: String,
+    required: true,
+  },
+  vehicleName: {
+    type: String,
+    required: true,
+  },
+  vehicleType: {
+    type: String,
+    required: true,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'userModel',
+    required: true
+  }
+}, { timestamps: true });
+
+module.exports = mongoose.model('RideBooking', rideBookingSchema);

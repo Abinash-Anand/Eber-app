@@ -1,4 +1,10 @@
+<!-- Alerts -->
+<div class="alert alert-success" *ngIf="rideAccepted" role="alert">
+    New Ride Request Accepted!
+</div>
+
 <!-- confirmed-rides.component.html -->
+
 <h2 class="">Confirmed Rides</h2>
 <hr>
 <!-- Filter Section -->
@@ -53,7 +59,8 @@
                 <td>{{ride.pickupLocation}}</td>
                 <td>{{ride.dropOffLocation}}</td>
                 <td>{{ride.serviceType}}</td>
-                <td *ngIf="ride.status === 'Pending'; else accepted" class="badge bg-warning m-2 px-3  py-3 text-light">
+                <td *ngIf="ride.status === 'Pending'; else accepted" 
+                class="badge bg-warning m-2 px-3  py-3 text-light">
                     {{ride.status}}
                 </td>
                 <ng-template #accepted>
@@ -64,7 +71,7 @@
 
                 <td>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm m-2" data-toggle="modal"
-                        data-target="#confirm-ride" (click)="onAssignBooking(ride)">Assign</button>
+                        data-target="#confirm-ride" (click)="onAssignBooking(ride, 'Accepted')">Assign</button>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm m-2"
                         (click)="cancelRide(ride._id)">Cancel</button>
                 </td>
@@ -73,7 +80,7 @@
     </table>
 </div>
 
-<div class="modal fade" id="confirm-ride" tabindex="-1" role="dialog" aria-labelledby="confirmRideModalLabel"
+<div class="modal fade"  id="confirm-ride" tabindex="-1" role="dialog" aria-labelledby="confirmRideModalLabel"
     aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -114,9 +121,10 @@
                         </div>
                     </div>
                     <hr>
-                    <h4><strong>Driver's Available</strong></h4>
+                <div class="driver-container" *ngIf="filteredDriverList.length !== 0; else noDriverFound">
+                    <h4><strong>Drivers Available</strong></h4>
                     <hr>
-                    <div class="row p-3 driver-list m-2 p-2" *ngFor="let driver of  filteredDriverList; let i = index"
+                    <div class="row p-3 driver-list m-2 p-2" *ngFor="let driver of filteredDriverList; let i = index"
                         (click)="onDriverSelect(driver, i)"
                         [ngStyle]="{'background-color': selectedDriverIndex === i ? '#62cffd' : ''}">
                         <div class="col-sm">Driver's Id: {{driver.driverObjectId.username}}</div>
@@ -124,6 +132,13 @@
                         <div class="col-sm">Phone No.: {{driver.driverObjectId.phone}}</div>
                         <div class="col-sm">Email Address: {{driver.driverObjectId.email}}</div>
                     </div>
+                </div>
+                <ng-template #noDriverFound>
+                    <div class="col bg-warning p-3" >
+                        <h4>Unfortunately😓, There is no Driver Available At this Moment</h4>
+                    </div>
+                </ng-template>
+
                     <div class="row p-3 book-ride-btn">
                         <div class="col-sm">
                             <button type="button" class="btn btn-outline-success"

@@ -1,8 +1,9 @@
 // ride.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environment';
+import { Ride } from '../../shared/ride';
 
 @Injectable({
   providedIn: 'root'
@@ -24,4 +25,11 @@ export class RideService {
   cancelRide(rideId: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/cancel-ride/${rideId}`);
   }
+  submitRideRequestData(rideRequest: Ride):Observable<HttpResponse<Ride[]>> {
+   return this.http.post<Ride[]>(`${environment.backendServerPORT}/create/new/ride-booking`, rideRequest, {observe:'response'}) 
+  }
+ getAcceptedRides(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.backendServerPORT}/ride-bookings/accepted-rides`);
+  }
+
 }
