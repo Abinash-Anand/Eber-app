@@ -124,6 +124,6 @@ router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 //-------------------------------Assign Driver socket connections----------------------
 router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
 //-------------------------------Confirm Ride Booking-----------------------------------
-router.post('/create/new/ride-booking', rideBooked)
+router.post('/create/new/ride-booking',  rideBooked)
 router.get('/ride-bookings/accepted-rides',getAllAcceptedRides )
 module.exports = router;

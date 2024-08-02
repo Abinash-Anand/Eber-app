@@ -62,10 +62,13 @@ export class ConfirmRideComponent implements OnInit {
 
   searchRides(event: Event): void {
     const query = (event.target as HTMLInputElement).value.toLowerCase();
-    this.filteredRides = this.rides.filter(ride =>
-      (ride.userId?.username && ride.userId.username.toLowerCase().includes(query)) ||
-      (ride.userId?.phone && ride.userId.phone.toLowerCase().includes(query)) ||
-      (ride._id && ride._id.toLowerCase().includes(query))
+    console.log("Checking Ride array: ", this.rides);
+    
+    this.filteredRides = this.rides.filter((ride) =>
+     {
+     return (ride.userId.username.toLowerCase() === query) ||
+      (ride.phone === +query)  || (ride._id === query)
+      }
     );
   }
 
@@ -193,36 +196,34 @@ accept the request (the admin can set the duration for the driver to accept in t
  3. Driver do not have any request running
 */
 assignAnyAvailableDriver(): void {
-  console.log("Allot any available driver!");
-  console.log("Selected Ride: ", this.selectedRide);
-  this.selectedRide.status = this.rideStatus;
-  console.log("Ride service: ", this.selectedRide.serviceType);
+ 
+ console.log("Driver's Array: ", this.filteredDriverList);
+  if (this.filteredDriverList.length > 0) {
+    const randomIndex = Math.floor(Math.random() * this.filteredDriverList.length);
+    console.log("Random Index: ", randomIndex);
+     this.selectedRide.driver = this.filteredDriverList[randomIndex];
+    this.selectedRide.status = this.rideStatus;
+    console.log("Selected Ride: ",this.selectedRide);
+    this.rideService.submitRideRequestData(this.selectedRide).subscribe((response) => {
+      console.log(response);
+       if (response.status === 201) {
+          this.rideAccepted = true;
+        } 
+        setTimeout(() => {
+          this.rideAccepted = false;
+        }, 2000);
+        
 
-  this.driverListService.getDrivers().subscribe((response) => {
-    console.log("Drivers: ", response);
-    this.driverList = response.body; // Ensure the driverList is correctly updated
-    const nearestDriver = this.driverList.filter((driver) => {
-      // Check if driver and driver.status are defined before using toLowerCase
-      return driver.status === 'approved' && 
-             driver.vehicleType === this.selectedRide.serviceType
-    });
-    console.log("Nearest Driver: ", nearestDriver);
+    })
     
+       this.rideService.updateRideStatus(this.selectedRide._id, this.selectedRide).subscribe((response) => {
+    this.fetchConfirmedRides();
+        
+      })
+    
+  }
 
-    if (nearestDriver.length > 0) {
-      const randomIndex = Math.floor(Math.random() * nearestDriver.length);
-      const randomDriver = nearestDriver[randomIndex];
-      console.log('Assign Any Available Driver:', randomDriver, this.selectedRide);
-      this.selectedRide.driver = randomDriver;
-      this.updateStatus(this.selectedRide);
-      this.driverAssigned = true;
-      
-    } else {
-      console.log('No available drivers found.');
-    }
-  }, (error) => {
-    console.error('Error fetching drivers:', error);
-  });
+
 }
 
 
