@@ -556,7 +556,11 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     if (formData.bookingOption === 'now') {
       formData.scheduleDateTime = new Date().toISOString().slice(0, 16); // Set the current date and time
     }
-
+    if (this.cardId === 'cash') {
+      formData.selectedCard = 'cash';
+    }
+    console.log("Selectedcard: ",formData.selectedCard);
+    
     this.createRideService.bookRide(this.newBookingObject).subscribe(
      ( response:any) => {
         console.log('Ride created successfully:', response);
@@ -576,9 +580,10 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     if (this.cardId !== 'cash') {
           console.log("payment type: ", this.cardId);
             this.fetchUserCardDetails(this.userId)
-    } else {
-          console.log("payment type: ", this.cardId);
-            this.requestForm.value.selectedCard ='cash'
+    } else if(this.cardId === 'cash') {
+      this.requestForm.value.selectedCard = ''
+      console.log("payment type: ", this.requestForm.value.selectedCard);
+      
           }
   }
   validateCard() {
