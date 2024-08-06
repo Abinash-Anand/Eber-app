@@ -553,7 +553,9 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     // scheduleDateTime: formData.scheduleDateTime,
     // }
     // console.log(this.newBookingObject);
-    
+    if (formData.bookingOption === 'now') {
+      formData.scheduleDateTime = new Date().toISOString().slice(0, 16); // Set the current date and time
+    }
 
     this.createRideService.bookRide(this.newBookingObject).subscribe(
      ( response:any) => {

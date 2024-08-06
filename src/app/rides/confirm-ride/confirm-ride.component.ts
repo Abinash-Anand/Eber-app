@@ -148,7 +148,7 @@ export class ConfirmRideComponent implements OnInit {
       this.selectedRide.driver = this.selectedDriver;
       this.selectedRide.status = this.rideStatus;
      
-      // console.log("Checking...",this.selectedRide);
+      console.log("Checking...",this.selectedRide);
       
       this.rideService.submitRideRequestData(this.selectedRide).subscribe((rideResponse) => {
         console.log(rideResponse);

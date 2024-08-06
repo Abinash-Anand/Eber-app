@@ -93,4 +93,5 @@ const rideBookingSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('RideBooking', rideBookingSchema);
+const RideBooking = mongoose.model('RideBooking', rideBookingSchema);
+module.exports  =  RideBooking

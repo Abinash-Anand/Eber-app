@@ -1,1 +1,39 @@
-<p>running-request works!</p>
+<div class="container mt-3">
+    <h2>Running Requests</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>User Name</th>
+                <th>Pick Up Location</th>
+                <th>Drop Off Location</th>
+                <th>Service Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let request of assignedRequests" (click)="selectRequest(request)">
+                <td>{{ request._id }}</td>
+                <td>{{ request.userId?.username }}</td>
+                <td>{{ request.pickupLocation }}</td>
+                <td>{{ request.dropOffLocation }}</td>
+                <td>{{ request.serviceType }}</td>
+                <td>
+                    <button class="btn btn-success btn-sm" (click)="acceptRequest(request)">Accept</button>
+                    <button class="btn btn-danger btn-sm" (click)="cancelRequest(request)">Cancel</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div *ngIf="selectedRequest">
+        <h3>Request Details</h3>
+        <p><strong>Request ID:</strong> {{ selectedRequest._id }}</p>
+        <p><strong>User Name:</strong> {{ selectedRequest.userId?.username }}</p>
+        <p><strong>Phone:</strong> {{ selectedRequest.userId?.phone }}</p>
+        <p><strong>Pick Up Location:</strong> {{ selectedRequest.pickupLocation }}</p>
+        <p><strong>Drop Off Location:</strong> {{ selectedRequest.dropOffLocation }}</p>
+        <p><strong>Service Type:</strong> {{ selectedRequest.serviceType }}</p>
+        <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+    </div>
+</div>

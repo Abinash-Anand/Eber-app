@@ -27,7 +27,7 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
 const { assignedDriver } = require('../controllers/driverAssignedRide');
 const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
-const {rideBooked, getAllAcceptedRides} = require('../controllers/bookedRidesController')
+const {rideBooked, getAllAcceptedRides, assignDriver} = require('../controllers/bookedRidesController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -125,5 +125,6 @@ router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
 //-------------------------------Confirm Ride Booking-----------------------------------
 router.post('/create/new/ride-booking',  rideBooked)
-router.get('/ride-bookings/accepted-rides',getAllAcceptedRides )
+router.get('/ride-bookings/accepted-rides', getAllAcceptedRides)
+router.patch('/api/accept-request/', assignDriver)
 module.exports = router;

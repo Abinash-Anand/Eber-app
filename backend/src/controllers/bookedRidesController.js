@@ -10,7 +10,9 @@ const rideBooked = async (req, res) => {
       totalDistance, userId
     } = req.body;
 
-    if (!EstimatedTime || !bookingOption || !driver || !dropOffLocation || !fromLocation || !paymentOption || !phone || !pickupLocation || !scheduleDateTime || !selectedCard || !serviceType || !status || !toLocation || !totalDistance || !userId) {
+      if (!EstimatedTime || !bookingOption || !driver || !dropOffLocation ||
+          !fromLocation || !paymentOption || !phone || !pickupLocation || !scheduleDateTime
+          || !selectedCard || !serviceType || !status || !toLocation || !totalDistance || !userId) {
       return res.status(400).send({ Message: "Missing required fields" });
     }
 
@@ -71,5 +73,20 @@ const getAllAcceptedRides = async (req, res) => {
     res.status(500).send({ message: "Internal Server Error", error });
   }
 }
+const assignDriver = async (req, res) => {
+  try {
+    const { requestId, driverId } = req.body;
+    const booking = await Booking.findById(requestId);
+    booking.driver.driverObjectId = driverId;
+    booking.status = 'Assigned';
+    await booking.save();
 
-module.exports = { rideBooked , getAllAcceptedRides};
+    req.app.get('socketio').emit('assignedRequest', booking);
+
+    res.status(200).send({ message: 'Driver assigned', booking });
+  } catch (error) {
+    console.error('Error assigning driver:', error);
+    res.status(500).send({ message: 'Internal Server Error', error });
+  }
+};
+module.exports = { rideBooked , getAllAcceptedRides, assignDriver};
