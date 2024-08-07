@@ -7,48 +7,21 @@ import { Observable } from 'rxjs';
 })
 export class SocketService {
 
-  constructor(private socket: Socket) {
-    this.setupSocketConnection();
+  constructor(private socket: Socket) { }
+
+  onNewRide(): Observable<any> {
+    return this.socket.fromEvent('newRide');
   }
 
-  setupSocketConnection() {
-    this.socket.on('connect', () => {
-      console.log('Connected to the server');
-    });
-
-    this.socket.on('disconnect', (reason) => {
-      console.log(`Disconnected: ${reason}`);
-      if (reason === 'io server disconnect') {
-        this.socket.connect();
-      }
-    });
-
-    this.socket.on('connect_error', (error) => {
-      console.error(`Connection Error: ${error}`);
-    });
+  onConfirmedRideDriver(): Observable<any> {
+    return this.socket.fromEvent('rideDriverConfirmed');
   }
 
-  listen(eventName: string): Observable<any> {
-    return this.socket.fromEvent(eventName);
-  }
-
-  emit(eventName: string, data: any): void {
-    this.socket.emit(eventName, data);
+  onAssignDriverToRide(): Observable<any> {
+    return this.socket.fromEvent('driverAssigned');
   }
 
   disconnect() {
     this.socket.disconnect();
-  }
-
-  onNewRide(): Observable<any> {
-    return this.listen('newRide');
-  }
-
-  onAssignDriverToRide(): Observable<any> {
-    return this.listen('driverAssigned');
-  }
-
-  onAssignedRequest(): Observable<any> {
-    return this.listen('assignedRequest');
   }
 }

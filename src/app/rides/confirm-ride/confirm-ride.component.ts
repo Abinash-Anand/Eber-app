@@ -24,7 +24,8 @@ export class ConfirmRideComponent implements OnInit {
   selectedDriverIndex: number | null = null; // Track the selected driver's index
   disableDriver: boolean = false;
   rideBooked: Ride;
-  rideStatus:string= ''
+  rideStatus: string = ''
+  bookingId: string = '';
   constructor(private rideService: RideService,
               private socketService: SocketService,
               private driverListService: DriverlistService) { }
@@ -100,6 +101,9 @@ export class ConfirmRideComponent implements OnInit {
 
   onAssignBooking(ride: any, status:string): void {
     this.selectedRide = ride;
+    this.bookingId = ride._id
+    console.log(this.bookingId);
+    
     console.log("Checking: ",this.selectedRide);
     this.rideStatus = status;
     this.driverListService.getDrivers().subscribe((drivers) => {
@@ -147,7 +151,7 @@ export class ConfirmRideComponent implements OnInit {
     if (this.selectedDriver && this.selectedRide) {
       this.selectedRide.driver = this.selectedDriver;
       this.selectedRide.status = this.rideStatus;
-     
+      this.selectedRide.bookingId = this.bookingId
       console.log("Checking...",this.selectedRide);
       
       this.rideService.submitRideRequestData(this.selectedRide).subscribe((rideResponse) => {
@@ -201,8 +205,9 @@ assignAnyAvailableDriver(): void {
   if (this.filteredDriverList.length > 0) {
     const randomIndex = Math.floor(Math.random() * this.filteredDriverList.length);
     console.log("Random Index: ", randomIndex);
-     this.selectedRide.driver = this.filteredDriverList[randomIndex];
+    this.selectedRide.driver = this.filteredDriverList[randomIndex];
     this.selectedRide.status = this.rideStatus;
+    this.selectedRide.bookingId = this.bookingId
     console.log("Selected Ride: ",this.selectedRide);
     this.rideService.submitRideRequestData(this.selectedRide).subscribe((response) => {
       console.log(response);

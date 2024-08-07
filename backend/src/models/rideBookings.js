@@ -59,7 +59,7 @@ const rideBookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['Pending', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
+    enum: ['Pending','Assigned','Cancelled', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
     default: 'Pending'
   },
   stopLocations: {
@@ -90,7 +90,16 @@ const rideBookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'userModel',
     required: true
-  }
+    },
+   requestTimer: {
+        type: Number,
+        required:true,
+    },
+    bookingId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Ride',
+        required:true
+   }
 }, { timestamps: true });
 
 const RideBooking = mongoose.model('RideBooking', rideBookingSchema);

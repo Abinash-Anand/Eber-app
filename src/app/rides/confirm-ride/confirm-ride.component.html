@@ -71,7 +71,7 @@
 
                 <td>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm m-2" data-toggle="modal"
-                        data-target="#confirm-ride" (click)="onAssignBooking(ride, 'Accepted')">Assign</button>
+                        data-target="#confirm-ride" (click)="onAssignBooking(ride, 'Assigned')">Assign</button>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-danger btn-sm m-2"
                         (click)="cancelRide(ride._id)">Cancel</button>
                 </td>

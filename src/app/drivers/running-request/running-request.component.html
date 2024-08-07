@@ -1,6 +1,9 @@
 <div class="container mt-3">
     <h2>Running Requests</h2>
-    <table class="table table-bordered">
+    <div *ngIf="emptyBookingError" class="alert alert-danger">
+        No assigned requests found!
+    </div>
+    <table class="table table-bordered" *ngIf="assignedRequests.length > 0">
         <thead>
             <tr>
                 <th>Request ID</th>
@@ -9,6 +12,7 @@
                 <th>Drop Off Location</th>
                 <th>Service Type</th>
                 <th>Actions</th>
+                <th>Request Timer</th>
             </tr>
         </thead>
         <tbody>
@@ -22,6 +26,7 @@
                     <button class="btn btn-success btn-sm" (click)="acceptRequest(request)">Accept</button>
                     <button class="btn btn-danger btn-sm" (click)="cancelRequest(request)">Cancel</button>
                 </td>
+                <td class="timer px-2">{{ countdown }}</td>
             </tr>
         </tbody>
     </table>

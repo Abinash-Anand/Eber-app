@@ -22,12 +22,12 @@ const auth = require('../middlewares/authMiddleware');
 const { setPricing, getAllPricing , fetchAllPricingData} = require('../controllers/pricingController')
 const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
 const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripePayment');
-const { createNewRide } = require('../controllers/createRideController')
+const { createNewRide, deleteRideFromRides } = require('../controllers/createRideController')
 const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
 const { assignedDriver } = require('../controllers/driverAssignedRide');
 const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
-const {rideBooked, getAllAcceptedRides, assignDriver} = require('../controllers/bookedRidesController')
+const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking} = require('../controllers/bookedRidesController')
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -101,6 +101,11 @@ router.get('/all-drivers/status', allDriversStatus)
 router.post('/assign/vehicle', driverAssignedToVehicle)
 router.get('/get/driverObject/:id', getSpecificDriver)
 router.get('/get/drivers', driverList)
+
+//----------------------Driver Running requests------------------------------
+router.get('/api/assigned-requests', getAllAcceptedRides)
+router.delete('/api/cancel-request/:id', deleteRideBooking)
+router.delete('/api/cancel-request/rides/delete/:id', cancelRide)
 //--------------------------Setting Pricing Routes--------------------------------
 //1.Post 
 router.post('/submit-pricing', setPricing);
@@ -117,14 +122,16 @@ router.get('/fetch-all-cards/:id', fetchUserCardDetails);
 router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 
 //-------------------------------Confirm Ride Section-------------------------------
-router.get('/confirmed-rides', getConfirmedRides); // -confirmed ride
+router.get('/confirmed-rides', getConfirmedRides); // -corouter.post('/api/reassign-request/', reassignRequest);nfirmed ride
 router.patch('/update-ride-status/:id', updateRideStatus);
 router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
 
 //-------------------------------Assign Driver socket connections----------------------
 router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));
 //-------------------------------Confirm Ride Booking-----------------------------------
-router.post('/create/new/ride-booking',  rideBooked)
+router.post('/create/new/ride-booking', (req, res) => rideBooked(req, res, req.app.get('socketio')));
 router.get('/ride-bookings/accepted-rides', getAllAcceptedRides)
 router.patch('/api/accept-request/', assignDriver)
+router.post('/api/reassign-request/', reassignRequest);
+
 module.exports = router;

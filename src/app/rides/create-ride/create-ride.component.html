@@ -96,7 +96,7 @@
                     <hr>    
                     </div>
                    
-                    <div class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles"  (click)="onSelectService(vehicle)">
+                    <div class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles; let i = index"  (click)="onSelectService(vehicle)">
                         
                         <div class="col p-1">
                             <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL"  alt="Vehicle Image"
@@ -148,6 +148,7 @@
 
                 <hr>
                 <!-- Booking Options -->
+                <div class="request-time col-5 p-2"><strong>Reqest Time ({{requestAcceptTime}}) seconds</strong></div>
                 <div class="my-3">
                     <label for="bookingOption" class="form-label">
                         <h5><strong>Booking Option</strong></h5>

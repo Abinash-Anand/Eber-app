@@ -72,7 +72,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     bookingOption:'',
     scheduleDateTime: '',
     
-}
+  }
+  
   //----------Pricing Values---------------
   drvierProfit: number = null;
   time: number = null;
@@ -87,7 +88,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   estimatedDistance: number = null;
   // maxSpace: number = null;
   serviceSelected: boolean = false
-  userId:string =''
+  userId: string = ''
   //----------------------------------------
   serviceType: string = '';
   constructor(
@@ -112,7 +113,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
       dropOffLocation: [{ value: '', disabled: true }],
       serviceType: [{ value: '', disabled: true }],
       bookingOption: [''],
-      scheduleDateTime: [{ value: '', disabled: true }]
+      scheduleDateTime: [{ value: '', disabled: true }],
+      requestTimer:[{value: null}],
     });
     this.getUserLocation();
       this.getSettings()
@@ -191,6 +193,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           this.requestForm.get('dropOffLocation').enable();
           this.requestForm.get('serviceType').enable();
           this.requestForm.get('scheduleDateTime').enable();  
+          this.requestForm.patchValue({ requestTimer: this.requestAcceptTime });
 
           this.loadInitialData();
             console.log( this.cityMap);
@@ -537,6 +540,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     formData.EstimatedTime = this.EstimatedTime;
     this.newBookingObject = formData
     this.newBookingObject.userId = this.userId
+
     console.log('Form Data:', this.newBookingObject);
     // this.newBookingObject = {
     //   phone:formData.phone,

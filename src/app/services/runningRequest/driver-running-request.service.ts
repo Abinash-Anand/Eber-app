@@ -1,33 +1,43 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { SocketService } from '../../services/sockets/socket.service';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DriverRunningRequestService {
+  emptyBookingError: boolean = false;
 
   constructor(private http: HttpClient, private socketService: SocketService) { }
 
-  // Fetch assigned ride requests
   getAssignedRequests(): Observable<any> {
-    return this.http.get(`${environment.backendServerPORT}/api/assigned-requests`); // Replace with your API endpoint
+    return this.http.get(`${environment.backendServerPORT}/api/assigned-requests`).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.emptyBookingError = true;
+        } else {
+          this.emptyBookingError = false;
+        }
+        return throwError(() => new Error('No assigned requests found!'));
+      })
+    );
   }
 
-  // Listen for assigned requests via socket
-  onAssignedRequest(): Observable<any> {
-    return this.socketService.listen('assignedRequest');
-  }
-
-  // Accept a ride request
   acceptRequest(requestId: string): Observable<any> {
     return this.http.patch(`${environment.backendServerPORT}/api/accept-request/${requestId}`, {});
   }
 
-  // Cancel a ride request
-  cancelRequest(requestId: string): Observable<any> {
-    return this.http.patch(`${environment.backendServerPORT}/api/cancel-request/${requestId}`, {});
+  cancelRequestFromRideBookedCollection(requestId: string): Observable<any> {
+    return this.http.delete(`${environment.backendServerPORT}/api/cancel-request/${requestId}`);
+  }
+
+  cancelRequestFromRidesCollection(requestId: string): Observable<any> {
+    return this.http.delete(`${environment.backendServerPORT}/cancel-ride/${requestId}`);
+  }
+
+  reassignRequest(newDriver): Observable<any> {
+    return this.http.post<any[]>(`${environment.backendServerPORT}/api/reassign-request/`, newDriver);
   }
 }

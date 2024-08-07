@@ -58,8 +58,12 @@ const rideSchema = mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Pending', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
+        enum: ['Pending',"Assigned", 'Cancelled', 'Accepted', 'Arrived', 'Picked', 'Started', 'Completed'],
         default: 'Pending'
+    },
+    requestTimer: {
+        type: Number,
+        required:true,
     }
 }, { timestamps: true });
 
