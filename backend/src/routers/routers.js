@@ -27,7 +27,12 @@ const { ensureAuthenticated } = require('../middlewares/authMiddleware');
 const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
 const { assignedDriver } = require('../controllers/driverAssignedRide');
 const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
-const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking} = require('../controllers/bookedRidesController')
+const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
+const {
+  updateBookingStatus,
+  calculateInvoice,
+  submitFeedback
+} = require('../controllers/bookingStatusController');
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -131,7 +136,15 @@ router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.g
 //-------------------------------Confirm Ride Booking-----------------------------------
 router.post('/create/new/ride-booking', (req, res) => rideBooked(req, res, req.app.get('socketio')));
 router.get('/ride-bookings/accepted-rides', getAllAcceptedRides)
-router.patch('/api/accept-request/', assignDriver)
+router.patch('/api/accept-request/:id', assignDriver)
 router.post('/api/reassign-request/', reassignRequest);
+//-----------------------------Trip Progress API's--------------------------------------
+// Route to update booking status
+router.patch('/update-status', updateBookingStatus);
 
+// Route to calculate invoice
+router.post('/calculate-invoice', calculateInvoice);
+
+// Route to submit feedback
+router.post('/submit-feedback', submitFeedback);
 module.exports = router;

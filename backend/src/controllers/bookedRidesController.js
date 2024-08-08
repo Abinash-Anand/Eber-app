@@ -1,7 +1,8 @@
 const Booking = require('../models/rideBookings'); // Ensure the correct path to your model
 const cron = require('node-cron'); // For scheduling tasks
-const DriverModel = require('../models/driverVehiclePricingModel'); // Ensure the correct path to your model
-const { find } = require('../models/vehicleTypeModel');
+const driverModel = require('../models/driverVehiclePricingModel'); // Ensure the correct path to your model
+const DriverVehicleModel = require('../models/driverVehiclePricingModel')
+const Ride = require('../models/createRideModel')
 // Object to store timeouts for each booking
 const bookingTimeouts = {};
 
@@ -53,7 +54,7 @@ const rideBooked = async (req, res, io) => {
     io.emit('rideDriverConfirmed', newBooking); // 'rideDriverConfirmed' is the event name, newBooking is the data sent with the event
 
     // Start the timer for request expiration
-    scheduleRequestTimeout(newBooking._id, requestTimer, io);
+    // scheduleRequestTimeout(newBooking._id, requestTimer, io);
 
     res.status(201).send({ Message: "New Booking Created", newBooking });
   } catch (error) {
@@ -62,17 +63,37 @@ const rideBooked = async (req, res, io) => {
   }
 };
 
-// Function to find another available driver
-const findAnotherDriver = async (driverObjectId, vehicleType) => {
-    try {
-      const populateDriverObjectId =  await Booking.find(driverObjectId).populate('driverObjectId').lean()
-      const availableDriver = await DriverModel.findOne({
-          _id: { $ne: driverObjectId },
-          city: populateDriverObjectId.city,
-          vehicleType: vehicleType,
-          status: 'approved',
-      }).populate('driverObjectId').lean();
-            console.log(`-------------| Driver Found ${availableDriver } |-----------`);
+const findAnotherDriver = async (driverObjectId, cityId, vehicleType) => {
+  try {
+    // Find the driver using the driverObjectId and populate driver details
+    const driver = await DriverVehicleModel.findOne({ driverObjectId }).populate('driverObjectId').lean();
+    console.log(`-------------| Driver Found: ${JSON.stringify(driver, null, 2)} |-----------`);
+    console.log(`-------------| Driver's City: ${JSON.stringify(driver.driverObjectId.city, null, 2)} |-----------`);
+
+    if (!driver || !driver.driverObjectId) {
+      console.log('Driver not found or driver details not populated');
+      return null;
+    }
+
+    // Log parameters before querying for available drivers
+    console.log(`Searching for available drivers with cityId: ${cityId}, vehicleType: ${vehicleType}, excluding driverObjectId: ${driverObjectId}`);
+    
+    // Find another available driver with the same city and vehicle type, but different from the current driver
+    const availableDriver = await driverModel.findOne({
+      _id: { $ne: driverObjectId }, // Ensure the new driver is different
+      city: Objee(cityId), // Ensure the city matches
+      vehicleType: vehicleType, // Ensure the vehicle type matches
+      status: 'approved', // Ensure the status is approved
+    }).lean();
+
+    console.log(`-------------| Available Driver Found: ${JSON.stringify(availableDriver, null, 2)} |-----------`);
+
+    if (!availableDriver) {
+      console.log('No available driver found');
+      return null;
+    }
+
+    console.log(`-------------| Available Driver Found: ${JSON.stringify(availableDriver, null, 2)} |-----------`);
 
     return availableDriver;
   } catch (error) {
@@ -81,10 +102,11 @@ const findAnotherDriver = async (driverObjectId, vehicleType) => {
   }
 };
 
+
 // Function to get all accepted rides
 const getAllAcceptedRides = async (req, res) => {
   try {
-    const acceptedRides = await Booking.find({ status: 'Assigned' }).populate('userId');
+    const acceptedRides = await Booking.find().populate('userId');
 
     console.log("Assigned Rides: ", acceptedRides);
 
@@ -99,23 +121,45 @@ const getAllAcceptedRides = async (req, res) => {
   }
 };
 
-// Function to assign driver
 const assignDriver = async (req, res) => {
   try {
-    const { requestId, driverId } = req.body;
-    const booking = await Booking.findById(requestId);
-    booking.driverObjectId = driverId;
-    booking.status = 'Assigned';
+    const requestId = req.params.id;
+    console.log('requestId:', requestId);
+
+    const booking = await Booking.findOne({ _id: requestId });
+    if (!booking) {
+      console.error(`Booking not found for requestId: ${requestId}`);
+      return res.status(404).send({ message: 'Booking not found' });
+    }
+
+    const originalBookingObject = await Ride.findOne({ _id: booking.bookingId });
+    if (!originalBookingObject) {
+      console.error(`Original booking not found for bookingId: ${booking.bookingId}`);
+      return res.status(404).send({ message: 'Original booking not found' });
+    }
+
+    console.log('Original Booking before update:', originalBookingObject);
+
+    // Update statuses
+    booking.status = 'Accepted';
+    originalBookingObject.status = 'Accepted';
+
+    // Save both objects
     await booking.save();
+    await originalBookingObject.save(); // Ensure you save the updated originalBookingObject
 
-    req.app.get('socketio').emit('assignedRequest', booking);
+    console.log('Original Booking after update:', originalBookingObject);
+    console.log('----------------Ride Request Accepted by driver---------------------');
 
-    res.status(200).send({ message: 'Driver assigned', booking });
+    req.app.get('socketio').emit('assignedRequest', booking.status);
+    res.status(200).send({ message: 'Driver Accepted the request', booking });
   } catch (error) {
     console.error('Error assigning driver:', error);
     res.status(500).send({ message: 'Internal Server Error', error });
   }
 };
+
+
 
 // Function to reassign request
 const reassignRequest = async (req, res) => {
@@ -138,26 +182,51 @@ const reassignRequest = async (req, res) => {
   }
 };
 
-// Function to delete ride booking
 const deleteRideBooking = async (req, res) => {
   try {
     const requestId = req.params.id;
-    console.log(requestId);
-    const deletedBooking = await Booking.findByIdAndDelete(requestId);
-    res.status(200).send(deletedBooking);
-  } catch (error) {
-    res.status(500).send(error);
-  }
-}
+    console.log('Request ID:', requestId);
 
+    // Find the booking by requestId to get the bookingId
+    const booking = await Booking.findById(requestId);
+    if (!booking) {
+      console.error(`Booking not found for requestId: ${requestId}`);
+      return res.status(404).send({ message: 'Booking not found' });
+    }
+
+    const bookingId = booking.bookingId;
+
+    // Delete the associated Ride document
+    const deleteOriginalBooking = await Ride.findByIdAndDelete(bookingId);
+    console.log('Original booking deleted:', deleteOriginalBooking);
+
+    // Delete the Booking document
+    const deletedBooking = await Booking.findByIdAndDelete(requestId);
+    console.log('Booking deleted:', deletedBooking);
+
+    res.status(200).send({ message: 'Succeeded' });
+  } catch (error) {
+    console.error('Error deleting ride booking:', error);
+    res.status(500).send({ message: 'Internal Server Error', error });
+  }
+};
+
+let count = 1;
 // Schedule cron job to handle request timeouts
 const scheduleRequestTimeout = (bookingId, requestTimer, io) => {
-  const cronExpression = `*/${requestTimer} * * * * *`; // Run every 'requestTimer' seconds
-  const job = cron.schedule(cronExpression, async () => {
-      const booking = await Booking.findById(bookingId);
-      console.log(`---------------| Booking Found ${booking} |---------------------`);
+    //  setInterval(() => {
+        
+    //     console.log("CountDown: ", count);
+    //     count++
+    //     if (count > 60) {
+    //         return 
+    //     }
+    // }, 1000);
+  const timeout = setTimeout(async () => {
+    const booking = await Booking.findOne(bookingId);
     if (!booking) {
-      job.stop(); // Stop the cron job if the booking no longer exists
+      clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout if the booking no longer exists
+      delete bookingTimeouts[bookingId];
       return;
     }
 
@@ -166,23 +235,26 @@ const scheduleRequestTimeout = (bookingId, requestTimer, io) => {
     const elapsedTime = (now.getTime() - bookingTime) / 1000; // in seconds
 
     if (elapsedTime >= booking.requestTimer) {
-      const availableDriver = await findAnotherDriver(booking.driverObjectId, booking.vehicleType);
-        if (availableDriver) {
-            booking.driverObjectId = availableDriver._id;
-            await booking.save();
-            io.emit('assignedRequest', booking);
+      const availableDriver = await findAnotherDriver(booking.driverObjectId, booking.city, booking.vehicleType);
+      if (availableDriver) {
+        booking.driverObjectId = availableDriver._id;
+        await booking.save();
+        io.emit('assignedRequest', booking);
       } else {
         booking.status = 'Cancelled';
         await booking.save();
         io.emit('cancelledRequest', booking);
       }
-      job.stop(); // Stop the cron job after processing
+      clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout after processing
+      delete bookingTimeouts[bookingId];
     }
-  });
+  }, requestTimer * 1000); // Convert requestTimer from seconds to milliseconds
 
-  // Store the job so it can be cleared if needed
-    bookingTimeouts[bookingId] = job;
-    console.log("----------Booking TimeOuts: ",bookingTimeouts);
+  // Store the timeout so it can be cleared if needed
+  bookingTimeouts[bookingId] = timeout;
+  console.log("----------Booking TimeOuts: ", bookingTimeouts);
 };
 
 module.exports = { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking, scheduleRequestTimeout };
+
+

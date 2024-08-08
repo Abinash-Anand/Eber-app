@@ -26,6 +26,7 @@ export class ConfirmRideComponent implements OnInit {
   rideBooked: Ride;
   rideStatus: string = ''
   bookingId: string = '';
+  serverRideStatus: string = '';
   constructor(private rideService: RideService,
               private socketService: SocketService,
               private driverListService: DriverlistService) { }
@@ -33,6 +34,7 @@ export class ConfirmRideComponent implements OnInit {
   ngOnInit(): void {
     this.fetchConfirmedRides();
     this.listenForNewRides();
+    this.listenForUpdatedRideStatus()
       // this.updateFilteredRides();
   }
 
@@ -42,7 +44,13 @@ export class ConfirmRideComponent implements OnInit {
       this.filteredRides = rides;
     });
   }
-
+  listenForUpdatedRideStatus() {
+    this.socketService.onAcceptRideRequest().subscribe((requestStatus) => {
+      this.serverRideStatus = requestStatus
+      console.log("Server ride status: ", requestStatus);
+      
+    })
+  }
   listenForNewRides(): void {
     this.socketService.onNewRide().subscribe((newRide) => {
       this.rides.push(newRide);

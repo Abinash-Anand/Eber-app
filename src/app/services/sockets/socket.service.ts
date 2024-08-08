@@ -20,6 +20,9 @@ export class SocketService {
   onAssignDriverToRide(): Observable<any> {
     return this.socket.fromEvent('driverAssigned');
   }
+  onAcceptRideRequest(): Observable<string>{
+    return this.socket.fromEvent('assignedRequest')
+  }
 
   disconnect() {
     this.socket.disconnect();
