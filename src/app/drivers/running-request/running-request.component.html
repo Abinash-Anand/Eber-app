@@ -13,7 +13,6 @@
                 <th>Drop Off Location</th>
                 <th>Service Type</th>
                 <th>Actions</th>
-                <th>Request Timer</th>
             </tr>
         </thead>
         <tbody>
@@ -23,11 +22,27 @@
                 <td>{{ request.pickupLocation }}</td>
                 <td>{{ request.dropOffLocation }}</td>
                 <td>{{ request.serviceType }}</td>
-                <td>
+                <td *ngIf="request.status === 'Assigned'; else rideProgress">
                     <button class="btn btn-success btn-sm" (click)="acceptRequest(request)">Accept</button>
                     <button class="btn btn-danger btn-sm" (click)="cancelRequest(request)">Cancel</button>
                 </td>
-                <td class="timer px-2">{{ countdown }}</td>
+                <ng-template #rideProgress>
+                    <td>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Ride Status
+                            </button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Arrived')">Arrived</a>
+                                <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Picked')">Picked</a>
+                                <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Started')">Started</a>
+                                <a class="dropdown-item"
+                                    (click)="onChangeRideProgress(request, 'Completed')">Completed</a>
+                            </div>
+                        </div>
+                    </td>
+                </ng-template>
             </tr>
         </tbody>
     </table>

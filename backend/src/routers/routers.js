@@ -32,7 +32,7 @@ const {
   updateBookingStatus,
   calculateInvoice,
   submitFeedback
-} = require('../controllers/bookingStatusController');
+} = require('../controllers/tripController');
 // Route to get the data from the vehicle type form
 router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -140,7 +140,7 @@ router.patch('/api/accept-request/:id', assignDriver)
 router.post('/api/reassign-request/', reassignRequest);
 //-----------------------------Trip Progress API's--------------------------------------
 // Route to update booking status
-router.patch('/update-status', updateBookingStatus);
+router.patch('/update-status/:id', updateBookingStatus);
 
 // Route to calculate invoice
 router.post('/calculate-invoice', calculateInvoice);

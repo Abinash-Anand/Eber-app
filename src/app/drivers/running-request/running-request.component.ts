@@ -14,10 +14,13 @@ export class RunningRequestComponent implements OnInit {
   timer: any = null;
   emptyBookingError: boolean = false;
   countdown: string = '';
+  rideStatus: string = '';
 
-  constructor(private requestService: DriverRunningRequestService,
+  constructor(
+    private requestService: DriverRunningRequestService,
     private socketService: SocketService,
-    private rideService: RideService) { }
+    private rideService: RideService
+  ) { }
 
   ngOnInit(): void {
     this.loadAssignedRequests();
@@ -28,10 +31,7 @@ export class RunningRequestComponent implements OnInit {
     this.requestService.getAssignedRequests().subscribe({
       next: (requests) => {
         this.emptyBookingError = false;
-        // this.assignedRequests = requests;
-        this.filteredRequests(requests)
-        console.log(this.assignedRequests);
-        
+        this.filteredRequests(requests);
       },
       error: (error) => {
         console.error(error);
@@ -40,33 +40,22 @@ export class RunningRequestComponent implements OnInit {
     });
   }
 
- filteredRequests(requests) {
-   const filteredAssignedRequests = requests.filter((request) => {
-     return request.status !== "Accepted";
-   })
-   this.assignedRequests = filteredAssignedRequests
-   if (this.assignedRequests.length === 0) {
-     this.emptyBookingError = true
-   } else {
-     this.emptyBookingError = false
-   }
-}
+  filteredRequests(requests) {
+    this.assignedRequests = requests.filter(request => request.status !== "Completed");
+    this.emptyBookingError = this.assignedRequests.length === 0;
+  }
 
   listenForAssignedRequests(): void {
     this.socketService.onConfirmedRideDriver().subscribe((ConfirmedRideDriver) => {
       console.log("Socket Response", ConfirmedRideDriver);
-      if (!ConfirmedRideDriver) {
-     this.emptyBookingError = true
-   } else {
-     this.emptyBookingError = false
-   }
+      this.emptyBookingError = !ConfirmedRideDriver;
       this.assignedRequests.push(ConfirmedRideDriver);
     });
   }
 
   selectRequest(request: any): void {
     this.selectedRequest = request;
-    // this.startTimer(request.requestTimer);
+    this.startTimer(request.requestTimer);
   }
 
   startTimer(duration: number): void {
@@ -90,14 +79,10 @@ export class RunningRequestComponent implements OnInit {
   acceptRequest(request: any): void {
     this.requestService.acceptRequest(request._id).subscribe(() => {
       this.removeRequest(request._id);
-     
     });
-    
   }
 
   cancelRequest(request: any): void {
-    console.log("Request Object: ", request);
-    
     this.requestService.cancelRequestFromRideBookedCollection(request._id).subscribe(() => {
       this.removeRequest(request._id);
     });
@@ -117,10 +102,12 @@ export class RunningRequestComponent implements OnInit {
     this.selectedRequest = null;
     clearInterval(this.timer);
     this.countdown = '';
-      if (this.assignedRequests.length === 0) {
-     this.emptyBookingError = true
-   } else {
-     this.emptyBookingError = false
-   }
+    this.emptyBookingError = this.assignedRequests.length === 0;
+  }
+
+  onChangeRideProgress(request: any, status: string): void {
+    this.rideService.updateRideStatus(request._id, status).subscribe(() => {
+      request.status = status;
+    });
   }
 }

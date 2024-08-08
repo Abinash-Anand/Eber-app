@@ -3,7 +3,8 @@ const PricingModel = require('../models/pricingModel'); // Assuming you have a m
 
 // Function to update booking status
 const updateBookingStatus = async (req, res) => {
-  const { bookingId, status } = req.body;
+    const status = req.body;
+    const bookingId = req.params.id;
 
   try {
     const booking = await Booking.findById(bookingId);
