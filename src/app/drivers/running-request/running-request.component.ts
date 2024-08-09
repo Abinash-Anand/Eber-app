@@ -119,7 +119,14 @@ acceptRequest(request: any): void {
     updateRequest.status = status;
     this.tripControlService.updateBookingStatus(updateRequest)
       .subscribe((response) => {
-      
+        console.log("Ride Completed response: ",response);
+        
+        if (response.status.toLowerCase() === 'completed') {
+          this.tripControlService.calculateInvoice(response.body.bookingId).subscribe((response) => {
+          console.log("Invoice Response: ", response);
+          
+        })
+      }
     })
   }
 }

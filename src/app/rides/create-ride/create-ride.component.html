@@ -95,8 +95,8 @@
                         <h4 ><strong>Choose a Ride</strong></h4>  
                     <hr>    
                     </div>
-                   
-                    <div class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles; let i = index"  (click)="onSelectService(vehicle)">
+                    <!-- [ngStyle]="{'background-color': selectedDriverIndex === i ? '#62cffd' : ''}" -->
+                    <div  [ngClass]="{'selected': selectedRideTypeIndex === i}"  class="row service m-2 p-3 buy" *ngFor="let vehicle of filteredVehicles; let i = index"  (click)="onSelectService(vehicle,i)">
                         
                         <div class="col p-1">
                             <img class="vehicle-img" [src]="vehicle.vehicle.vehicleImageURL"  alt="Vehicle Image"
@@ -166,9 +166,9 @@
 
                 <!-- Book Ride Button -->
                 <div class="alert-success customAlerts px-4 py-2" *ngIf="formSubmitted">
-                    <h4>New Ride Booking Just Created</h4>
+                    <h4>Congrats🎉Your Ride is Created!</h4>
                 </div>
-                <button type="submit" class="btn my-3 btn-outline-primary">Book Ride</button>
+                <button type="submit" class="btn my-3 btn-lg px-5 btn-outline-primary">Book Ride</button>
                 
                 
             </form>

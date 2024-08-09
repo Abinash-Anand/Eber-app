@@ -128,6 +128,20 @@ border: none;   */
 }
 /* .customAlerts{
     position: absolute;
-    top: 0%;
+    top: -25%;
+    right: -100%;
     z-index: 100;
+} */
+
+.selected{
+        background-color: #000000d6;
+        color: white;
+        box-shadow: 10px 20px 10px rgb(133, 132, 132);
+        /* transition: 0.3s ease; */
+}
+/* .deselect{
+        background-color: ;
+        color: ;
+        box-shadow: 10px 20px 10px rgb(133, 132, 132);
+        transition: 0.3s ease;
 } */

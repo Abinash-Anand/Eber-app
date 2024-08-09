@@ -28,11 +28,7 @@
     const { assignedDriver } = require('../controllers/driverAssignedRide');
     const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
-    const {
-    updateBookingStatus,
-    calculateInvoice,
-    submitFeedback
-    } = require('../controllers/tripController');
+    const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     // Route to get the data from the vehicle type form
     router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
 
@@ -143,7 +139,7 @@
     router.patch('/update-status',(req, res)=>updateBookingStatus(req,res,req.app.get('socketio')));
 
     // Route to calculate invoice
-    router.post('/calculate-invoice', calculateInvoice);
+    router.post('/calculate-invoice/:id', calculateInvoice);
 
     // Route to submit feedback
     router.post('/submit-feedback', submitFeedback);

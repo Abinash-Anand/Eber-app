@@ -9,6 +9,7 @@ export interface CreateRideForm {
     stopLocations:string,
     totalDistance:string,
     EstimatedTime: string,
+    totalFare:number,
     serviceType:string,
     bookingOption:string,
     scheduleDateTime: string,

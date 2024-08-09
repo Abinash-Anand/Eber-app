@@ -4,7 +4,7 @@ const createNewRide = async (req, res, io) => {
     try {
         const { userId,phone, paymentOption,selectedCard, fromLocation, toLocation,
                  pickupLocation, dropOffLocation, stopLocations,
-                 totalDistance, EstimatedTime, serviceType, bookingOption,
+                 totalDistance, EstimatedTime,totalFare, serviceType, bookingOption,
             scheduleDateTime, requestTimer } = req.body;
     // Handle undefined values for stopLocations and EstimatedTime
         const validatedStopLocations = stopLocations || '';
@@ -12,7 +12,7 @@ const createNewRide = async (req, res, io) => {
            // Validate required fields
         if (!userId || !phone || !paymentOption || !selectedCard || !fromLocation || !toLocation ||
             !pickupLocation || !dropOffLocation || !totalDistance ||
-            !EstimatedTime || !serviceType || !bookingOption || !requestTimer) {
+            !EstimatedTime || !serviceType || !bookingOption || !requestTimer || !totalFare) {
             return res.status(400).json({ success: false, error: 'Missing required fields' });
         }
 
@@ -28,6 +28,7 @@ const createNewRide = async (req, res, io) => {
             stopLocations:validatedStopLocations,
             totalDistance,
             EstimatedTime,
+            totalFare,
             serviceType,
             bookingOption,
             scheduleDateTime,

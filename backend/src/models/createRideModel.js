@@ -45,6 +45,10 @@ const rideSchema = mongoose.Schema({
         type: String,
         required: true,
     },
+    totalFare: {
+        type: Number,
+        required:true,  
+    },
     serviceType: {
         type: String,
         required: true,

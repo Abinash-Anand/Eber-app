@@ -36,6 +36,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   fromAddress: string = '';
   toAddress: string = '';
   cards: {}[] = []
+  selectedRideTypeIndex: number = null;
   stopAddress: string = '';
   userGeolocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
   fromLocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
@@ -68,6 +69,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     stopLocations:'',
     totalDistance:'',
     EstimatedTime: '',
+    totalFare:null,
     serviceType:'',
     bookingOption:'',
     scheduleDateTime: '',
@@ -511,7 +513,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   }
   //------------------------Get Service ---------------------------------
 
-   onSelectService(vehicleDetails) {
+  onSelectService(vehicleDetails, i) {
+    this.selectedRideTypeIndex = i
     this.serviceType = vehicleDetails.vehicleType;
     this.serviceSelected = true;
      this.requestForm.get('serviceType').setValue(this.serviceType);
@@ -540,7 +543,7 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     formData.EstimatedTime = this.EstimatedTime;
     this.newBookingObject = formData
     this.newBookingObject.userId = this.userId
-
+    this.newBookingObject.totalFare = this.totalFare;
     console.log('Form Data:', this.newBookingObject);
     // this.newBookingObject = {
     //   phone:formData.phone,
@@ -568,8 +571,13 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     this.createRideService.bookRide(this.newBookingObject).subscribe(
      ( response:any) => {
         console.log('Ride created successfully:', response);
-        
-          this.formSubmitted = response.success;
+        if (response) {
+        this.formSubmitted = true;
+        setTimeout(() => {
+          this.formSubmitted = false
+        }, 2500);
+        }
+       
       },
       error => {
         console.error('Error creating ride:', error);
