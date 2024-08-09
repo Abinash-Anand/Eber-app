@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { DriverRunningRequestService } from '../../services/runningRequest/driver-running-request.service';
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
@@ -21,7 +21,8 @@ export class RunningRequestComponent implements OnInit {
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
     private rideService: RideService,
-    private tripControlService: TripControlServiceService
+    private tripControlService: TripControlServiceService,
+    private cdr : ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -82,11 +83,12 @@ export class RunningRequestComponent implements OnInit {
   //   }, 1000);
   // }
 
-  acceptRequest(request: any): void {
-    this.requestService.acceptRequest(request._id).subscribe(() => {
-      // this.removeRequest(request._id);
-    });
-  }
+acceptRequest(request: any): void {
+  this.requestService.acceptRequest(request._id).subscribe((response) => {
+    this.loadAssignedRequests();
+    this.cdr.detectChanges(); // Manually trigger change detection
+  });
+}
 
   cancelRequest(request: any): void {
     this.requestService.cancelRequestFromRideBookedCollection(request._id).subscribe(() => {

@@ -29,11 +29,11 @@ export class SocketService {
     return this.socket.fromEvent('driverAssigned');
   }
 
-  onAcceptRideRequest(): Observable<string> {
+  onAcceptRideRequest(): Observable<any> {
     return this.socket.fromEvent('assignedRequest');
   }
 
-  rideStatusProgressed(): Observable<string> {
+  rideStatusProgressed(): Observable<any> {
     return this.socket.fromEvent('rideStatusProgressed');
   }
 

@@ -151,7 +151,7 @@ const assignDriver = async (req, res) => {
     console.log('Original Booking after update:', originalBookingObject);
     console.log('----------------Ride Request Accepted by driver---------------------');
 
-    req.app.get('socketio').emit('assignedRequest', booking.status);
+    req.app.get('socketio').emit('assignedRequest', originalBookingObject);
     res.status(200).send({ message: 'Driver Accepted the request', booking });
   } catch (error) {
     console.error('Error assigning driver:', error);
