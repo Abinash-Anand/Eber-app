@@ -46,8 +46,17 @@ export class ConfirmRideComponent implements OnInit {
   }
 listenForUpdatedRideStatus() {
   this.socketService.onAcceptRideRequest().subscribe((requestStatus:any) => {
-    this.serverRideStatus = requestStatus.status;
     console.log('Server ride status:', requestStatus);
+    if (requestStatus) {
+       this.serverRideStatus = requestStatus.status;
+     this.filteredRides = this.filteredRides.map((ride) => {
+      if (ride._id === requestStatus._id) {
+        return { ...ride, status: requestStatus.status };
+      }
+      return ride;
+    });
+    }
+   
   });
 
   this.socketService.rideStatusProgressed().subscribe((newStatus: any) => {
