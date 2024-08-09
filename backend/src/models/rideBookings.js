@@ -101,6 +101,13 @@ const rideBookingSchema = new mongoose.Schema({
         required:true
    }
 }, { timestamps: true });
+rideBookingSchema.index({ bookingId: 1 })
 
 const RideBooking = mongoose.model('RideBooking', rideBookingSchema);
+RideBooking.ensureIndexes().then(() => {
+  console.log('Indexes ensured');
+}).catch(error => {
+  console.error('Indexing error:', error);
+});
+
 module.exports  =  RideBooking

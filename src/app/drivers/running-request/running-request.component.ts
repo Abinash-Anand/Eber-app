@@ -124,13 +124,13 @@ acceptRequest(request: any): void {
       .subscribe((response) => {
         console.log("Ride Completed response: ",response);
         this.invoiceObject = response.body.booking
-        this.invoiceArray.push(this.invoiceObject);
+        // this.invoiceArray.push(this.invoiceObject);
         if (this.invoiceObject.status.toLowerCase() === 'completed') {
-          this.showInvoice = true;
-        //   this.tripControlService.calculateInvoice(response.body.bookingId).subscribe((response) => {
-        //   console.log("Invoice Response: ", response);
-          
-        // })
+          this.tripControlService.calculateInvoice(this.invoiceObject.bookingId).subscribe((response) => {
+            console.log("Invoice Response: ", response);
+            
+            // this.showInvoice = true;
+        })
       }
     })
   }

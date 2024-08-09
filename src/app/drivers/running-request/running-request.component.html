@@ -23,8 +23,8 @@
                 <td>{{ request.dropOffLocation }}</td>
                 <td>{{ request.serviceType }}</td>
             <td *ngIf="request.status === 'Assigned'; else rideProgress">
-                <button class="btn btn-success btn-sm" (click)="acceptRequest(request)">Accept</button>
-                <button class="btn btn-danger btn-sm" (click)="cancelRequest(request)">Cancel</button>
+                <button class="btn btn-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
+                <button class="btn btn-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
             </td>
             <ng-template #rideProgress>
                 <td>
@@ -47,8 +47,10 @@
         </tbody>
     </table>
 
-    <div *ngIf="selectedRequest && !showInvoice" >
+    <hr>
+    <div class="booking-request p-4" *ngIf="selectedRequest && !showInvoice" >
         <h3>Request Details</h3>
+        <hr>
         <p><strong>Request ID:</strong> {{ selectedRequest._id }}</p>
         <p><strong>User Name:</strong> {{ selectedRequest.userId?.username }}</p>
         <p><strong>Phone:</strong> {{ selectedRequest.userId?.phone }}</p>
@@ -56,10 +58,13 @@
         <p><strong>Drop Off Location:</strong> {{ selectedRequest.dropOffLocation }}</p>
         <p><strong>Service Type:</strong> {{ selectedRequest.serviceType }}</p>
         <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+           
     </div>
+   
+    <hr>
 </div>
 
-<div class="container my-5" *ngIf="showInvoice" >
+<div class="container my-5" *ngIf="!showInvoice" >
     <!-- Invoice Header -->
     <div class="row invoice-header">
         <div class="col-md-6">
