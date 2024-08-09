@@ -2,3 +2,18 @@
     background-color: rgb(148, 222, 154);
     font-size: 2rem;
 }
+ .invoice-header,
+ .invoice-footer {
+     border-bottom: 1px solid #ddd;
+     margin-bottom: 20px;
+ }
+
+ .invoice-footer {
+     border-top: 1px solid #ddd;
+     margin-top: 20px;
+ }
+
+ .table-bordered th,
+ .table-bordered td {
+     border: 1px solid #ddd;
+ }

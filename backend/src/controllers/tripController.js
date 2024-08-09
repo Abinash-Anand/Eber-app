@@ -7,7 +7,8 @@ const updateBookingStatus = async (req, res, io) => {
 
   try {
     const ride = await Ride.findById(bookingId);
-    const booking = await Booking.findById(_id);
+      const booking = await Booking.findById(_id).populate('country')
+          .populate('city').populate('driverObjectId');
 
     if (!booking || !ride) {
       return res.status(404).json({ message: 'Booking or ride not found' });
@@ -32,19 +33,16 @@ const updateBookingStatus = async (req, res, io) => {
 
 // Function to calculate invoice
 const calculateInvoice = async (req, res) => {
-  const { bookingId, endLocation } = req.body;
+  const bookingId = req.params.id
 
   try {
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
-
-    // Assuming you have a method to calculate distance
-    const distance = calculateDistance(booking.startLocation, endLocation);
-
-    // Fetch the pricing details based on the service type
-    const pricing = await PricingModel.findOne({ serviceType: booking.serviceType });
+      if (booking.status.toLowerCase() === 'completed') {
+        
+    }
 
     if (!pricing) {
       return res.status(404).json({ message: 'Pricing details not found' });

@@ -16,7 +16,10 @@ export class RunningRequestComponent implements OnInit {
   emptyBookingError: boolean = false;
   countdown: string = '';
   rideStatus: string = '';
-
+  invoiceArray: any[] = [];
+  invoiceObject: any = {}
+  showInvoice: boolean = false;
+  
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
@@ -120,12 +123,14 @@ acceptRequest(request: any): void {
     this.tripControlService.updateBookingStatus(updateRequest)
       .subscribe((response) => {
         console.log("Ride Completed response: ",response);
-        
-        if (response.status.toLowerCase() === 'completed') {
-          this.tripControlService.calculateInvoice(response.body.bookingId).subscribe((response) => {
-          console.log("Invoice Response: ", response);
+        this.invoiceObject = response.body.booking
+        this.invoiceArray.push(this.invoiceObject);
+        if (this.invoiceObject.status.toLowerCase() === 'completed') {
+          this.showInvoice = true;
+        //   this.tripControlService.calculateInvoice(response.body.bookingId).subscribe((response) => {
+        //   console.log("Invoice Response: ", response);
           
-        })
+        // })
       }
     })
   }
