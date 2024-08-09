@@ -1,25 +1,34 @@
 const Booking = require('../models/rideBookings');
 const PricingModel = require('../models/pricingModel'); // Assuming you have a model for pricing
-
+const Ride = require('../models/createRideModel')
 // Function to update booking status
-const updateBookingStatus = async (req, res) => {
-    const status = req.body;
-    const bookingId = req.params.id;
+const updateBookingStatus = async (req, res, io) => {
+  const { _id, bookingId, status } = req.body;
 
   try {
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
+    const ride = await Ride.findById(bookingId);
+    const booking = await Booking.findById(_id);
+
+    if (!booking || !ride) {
+      return res.status(404).json({ message: 'Booking or ride not found' });
     }
 
     booking.status = status;
+    ride.status = status;
     await booking.save();
+    await ride.save();
 
-    res.status(200).json({ message: 'Booking status updated successfully', booking });
+    console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission
+    io.emit('rideStatusProgressed', ride);
+
+    res.status(200).json({ message: 'Booking status updated successfully', booking, ride });
   } catch (error) {
+    console.error('Error updating booking status:', error); // Log the error
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };
+
+
 
 // Function to calculate invoice
 const calculateInvoice = async (req, res) => {

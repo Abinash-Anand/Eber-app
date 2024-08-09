@@ -10,8 +10,8 @@ export class TripControlServiceService {
 
   constructor(private http: HttpClient) { }
   
-  updateBookingStatus(bookingId:string, status:string): Observable<any>{
-      return this.http.patch<any>(`${environment.backendServerPORT}/update-status/${bookingId}`, status, {observe:'response'})
+  updateBookingStatus(request): Observable<any>{
+      return this.http.patch<any>(`${environment.backendServerPORT}/update-status`, request, {observe:'response'})
   }
   calculateInvoice(invoice): Observable<any>{
     return this.http.post<any>(`${environment.backendServerPORT}/calculate-invoice`, invoice, {observe:'response'})

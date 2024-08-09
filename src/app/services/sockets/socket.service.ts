@@ -7,7 +7,15 @@ import { Observable } from 'rxjs';
 })
 export class SocketService {
 
-  constructor(private socket: Socket) { }
+  constructor(private socket: Socket) { 
+    this.socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('Disconnected from socket server');
+    });
+  }
 
   onNewRide(): Observable<any> {
     return this.socket.fromEvent('newRide');
@@ -20,8 +28,13 @@ export class SocketService {
   onAssignDriverToRide(): Observable<any> {
     return this.socket.fromEvent('driverAssigned');
   }
-  onAcceptRideRequest(): Observable<string>{
-    return this.socket.fromEvent('assignedRequest')
+
+  onAcceptRideRequest(): Observable<string> {
+    return this.socket.fromEvent('assignedRequest');
+  }
+
+  rideStatusProgressed(): Observable<string> {
+    return this.socket.fromEvent('rideStatusProgressed');
   }
 
   disconnect() {

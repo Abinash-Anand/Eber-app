@@ -64,10 +64,16 @@
                     {{ride.status}}
                 </td>
                 <ng-template #accepted>
-                    <td class="badge bg-success m-2 px-3 py-3 text-light">
-                        {{ride.status}}
+                    <td *ngIf="ride.status === serverRideStatus; else otherStatus" class="badge bg-success m-2 px-3 py-3 text-light">
+                        {{ serverRideStatus }}
                     </td>
+                    <ng-template #otherStatus>
+                        <td class="badge bg-success m-2 px-3 py-3 text-light">
+                            {{ ride.status }}
+                        </td>
+                    </ng-template>
                 </ng-template>
+
 
                 <td>
                     <button *ngIf="ride.status === 'Pending'" class="btn btn-primary btn-sm m-2" data-toggle="modal"

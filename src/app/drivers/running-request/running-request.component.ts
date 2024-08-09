@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { DriverRunningRequestService } from '../../services/runningRequest/driver-running-request.service';
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
+import { TripControlServiceService } from '../../services/tripControlSerivce/trip-control-service.service';
 
 @Component({
   selector: 'app-running-request',
@@ -19,7 +20,8 @@ export class RunningRequestComponent implements OnInit {
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
-    private rideService: RideService
+    private rideService: RideService,
+    private tripControlService: TripControlServiceService
   ) { }
 
   ngOnInit(): void {
@@ -31,6 +33,7 @@ export class RunningRequestComponent implements OnInit {
     this.requestService.getAssignedRequests().subscribe({
       next: (requests) => {
         this.emptyBookingError = false;
+        console.log(this.assignedRequests);
         this.filteredRequests(requests);
       },
       error: (error) => {
@@ -50,35 +53,38 @@ export class RunningRequestComponent implements OnInit {
       console.log("Socket Response", ConfirmedRideDriver);
       this.emptyBookingError = !ConfirmedRideDriver;
       this.assignedRequests.push(ConfirmedRideDriver);
+      
     });
   }
 
   selectRequest(request: any): void {
     this.selectedRequest = request;
-    this.startTimer(request.requestTimer);
+    console.log("Selected request: ", request);
+    
+    // this.startTimer(request.requestTimer);
   }
 
-  startTimer(duration: number): void {
-    if (this.timer) {
-      clearInterval(this.timer);
-    }
-    let timer = duration;
-    this.timer = setInterval(() => {
-      let minutes = Math.floor(timer / 60);
-      let seconds = timer % 60;
+  // startTimer(duration: number): void {
+  //   if (this.timer) {
+  //     clearInterval(this.timer);
+  //   }
+  //   let timer = duration;
+  //   this.timer = setInterval(() => {
+  //     let minutes = Math.floor(timer / 60);
+  //     let seconds = timer % 60;
 
-      this.countdown = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+  //     this.countdown = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 
-      if (--timer < 0) {
-        this.cancelRequest(this.selectedRequest);
-        clearInterval(this.timer);
-      }
-    }, 1000);
-  }
+  //     if (--timer < 0) {
+  //       this.cancelRequest(this.selectedRequest);
+  //       clearInterval(this.timer);
+  //     }
+  //   }, 1000);
+  // }
 
   acceptRequest(request: any): void {
     this.requestService.acceptRequest(request._id).subscribe(() => {
-      this.removeRequest(request._id);
+      // this.removeRequest(request._id);
     });
   }
 
@@ -106,8 +112,12 @@ export class RunningRequestComponent implements OnInit {
   }
 
   onChangeRideProgress(request: any, status: string): void {
-    this.rideService.updateRideStatus(request._id, status).subscribe(() => {
-      request.status = status;
-    });
+    console.log("Request Object; ", request);
+    const updateRequest = request;
+    updateRequest.status = status;
+    this.tripControlService.updateBookingStatus(updateRequest)
+      .subscribe((response) => {
+      
+    })
   }
 }
