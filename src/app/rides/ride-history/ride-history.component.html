@@ -1,1 +1,33 @@
-<p>ride-history works!</p>
+<div class="container mt-4">
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Sr. No.</th>
+                    <th scope="col">Invoice No.</th>
+                    <th scope="col">User ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Ride Status</th>
+                    <th scope="col">Date/Time</th>
+                    <th scope="col">City</th>
+                    <th scope="col">Action</th>
+                    
+
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Loop through your data here -->
+                <tr *ngFor="let invoice of rideHistory; let i = index">
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ invoice.invoiceNo }}</td>
+                    <td>{{ invoice.userId }}</td>
+                    <td>{{ invoice.username }}</td>
+                    <td>{{ invoice.rideStatus }}</td>
+                    <td>{{ invoice.dateTime | date: 'short' }}</td>
+                    <td>{{ invoice.city }}</td>
+                </tr>
+                <!-- End loop -->
+            </tbody>
+        </table>
+    </div>
+</div>

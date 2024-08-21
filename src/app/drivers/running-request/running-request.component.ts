@@ -21,6 +21,7 @@ export class RunningRequestComponent implements OnInit {
   invoiceObject: any = {}
   showInvoice: boolean = false;
   bookingId: string = '';
+  rideCompleteStatus: boolean = false;
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
@@ -143,9 +144,16 @@ acceptRequest(request: any): void {
         // }
         
         if (response.body.booking.status === 'Completed') {   
-        this.showInvoice = true;
-        this.invoiceObject =  response.newInvoice
+          this.showInvoice = true;
+          this.rideCompleteStatus = true;
+          this.invoiceObject = response.body.inovice
+          console.log("Inovice Object: ", this.invoiceObject);
+          
+          setTimeout(() => {
+            this.rideCompleteStatus = false
+          }, 2500);
         }
+        
     })
    
   }
