@@ -3,6 +3,7 @@ import { DriverRunningRequestService } from '../../services/runningRequest/drive
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
 import { TripControlServiceService } from '../../services/tripControlSerivce/trip-control-service.service';
+import { response } from 'express';
 
 @Component({
   selector: 'app-running-request',
@@ -19,7 +20,7 @@ export class RunningRequestComponent implements OnInit {
   invoiceArray: any[] = [];
   invoiceObject: any = {}
   showInvoice: boolean = false;
-  
+  bookingId: string = '';
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
@@ -120,18 +121,32 @@ acceptRequest(request: any): void {
     console.log("Request Object; ", request);
     const updateRequest = request;
     updateRequest.status = status;
+    this.bookingId = request._id
     this.tripControlService.updateBookingStatus(updateRequest)
       .subscribe((response) => {
-        console.log("Ride Completed response: ",response);
-        this.invoiceObject = response.body.booking
-        // this.invoiceArray.push(this.invoiceObject);
-        if (this.invoiceObject.status.toLowerCase() === 'completed') {
-          this.tripControlService.calculateInvoice(this.invoiceObject.bookingId).subscribe((response) => {
-            console.log("Invoice Response: ", response);
-            
-            // this.showInvoice = true;
-        })
-      }
+        console.log("Response: ", response);
+        
+    //     console.log("Ride Completed response: ", response);
+    //     if (status === 'Completed') {
+    //        this.invoiceObject = response.body.booking
+    //     // this.invoiceArray.push(this.invoiceObject);
+    //     }
+       
+      //   if (this.invoiceObject.status === 'Completed') {
+      //     this.tripControlService.calculateInvoice(this.invoiceObject.bookingId).subscribe((response) => {
+      //       console.log("Invoice Response: ", response);
+      //       if (response) {
+      //         this.showInvoice = true;
+              
+      //       }
+      //   })
+        // }
+        
+        if (response.body.booking.status === 'Completed') {   
+        this.showInvoice = true;
+        this.invoiceObject =  response.newInvoice
+        }
     })
+   
   }
 }

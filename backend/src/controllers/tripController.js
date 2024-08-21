@@ -1,6 +1,10 @@
+
 const Booking = require('../models/rideBookings');
-const PricingModel = require('../models/pricingModel'); // Assuming you have a model for pricing
+// const PricingModel = require('../models/pricingModel'); // Assuming you have a model for pricing
 const Ride = require('../models/createRideModel')
+const Invoice = require('../models/invoice')
+const Counter = require('../models/mongoose-sequencer');
+const { default: mongoose } = require('mongoose');
 // Function to update booking status
 const updateBookingStatus = async (req, res, io) => {
   const { _id, bookingId, status } = req.body;
@@ -16,9 +20,16 @@ const updateBookingStatus = async (req, res, io) => {
 
     booking.status = status;
     ride.status = status;
-    await booking.save();
-    await ride.save();
-
+    
+    // await booking.save();
+    // await ride.save();
+    const reqId = new mongoose.Types.ObjectId(booking.bookingId);
+    // console.log("Booking Id: ", id.toString())
+    const id = reqId.toString()
+    if (booking.status === 'Completed') {
+      
+      calculateInvoice(id)
+    }
     console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission
     io.emit('rideStatusProgressed', ride);
 
@@ -32,33 +43,65 @@ const updateBookingStatus = async (req, res, io) => {
 
 
 // Function to calculate invoice
-const calculateInvoice = async (req, res) => {
-  const bookingId = req.params.id
-
+async function calculateInvoice(id) {
+  console.log("ID: ", id);
+  const test = '5678yuhjnmmmm';
+  console.log("test: ", test)
   try {
-    const booking = await Booking.findById(bookingId);
+    // Ensure the ID is a valid ObjectId
+   
+    const booking = await Booking.findOne({ _id: id });
     if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-      if (booking.status.toLowerCase() === 'completed') {
-        
+      throw new Error('No Booking Found');
     }
 
-    if (!pricing) {
-      return res.status(404).json({ message: 'Pricing details not found' });
-    }
+    // Manually fetch the next sequence number
+    const counter = await Counter.findByIdAndUpdate(
+      { _id: 'invoiceNo' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    );
 
-    const totalFare = distance * pricing.pricePerKm; // Example calculation
-    booking.totalFare = totalFare;
-    booking.endLocation = endLocation;
-    booking.status = 'Completed';
-    await booking.save();
+    const newInvoice = new Invoice({
+      invoiceNo: counter.seq, // Manually assign the invoice number
+      bookingId: booking._id,
+      EstimatedTime: booking.EstimatedTime,
+      bookingOption: booking.bookingOption,
+      city: booking.city,
+      country: booking.country,
+      driverObjectId: booking.driverObjectId,
+      dropOffLocation: booking.dropOffLocation,
+      fromLocation: booking.fromLocation,
+      paymentOption: booking.paymentOption,
+      phone: booking.phone,
+      pickupLocation: booking.pickupLocation,
+      scheduleDateTime: booking.scheduleDateTime,
+      selectedCard: booking.selectedCard,
+      serviceType: booking.serviceType,
+      status: booking.status,
+      stopLocations: booking.stopLocations,
+      toLocation: booking.toLocation,
+      totalDistance: booking.totalDistance,
+      vehicleImageURL: booking.vehicleImageURL,
+      vehicleName: booking.vehicleName,
+      vehicleType: booking.vehicleType,
+      userId: booking.userId,
+      requestTimer: booking.requestTimer,
+      dueDate: new Date(), // Set as per your logic
+    });
 
-    res.status(200).json({ message: 'Invoice calculated successfully', booking });
+    console.log("New Invoice: ", newInvoice);
+
+    await newInvoice.save();
+
+    return newInvoice;
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+    console.error("Error calculating invoice: ", error);
+    // Optionally, you can rethrow the error if you want it to be handled by an upstream function or caller
+    throw error;
   }
 };
+
 
 // Dummy function to calculate distance between two points
 const calculateDistance = (startLocation, endLocation) => {
