@@ -29,9 +29,14 @@
     const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
-    // Route to get the data from the vehicle type form
-    router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
+    const {rideHistory, filteredHistory} = require('../controllers/rideHistoryController')
 
+
+
+    
+    // Route to get the data from the vehicle type form
+    
+    router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
     // Route to get the vehicle data from server
     router.get('/req-vehicle-data', vehicleData);
 
@@ -142,5 +147,9 @@
     router.post('/calculate-invoice/:id', calculateInvoice);
 
     // Route to submit feedback
-    router.post('/submit-feedback', submitFeedback);
+router.post('/submit-feedback', submitFeedback);
+    
+//--------------------- Ride History---------------------------------
+router.get('/rides/ride-history', rideHistory);
+router.get('/history/filter-type/:id', filteredHistory)
     module.exports = router;

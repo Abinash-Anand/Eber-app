@@ -93,7 +93,7 @@ async function calculateInvoice(id) {
       userId: booking.userId,
       requestTimer: booking.requestTimer,
       dueDate: new Date(), // Set the due date based on your business logic
-    }).populate('bookingId').populate('city').populate('country').populate('driverObjectId').populate('userId');
+    })
 
     await newInvoice.save();
 

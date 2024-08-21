@@ -21,6 +21,7 @@ export class RunningRequestComponent implements OnInit {
   invoiceObject: any = {}
   showInvoice: boolean = false;
   bookingId: string = '';
+  currentRideStatus:string = ''
   rideCompleteStatus: boolean = false;
   constructor(
     private requestService: DriverRunningRequestService,
@@ -125,8 +126,12 @@ acceptRequest(request: any): void {
     this.bookingId = request._id
     this.tripControlService.updateBookingStatus(updateRequest)
       .subscribe((response) => {
-        console.log("Response: ", response);
-        
+        this.currentRideStatus = response.body.booking.status
+        console.log("Status: ", this.currentRideStatus);
+     
+        setTimeout(() => {
+          this.currentRideStatus = ''
+        }, 2500);
     //     console.log("Ride Completed response: ", response);
     //     if (status === 'Completed') {
     //        this.invoiceObject = response.body.booking
@@ -148,9 +153,10 @@ acceptRequest(request: any): void {
           this.rideCompleteStatus = true;
           this.invoiceObject = response.body.inovice
           console.log("Inovice Object: ", this.invoiceObject);
-          
+             this.removeRequest(request._id)
           setTimeout(() => {
             this.rideCompleteStatus = false
+            this.currentRideStatus = ''
           }, 2500);
         }
         

@@ -17,7 +17,7 @@ export class RideService {
   getConfirmedRides(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/confirmed-rides`);
   }
-
+  
   updateRideStatus(rideId: string, ride): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/update-ride-status/${rideId}`, ride);
   }

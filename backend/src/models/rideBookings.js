@@ -23,7 +23,7 @@ const rideBookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DriverVehicleModel',
     required: true,
-    unique:true
+    // unique:true
   },
   dropOffLocation: {
     type: String,
@@ -101,13 +101,13 @@ const rideBookingSchema = new mongoose.Schema({
         required:true
    }
 }, { timestamps: true });
-rideBookingSchema.index({ bookingId: 1 })
+// rideBookingSchema.index({ bookingId: 1 })
 
 const RideBooking = mongoose.model('RideBooking', rideBookingSchema);
-RideBooking.ensureIndexes().then(() => {
-  console.log('Indexes ensured');
-}).catch(error => {
-  console.error('Indexing error:', error);
-});
+// RideBooking.ensureIndexes().then(() => {
+//   console.log('Indexes ensured');
+// }).catch(error => {
+//   console.error('Indexing error:', error);
+// });
 
 module.exports  =  RideBooking

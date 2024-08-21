@@ -1,6 +1,22 @@
 <div class="alert alert-success m-2" role="alert" *ngIf="rideCompleteStatus">
-    <strong>Your Ride Has been Completed! </strong>
+    <strong>Your Ride Has been Completed!🎉 </strong>
 </div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Accepted'">
+    <strong>Your Ride Has been Accepted </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Arrived'">
+    <strong>Your Ride Has been Arrived </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Picked'">
+    <strong>Customer Have been Picked From the Set Location </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Started'">
+    <strong>Your Ride Has Started! </strong>
+</div>
+
+
+
+
 <div class="container mt-3">
     <h2>Running Requests</h2>
     <hr>
@@ -78,7 +94,9 @@
         </div>
         <div class="col-md-6 text-right">
             <h4>Seller</h4>
-            <p><strong>Eber App</strong></p>
+            <p><strong>Eber</strong></p>
+
+        <img class="mt-5" [src]="invoiceObject.vehicleImageURL" style="width: 10rem; height:max-content" alt="">
         </div>
     </div>
 
@@ -96,7 +114,7 @@
             <h4>Booking Details</h4>
             <p><strong>Booking ID:</strong> {{invoiceObject.bookingId}}</p>
             <p><strong>Service Type:</strong> {{invoiceObject.serviceType}}</p>
-            <p><strong>Vehicle Name:</strong> {{invoiceObject.vehicleName}}</p><span><img [src]="invoiceObject.vehicleImageURL" alt=""></span>
+            <p><strong>Vehicle Name:</strong> {{invoiceObject.vehicleName}}</p>
             <p><strong>Vehicle Type:</strong> {{invoiceObject.vehicleType}}</p>
             <p><strong>Pickup Location:</strong>{{invoiceObject.pickupLocation}} </p>
             <p><strong>Drop Off Location:</strong>{{invoiceObject.dropOffLocation}} </p>
