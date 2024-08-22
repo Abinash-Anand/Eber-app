@@ -4,7 +4,7 @@
         <div class="col-md-4">
             <label for="statusFilter" class="form-label">Filter by Status:</label>
             <select id="statusFilter" class="form-select" (change)="filterByStatus($event)" >
-                <option value="">All</option>
+                <option value=""></option>
                 <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
             </select>
         </div>
@@ -36,7 +36,7 @@
             </thead>
             <tbody>
                 <!-- Loop through your data here -->
-                <tr *ngFor="let ride of rideHistory; let i = index" (click)="openDropdown">
+                <tr *ngFor="let ride of rideHistory; let i = index" (click)="dropDownMap(ride)">
                     <td>{{i+1}}</td>
                     <td>{{ride.invoiceDetails.invoiceNo}}</td>
                     <td>{{ride.userId._id}}</td>
@@ -48,6 +48,13 @@
                 </tr>
                 <!-- End loop -->
             </tbody>
+            
         </table>
+        
+        <div class="col-lg-8 col-md-6">
+            <div id="map" #mapRef style="height: 500px; width: 100%; "></div>
+        </div>
+        
+
     </div>
 </div>

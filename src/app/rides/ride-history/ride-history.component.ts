@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { HistoryService } from '../../services/ride-history/history.service';
+import { MapService } from '../../services/maps/mapsApi.service';
 
 @Component({
   selector: 'app-ride-history',
@@ -10,9 +11,11 @@ export class RideHistoryComponent {
 displayedColumns: string[] = ['tripId', 'pickupLocation', 'dropOffLocation', 'status', 'date', 'actions'];
   rideHistory: any[] = [];
   filters: any = {};
-  statusOptions: string[] = [ 'Completed', 'Cancelled'];
+  statusOptions: string[] = ['All', 'Completed', 'Cancelled' , 'Date'];
 
-  constructor(private rideHistoryService: HistoryService) { }
+  constructor(private rideHistoryService: HistoryService,
+    private mapService: MapService
+  ) { }
 
   ngOnInit(): void {
     this.fetchRideHistory();
@@ -68,6 +71,31 @@ displayedColumns: string[] = ['tripId', 'pickupLocation', 'dropOffLocation', 'st
     console.log(event);
 
  }
+dropDownMap(ride) {
+    console.log("Testing Map: ", ride);
+    
+    const fromCoords = ride.fromLocation; // Directly use the object
+    const toCoords = ride.toLocation; // Directly use the object
+    
+    console.log("From: ", fromCoords);
+    console.log("To: ", toCoords);
+    
+    this.mapService.googleMapsApi(document.getElementById('map'), fromCoords, () => {}).then(map => {
+        // Clear any existing markers or routes
+        this.mapService.clearMarkers();
+
+        // Add markers for the from and to locations
+        this.mapService.addMarker(map, fromCoords, 'From Location', 'green');
+        this.mapService.addMarker(map, toCoords, 'To Location', 'red');
+
+        // Get directions between the from and to locations
+        this.mapService.getDirections(fromCoords, toCoords).then(directions => {
+            this.mapService.renderDirections(map, directions);
+        }).catch(error => {
+            console.error("Error getting directions: ", error);
+        });
+    });
+}
 
 
 }

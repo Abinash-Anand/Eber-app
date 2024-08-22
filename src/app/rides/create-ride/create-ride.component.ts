@@ -54,7 +54,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
   cityMap: { id: string, name: string }[] = [];
   cities: Zone[] = [];
   pricings: Pricing[] = [];
-  formSubmitted:boolean = false
+  formSubmitted: boolean = false
+  loading:boolean = false
   // vehicleDataArray: Vehicle[] = [];
   filteredVehicles: {}[] = []
   user: string = ''
@@ -572,7 +573,8 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
      ( response:any) => {
         console.log('Ride created successfully:', response);
         if (response) {
-        this.formSubmitted = true;
+          this.formSubmitted = true;
+          this.loading = true
         setTimeout(() => {
           this.formSubmitted = false
         }, 2500);

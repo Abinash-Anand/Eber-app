@@ -50,6 +50,8 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { SocketService } from './services/sockets/socket.service';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environment';
+import { LoaderComponentComponent } from './loader-component/loader-component.component';
+import { LoaderComponent } from './loader/loader.component';
 
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
@@ -81,7 +83,9 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     CityListComponent,
     CountryListComponent,
     StripePaymentComponent,
-   LottieDirective
+   LottieDirective,
+   LoaderComponentComponent,
+   LoaderComponent
 
   ],
   imports: [

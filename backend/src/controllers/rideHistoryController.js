@@ -127,8 +127,10 @@ const filteredHistory = async (req, res)=>{
      ])
      
      const filterHistory = rideHistory.filter((ride) => {
-         return ride.status.toLowerCase() === filter.toLowerCase()
+         return ride.status.toLowerCase() === filter.toLowerCase() || filter === 'All'
+
      })
+     
      
      res.status(201).send(filterHistory);
  } catch (error) {
