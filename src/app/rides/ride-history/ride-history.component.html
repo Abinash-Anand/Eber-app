@@ -10,9 +10,9 @@
         </div>
         <div class="col-md-4">
             <div class="input-group">
-                <label for="searchInput" class="input-group-text">Search:</label>
                 <input id="searchInput" type="text" class="form-control"
-                    placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
+                placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
+                <label for="searchInput" class="input-group-text">Search:</label>
             </div>
         </div>
     </div>
@@ -51,7 +51,7 @@
             
         </table>
         
-        <div class="col-lg-8 col-md-6">
+        <div class="col-lg-8 col-md-6 mb-3">
             <div id="map" #mapRef style="height: 500px; width: 100%; "></div>
         </div>
         

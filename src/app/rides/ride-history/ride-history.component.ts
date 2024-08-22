@@ -73,9 +73,10 @@ displayedColumns: string[] = ['tripId', 'pickupLocation', 'dropOffLocation', 'st
  }
 dropDownMap(ride) {
     console.log("Testing Map: ", ride);
+    console.log(JSON.parse(ride.fromLocation));
     
-    const fromCoords = ride.fromLocation; // Directly use the object
-    const toCoords = ride.toLocation; // Directly use the object
+    const fromCoords = JSON.parse(ride.fromLocation); // Directly use the object
+    const toCoords =JSON.parse( ride.toLocation) // Directly use the object
     
     console.log("From: ", fromCoords);
     console.log("To: ", toCoords);
