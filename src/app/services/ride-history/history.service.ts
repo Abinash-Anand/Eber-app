@@ -20,4 +20,7 @@ export class HistoryService {
   getFilteredRide(filter: string): Observable<any>{
     return this.http.get<any>(`${environment.backendServerPORT}/history/filter-type/${filter}`, {observe:'response'})
   }
+  getHistoryBySearch(searchString: string): Observable<any>{
+    return this.http.get<any[]>(`${environment.backendServerPORT}/history/search-history/${searchString}`,{observe:'response'} )
+  }
 }

@@ -29,7 +29,7 @@
     const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
-    const {rideHistory, filteredHistory} = require('../controllers/rideHistoryController')
+    const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
 
 
 
@@ -152,4 +152,5 @@ router.post('/submit-feedback', submitFeedback);
 //--------------------- Ride History---------------------------------
 router.get('/rides/ride-history', rideHistory);
 router.get('/history/filter-type/:id', filteredHistory)
+router.get('/history/search-history/:keyword', searchHistory)
     module.exports = router;

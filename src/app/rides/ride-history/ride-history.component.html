@@ -2,19 +2,23 @@
 <div class="filter-section my-2 mx-4 filter-bar p-2">
     <div class="row g-3">
         <div class="col-md-4">
-            <label for="statusFilter" class="form-label">Filter by Status:</label>
-            <select id="statusFilter" class="form-select" (change)="filterByStatus($event)" >
-                <option value=""></option>
+            <!-- <label for="statusFilter" class="form-label"><strong>Filter by Status</strong></label> -->
+            <select id="statusFilter" class="form-select form-control col-5" (change)="filterByStatus($event)" >
+                <option value="">Filter by Status</option>
                 <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
             </select>
         </div>
-        <div class="col-md-4">
-            <div class="input-group">
+        <div class="col-md-4 ">
+            <div class="input-group ">
                 <input id="searchInput" type="text" class="form-control"
-                placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
+                placeholder="Search Pickup or Drop Location" #searchParams (input)="searchRides()">
                 <label for="searchInput" class="input-group-text">Search:</label>
             </div>
+              
+
         </div>
+        <strong>Powered By<img class="mx-2 my-1" width="35" height="35" src="https://img.icons8.com/fluency/48/node-js.png"
+                alt="node-js" /></strong>
     </div>
 </div>
 <div class="container mt-4">
@@ -30,13 +34,11 @@
                     <th scope="col">Date/Time</th>
                     <th scope="col">City</th>
                     <th scope="col">Action</th>
-                    
-
                 </tr>
             </thead>
             <tbody>
                 <!-- Loop through your data here -->
-                <tr *ngFor="let ride of rideHistory; let i = index" (click)="dropDownMap(ride)">
+                <tr class="hover-row" *ngFor="let ride of rideHistory; let i = index" (click)="dropDownMap(ride)">
                     <td>{{i+1}}</td>
                     <td>{{ride.invoiceDetails.invoiceNo}}</td>
                     <td>{{ride.userId._id}}</td>

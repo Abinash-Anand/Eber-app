@@ -138,4 +138,75 @@ const filteredHistory = async (req, res)=>{
  }
 }
 
-module.exports = { rideHistory, filteredHistory };
+function searchRegEx(text) {
+  return text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+const searchHistory = async (req, res) => {
+    try {
+        const search = searchRegEx(req.params.keyword);
+        const regex = new RegExp(search, 'i');
+
+        const searchResult = await Booking.aggregate([
+            {
+                $match: {
+                    $or: [
+                        { pickupLocation: { $regex: regex } },
+                        { dropOffLocation: { $regex: regex } }
+                    ]
+                }
+
+            },
+             {
+                $lookup: {
+                    from: 'invoices', // Correct collection name
+                    localField: '_id', // Field in bookings collection (assuming _id is the booking ID)
+                    foreignField: 'bookingId', // Field in invoices collection that references booking
+                    as: 'invoiceDetails' // The alias for the joined data
+                }
+            },
+            {
+                $unwind: {
+                    path: '$invoiceDetails',
+                    preserveNullAndEmptyArrays: true // Keep bookings without invoices (e.g., canceled rides)
+                }
+            },
+                        {
+                $lookup: {
+                    from: 'usermodels', // Join with users collection
+                    localField: 'userId', // Match userId from bookings
+                    foreignField: '_id', // With _id from users
+                    as: 'userId' // Alias for the result
+                }
+            },
+              {
+                $unwind: {
+                    path: '$userId',
+                    preserveNullAndEmptyArrays: true // Keep bookings without invoices (e.g., canceled rides)
+                }
+            },
+               {
+                $lookup: {
+                    from: 'zonemodels', // Join with users collection
+                    localField: 'city', // Match userId from bookings
+                    foreignField: '_id', // With _id from users
+                    as: 'city' // Alias for the result
+                }
+            },
+             {  
+                $unwind: {
+                    path: '$city',
+                    preserveNullAndEmptyArrays: true // Keep bookings without invoices (e.g., canceled rides)
+                }
+            },
+            // You can add more stages here if needed, like sorting, limiting results, etc.
+        ]);
+
+        console.log(`Search Result: ${searchResult}`);
+        
+        res.status(201).send(searchResult);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+
+module.exports = { rideHistory, filteredHistory , searchHistory};

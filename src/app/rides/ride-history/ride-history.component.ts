@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { HistoryService } from '../../services/ride-history/history.service';
 import { MapService } from '../../services/maps/mapsApi.service';
 
@@ -12,7 +12,7 @@ displayedColumns: string[] = ['tripId', 'pickupLocation', 'dropOffLocation', 'st
   rideHistory: any[] = [];
   filters: any = {};
   statusOptions: string[] = ['All', 'Completed', 'Cancelled' , 'Date'];
-
+  @ViewChild('searchParams') searchParams: ElementRef
   constructor(private rideHistoryService: HistoryService,
     private mapService: MapService
   ) { }
@@ -67,8 +67,15 @@ displayedColumns: string[] = ['tripId', 'pickupLocation', 'dropOffLocation', 'st
     
 }
 
-  searchRides(event: Event) {
-    console.log(event);
+  searchRides() {
+    console.log(this.searchParams.nativeElement.value);
+    this.rideHistoryService.getHistoryBySearch(this.searchParams.nativeElement.value)
+      .subscribe((response) => {
+        console.log(response);
+        if (response.status === 201) {
+          this.rideHistory = response.body
+        }
+    })
 
  }
 dropDownMap(ride) {
