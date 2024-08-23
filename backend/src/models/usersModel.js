@@ -38,6 +38,13 @@ const userSchema = new mongoose.Schema({
         trim:true,
         
         
+    },
+     countryCallingCode:{
+        type:String,
+        required:true,
+        trim:true,
+        
+        
     }
 }, { timestamps: true })
 const userModel = mongoose.model('userModel', userSchema)

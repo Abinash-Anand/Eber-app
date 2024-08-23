@@ -72,8 +72,8 @@ export class DriverListComponent implements OnInit {
       userProfile: '', username: '', email: '',
       phone: null, userId: '', countryCode: '', city: ''
     }
-  user: { userProfile: string, username: string, email: string, phone: string, countryCode: string, city: '' } = {
-    userProfile: '', username: '', email: '', phone: '', countryCode: '', city: ''
+  user: { userProfile: string, username: string, email: string, phone: number, countryCode: string, city: '' } = {
+    userProfile: '', username: '', email: '', phone: null, countryCode: '', city: ''
   }
   driverIndexId: string = '';
   searchObject: { searchBy: string, searchInput: string } = { searchBy: '', searchInput: '' }

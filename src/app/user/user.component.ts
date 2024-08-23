@@ -20,8 +20,9 @@ export class UserComponent implements OnInit {
     userProfile: '',
     username: '',
     email: '',
-    phone: '',
-    countryCode: ''
+    phone: null,
+    countryCode: '',
+    countryCallingCode:''
   };
   userList: any[] = [];
   sortType: string = 'Sort By';
@@ -47,8 +48,8 @@ export class UserComponent implements OnInit {
       userProfile: '', username: '', email: '', phone: null, userId: '', countryCode: ''
     }
 
-  user: { userProfile: string, username: string, email: string, phone: string, countryCode: string } = {
-    userProfile: '', username: '', email: '', phone: '', countryCode: ''
+  user:User= {
+    userProfile: '', username: '', email: '', phone: null, countryCode: '', countryCallingCode:''
   }
 
   searchObject: { searchBy: string, searchInput: any } = { searchBy: '', searchInput: null }
@@ -111,8 +112,13 @@ export class UserComponent implements OnInit {
 
   onCreateUser() {
     console.log(this.userForm.value);
-
+    const filteredArrayObject = this.countries.filter((country) => {
+      return country.countryCode === this.userForm.value.countryCode
+    })
+    console.log("Country Object: ", filteredArrayObject);
+    
     this.userObject = this.userForm.value;
+    this.userObject.countryCallingCode = filteredArrayObject[0].countryCallingCode
     this.userService.createNewUser(this.userObject).subscribe(
       (response) => {
         if (response.status === 201) {
@@ -218,7 +224,9 @@ export class UserComponent implements OnInit {
       (response) => {
         console.log('Search Response:', response.length);
         if (response.length !== 0) {
+          
           this.user = response[0];
+          console.log("USer: ", this.user);
           this.searchUser = true;
         } else {
           this.searchUser = false;

@@ -5,7 +5,7 @@ const Invoice = require('../models/invoice')
 const Counter = require('../models/mongoose-sequencer');
 const { default: mongoose } = require('mongoose');
 const { sendInvoiceEmail} = require('./nodemailer')
-
+const {sendSmsNotification} = require('./twilioSMS')
 
 
 // Function to update booking status
@@ -23,6 +23,10 @@ const updateBookingStatus = async (req, res, io) => {
 
     booking.status = status;
     ride.status = status;
+
+   //---------------Messaging service-------------------------
+   await twilioSMSNotification(booking.userId, status)
+
     // console.log("ID: ", booking.bookingId._id)
     await booking.save();
     await ride.save();
@@ -35,7 +39,9 @@ const updateBookingStatus = async (req, res, io) => {
     if (booking.status === 'Completed') {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
-    await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
+
+      //---------------------------Email Service--------------------------
+      await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
@@ -53,6 +59,35 @@ const updateBookingStatus = async (req, res, io) => {
   }
 };
 
+async function twilioSMSNotification(to, status) { 
+  let message;
+  switch (status) {
+    case 'Accepted':
+      message = 'Your Ride Has been Accepted By the Driver';
+      break;
+    case 'Arrived':
+      message = "Ride Has Arrived at User's Location";
+      break;
+    case 'Picked':
+      message = 'Customer Has been Picked From the Set Location';
+      break;
+    case 'Started':
+      message = 'Your Ride Has Started!';
+      break;
+    case 'Completed':
+      message = `You are now at your desired location📍. 
+                 Your Ride is now Completed 🎉. 
+                 Payment will be processed based on the selected payment method.`;
+      break;
+    default:
+      message = 'Your ride status has been updated.';
+      break;
+  }
+
+  if (message) {
+    await sendSmsNotification(to, message);
+  }
+}
 
 
 // Function to calculate invoice
