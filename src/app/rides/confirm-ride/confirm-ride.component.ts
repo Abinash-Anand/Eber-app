@@ -52,7 +52,9 @@ listenForUpdatedRideStatus() {
      this.filteredRides = this.filteredRides.map((ride) => {
       if (ride._id === requestStatus._id) {
         return { ...ride, status: requestStatus.status };
-      }
+       }
+       
+
       return ride;
     });
     }

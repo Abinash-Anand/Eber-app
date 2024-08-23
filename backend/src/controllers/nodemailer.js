@@ -37,7 +37,7 @@ const sendMail = async (email, subject, text, html) => {
 // Controller function to send a welcome email
 const sendWelcomeEmail = async (user) => {
     //   const { email, name } = req.body; // Get email and name from the request body
-    console.log("USer: ", user)
+    // console.log("USer: ", user)
   const subject = "Welcome to Eber Rides!";
   const text = `Hola ${user.name}, welcome to Our App! We're glad to have you.`;
     const html = `<div>

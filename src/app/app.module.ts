@@ -94,7 +94,8 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     ReactiveFormsModule,
     CommonModule,
     NgxSpinnerModule,
-    SocketIoModule.forRoot(config)
+    SocketIoModule.forRoot(config),
+    
 
   ],
   providers: [

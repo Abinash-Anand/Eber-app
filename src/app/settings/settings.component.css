@@ -12,7 +12,20 @@
 .row{
     border:1px solid black;
     /* border-radius: 0px; */
-    width: 50%;
+    /* width: 50%; */
     color: white;
     background-color: black;
+}
+.line-break{
+    border: 5px solid rgb(50, 50, 50);
+    width: 100%;
+}
+.email-container *{
+    font-size:1em;
+}
+.vertical-break{
+    border: 1px solid rgb(50, 50, 50);
+    height: auto;
+    border-radius: 50%;
+    /* width: 1px; */
 }

@@ -1,6 +1,7 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SettingsService } from '../services/settings/settings.service';
 import { Settings } from '../shared/settings';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-settings',
@@ -15,12 +16,24 @@ export class SettingsComponent implements OnInit{
     requestAcceptTime: null,
     numberOfStops:null,
   };
+  emailConfigForm: FormGroup;
   newSettings: boolean = false;
   DefaultSettings:boolean = false
   settingId: string = '';
-  constructor(private settingsService: SettingsService) { }
+  constructor(private settingsService: SettingsService,
+    private fb: FormBuilder
+  ) { }
   ngOnInit(): void {
     this.disableDefaultSettings()
+    this.emailConfigForm = this.fb.group({
+      smtpHost: ['', Validators.required],
+      smtpPort: [587, [Validators.required, Validators.min(1)]],
+      secureConnection: [false],
+      emailUser: ['', [Validators.required, Validators.email]],
+      emailPass: ['', Validators.required],
+      fromName: ['', Validators.required],
+      fromEmail: ['', [Validators.required, Validators.email]],
+    });
   }
 
   disableDefaultSettings() {
@@ -100,5 +113,14 @@ export class SettingsComponent implements OnInit{
     })
     
     
+  }
+   onSubmit() {
+    if (this.emailConfigForm.valid) {
+      const emailSettings = this.emailConfigForm.value;
+      console.log('Email Settings:', emailSettings);
+      // Save or send the settings to your server
+    } else {
+      console.log('Form is invalid');
+    }
   }
 }
