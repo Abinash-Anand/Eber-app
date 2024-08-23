@@ -5,7 +5,7 @@ const Invoice = require('../models/invoice')
 const Counter = require('../models/mongoose-sequencer');
 const { default: mongoose } = require('mongoose');
 const { sendInvoiceEmail} = require('./nodemailer')
-const {sendSmsNotification} = require('./twilioSMS')
+const {sendSmsNotification, sendWhatsAppNotification} = require('./twilioSMS')
 
 
 // Function to update booking status
@@ -86,6 +86,7 @@ async function twilioSMSNotification(to, status) {
 
   if (message) {
     await sendSmsNotification(to, message);
+    await sendWhatsAppNotification(to, message)
   }
 }
 
