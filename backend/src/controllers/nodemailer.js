@@ -35,17 +35,22 @@ const sendMail = async (email, subject, text, html) => {
 };
 
 // Controller function to send a welcome email
-const sendWelcomeEmail = async (req, res) => {
-//   const { email, name } = req.body; // Get email and name from the request body
-  const subject = "Welcome to Our App!";
-  const text = `Hi ${name}, welcome to Our App! We're glad to have you.`;
-  const html = `<p>Hi <strong>${name}</strong>, welcome to Our App! We're glad to have you.</p>`;
+const sendWelcomeEmail = async (user) => {
+    //   const { email, name } = req.body; // Get email and name from the request body
+    console.log("USer: ", user)
+  const subject = "Welcome to Eber Rides!";
+  const text = `Hola ${user.name}, welcome to Our App! We're glad to have you.`;
+    const html = `<div>
+                  <h1 style="color: 'green'">Login Successful</h1>
+                  <p> <strong>${user.name}</strong>, welcome to Our App! We're glad to have you.</p>
+                 </div>`;
   
   try {
-    await sendMail(email, subject, text, html); // Send the email
-    res.status(200).send("Welcome email sent successfully!");
+    await sendMail(user.email, subject, text, html); // Send the email
+
   } catch (error) {
-    res.status(500).send("Failed to send welcome email."); // Handle error
+    console.log(error);
+    
   }
 };
 const sendInvoiceEmail = async (email, name, invoice) => {

@@ -1,3 +1,6 @@
+require('dotenv');
+const nodemailer = require('nodemailer')
+const {sendWelcomeEmail} = require('./nodemailer')
 const { v4: uuidv4 } = require('uuid');
 const User = require('../models/signupUser');
 const { setUser, getUser } = require('../services/auth');
@@ -34,7 +37,7 @@ const loginUser = async (req, res, next) => {
         if (!isMatch) {
             return res.status(401).send({ message: 'Invalid email or password' });
         }
-
+        await sendWelcomeEmail(user);
         const token = setUser(user);
         console.log('JWT Token:', token); // Log the JWT token
         res.cookie('uid', token, {

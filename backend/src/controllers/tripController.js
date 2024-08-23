@@ -35,6 +35,7 @@ const updateBookingStatus = async (req, res, io) => {
     if (booking.status === 'Completed') {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
+    await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
@@ -102,7 +103,6 @@ async function calculateInvoice(id) {
       dueDate: new Date(), // Set the due date based on your business logic
     })
     // console.log(`Invoice ${newInvoice}`);
-    await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, newInvoice);
 
     await newInvoice.save();
   
