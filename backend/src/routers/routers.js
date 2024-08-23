@@ -30,7 +30,7 @@
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
-
+    const { sendWelcomeEmail, sendInvoiceEmail } = require('../controllers/nodemailer');
 
 
     
@@ -153,4 +153,13 @@ router.post('/submit-feedback', submitFeedback);
 router.get('/rides/ride-history', rideHistory);
 router.get('/history/filter-type/:id', filteredHistory)
 router.get('/history/search-history/:keyword', searchHistory)
-    module.exports = router;
+
+//-------------------------Nodemailer------------------------------
+// // Route to send a welcome email
+// router.post('/send-welcome-email', sendWelcomeEmail);
+
+// // Route to send an invoice email
+// router.post('/send-invoice-email', sendInvoiceEmail);
+
+
+module.exports = router;

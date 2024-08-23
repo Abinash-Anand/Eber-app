@@ -21,6 +21,8 @@ const io = socketIo(server, {
 const port = process.env.PORT || 5000;
 
 console.log('Loaded .env file:', process.env.PORT);
+
+
 console.log('Port used by server:', port);
 
 app.use(cookieParser());

@@ -23,6 +23,7 @@ export class RunningRequestComponent implements OnInit {
   bookingId: string = '';
   currentRideStatus:string = ''
   rideCompleteStatus: boolean = false;
+  nodemail: boolean = false;
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
@@ -128,7 +129,7 @@ acceptRequest(request: any): void {
       .subscribe((response) => {
         this.currentRideStatus = response.body.booking.status
         console.log("Status: ", this.currentRideStatus);
-     
+        
         setTimeout(() => {
           this.currentRideStatus = ''
         }, 2500);
@@ -152,11 +153,13 @@ acceptRequest(request: any): void {
           this.showInvoice = true;
           this.rideCompleteStatus = true;
           this.invoiceObject = response.body.inovice
+          this.nodemail = true;
           console.log("Inovice Object: ", this.invoiceObject);
              this.removeRequest(request._id)
           setTimeout(() => {
             this.rideCompleteStatus = false
             this.currentRideStatus = ''
+            this.nodemail = false
           }, 2500);
         }
         

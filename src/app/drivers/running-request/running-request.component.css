@@ -25,4 +25,10 @@
     background-image: linear-gradient(to right top, #f0e2e2, #ece0e6, #e6e0e9, #dee0ea, #d6e0e8);
     /* background-image: linear-gradient(to right top, #f3dbdb, #eed7e1, #e2d6e8, #d1d6ec, #bfd7e9); */
  }
- 
+ .email{
+    position: absolute;
+    right: 10%;
+    top: 0%;
+
+    z-index: 100;
+ }

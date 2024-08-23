@@ -4,7 +4,7 @@ const Ride = require('../models/createRideModel')
 const Invoice = require('../models/invoice')
 const Counter = require('../models/mongoose-sequencer');
 const { default: mongoose } = require('mongoose');
-
+const { sendInvoiceEmail} = require('./nodemailer')
 
 
 
@@ -15,7 +15,7 @@ const updateBookingStatus = async (req, res, io) => {
   try {
     const ride = await Ride.findById(bookingId);
       const booking = await Booking.findById(_id).populate('country')
-          .populate('city').populate('driverObjectId');
+          .populate('city').populate('driverObjectId').populate("userId");
 
     if (!booking || !ride) {
       return res.status(404).json({ message: 'Booking or ride not found' });
@@ -31,14 +31,21 @@ const updateBookingStatus = async (req, res, io) => {
     // console.log(JSON.stringify(reqId))
     const id = reqId.toString()
     let inovice;
+    // let nodemail;
     if (booking.status === 'Completed') {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
+      
     }
+    // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
+ 
+  
     // console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission
     io.emit('rideStatusProgressed', ride);
-
-    res.status(200).json({ message: 'Booking status updated successfully', booking, ride , inovice});
+  
+    res.status(200).json({ message: 'Booking status updated successfully', booking, ride, inovice });
+    // console.log(`Invoice ${inovice}`);
+    
   } catch (error) {
     console.error('Error updating booking status:', error); // Log the error
     res.status(500).json({ message: 'Internal Server Error', error });
@@ -55,7 +62,7 @@ async function calculateInvoice(id) {
       return console.log(chalk.yellow("ID is not valid"))
     }
 
-    const booking = await Booking.findOne({bookingId:id});
+    const booking = await Booking.findOne({bookingId:id}).populate('userId');
     if (!booking) {
      return console.log(chalk.yellow('Booking not Found!'))
     }
@@ -94,9 +101,11 @@ async function calculateInvoice(id) {
       requestTimer: booking.requestTimer,
       dueDate: new Date(), // Set the due date based on your business logic
     })
+    // console.log(`Invoice ${newInvoice}`);
+    await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, newInvoice);
 
     await newInvoice.save();
-
+  
     console.log(chalk.bgGreen("New Invoice Created: ", newInvoice));
 
     return newInvoice;
