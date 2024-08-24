@@ -6,7 +6,7 @@ const Counter = require('../models/mongoose-sequencer');
 const { default: mongoose } = require('mongoose');
 const { sendInvoiceEmail} = require('./nodemailer')
 const {sendSmsNotification, sendWhatsAppNotification} = require('./twilioSMS')
-
+const {TranscationInitiation} = require('./stripePayment')
 
 // Function to update booking status
 const updateBookingStatus = async (req, res, io) => {
@@ -39,7 +39,8 @@ const updateBookingStatus = async (req, res, io) => {
     if (booking.status === 'Completed') {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
-
+      //-------------------------Initiate Payment--------------------------------
+       await TranscationInitiation(booking)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       

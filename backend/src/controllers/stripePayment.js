@@ -1,6 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PaymentToken = require('../models/stripePayment'); // Adjust the path as necessary
-
+const Booking = require('./bookedRidesController')
+const Pricing = require('./pricingController')
 const createNewPayment = async (req, res) => {
     const { token } = req.body;
     console.log(req.body);
@@ -10,14 +11,6 @@ const createNewPayment = async (req, res) => {
     }
 
     try {
-        // Attempt to create the charge
-        const charge = await stripe.charges.create({
-            amount: 5000, // Amount in cents
-            currency: 'usd',
-            source: token.id,
-            description: 'Example charge'
-        });
-
         // Create a new PaymentToken instance
         const paymentToken = new PaymentToken({
             token_id: token.id,
@@ -33,19 +26,53 @@ const createNewPayment = async (req, res) => {
         // Attempt to save the new payment token
         await paymentToken.save();
 
-        res.status(200).send(charge);
+        res.status(200).send(paymentToken);
     } catch (error) {
         if (error.code === 11000) {
             // Handle duplicate key error (code 11000 in MongoDB)
             return res.status(402).send({ error: 'Duplicate card entry detected' });
         }
 
-        console.error('Error creating charge:', error.message); // Log the error
+        console.error('Error saving payment token:', error.message); // Log the error
         res.status(500).send({ error: error.message });
     }
 };
 
+const TranscationInitiation = async (booking)=>{
+    // Check if the user has a payment token saved
+      
+        const paymentToken = await PaymentToken.findOne({ userId: user._id });
+        if (!paymentToken) {
+            return res.status(400).send({ error: 'No payment token found for this user' });
+        }
+        // Create a charge on the user's card
+        const charge = await stripe.charges.create({
+            amount: booking.totalFare , 
+            currency: booking.country.currency,
+            source: paymentToken.token_id,
+            description: `Charge for trip ${booking.bookingId._id}`,
+        });
+        const pricing = await Pricing.findOne({country:booking.city._id})
+        // Calculate the amount to transfer to the driver
+        const driverShare = (booking.totalFare * (pricing.driverProfit/100)) * 100; // Example: 80% to the driver
+        const platformFee = booking.totalFare * 0.2 * 100; // Example: 20% platform fee
 
+      await transferReusable()
+
+}
+
+async function transferReusable() {
+     // Transfer funds to the driver's Stripe account
+        const transfer = await stripe.transfers.create({
+            amount: driverShare,
+            currency: 'usd',
+            destination: driver.stripeAccountId, // The driver's connected Stripe account ID
+            source_transaction: charge.id,
+            description: `Payment for trip ${booking.bookingId._id}`,
+        });
+    
+    return transfer;
+}
 
 const fetchUserCardDetails = async (req, res) => {
     try {
@@ -61,4 +88,4 @@ const fetchUserCardDetails = async (req, res) => {
         res.status(500).send(error);
     }
 }
-module.exports = { createNewPayment , fetchUserCardDetails};
+module.exports = { createNewPayment , fetchUserCardDetails, TranscationInitiation};

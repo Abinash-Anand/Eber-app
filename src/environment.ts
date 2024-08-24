@@ -3,6 +3,7 @@ export const environment = {
   googleMapsApiKey: 'AIzaSyAgqVWjf2oAALcroMzNhjLyuIzgdFsmb0Y',
   countryApiUrl: 'https://restcountries.com/v3.1',
   backendServerPORT: 'http://localhost:5000',
-  stripePublishableKey:'pk_test_51PcXjn2LMAO7sEDSZ8qV4ZUTeitaWx2rY7e7fdiqRrXcWRpiyuV6MDp1ltitL7jfuVj7tcIpxnsyejjuVHmK570H002vBO80nE',
+  stripePublishableKey:'pk_test_51PcXjn2LMAO7sEDS05CJUthyergofvkgCi7KJ71cN3w4EtVO8lkR90nPVf1Mq1eY6I0AlBOIccZhTDp2pCa8Fy7l00U210dBvj',
   socketUrl:'http://localhost:5000'
 };
+
