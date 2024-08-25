@@ -29,7 +29,7 @@
             <label for="countrySelect" class="form-label">Select Country</label>
             <select id="countrySelect" class="form-select form-control" ngModel required name="countryCode" (change)="onCountryChange($event)">
                 <option value="" disabled selected>Select Country</option>
-                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                <option *ngFor="let country of countries"  [value]="country.countryCode">{{country.name}}
                 </option>
             </select>
         </div>
@@ -132,8 +132,8 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form (submit)="handlePayment(); $event.preventDefault()">
-                    <div id="card-element" class="form-control py-4  col-12"></div>
+                <form (submit)="handlePayment($event); $event.preventDefault()">
+                    <div id="card-element" class="form-control py-4  col-12" ></div>
                     <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
                 </form>
             </div>

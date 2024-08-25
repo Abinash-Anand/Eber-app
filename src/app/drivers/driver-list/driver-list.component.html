@@ -1,6 +1,15 @@
 <div class="alert alert-success" role="alert" *ngIf="userCreated">
     Driver Successfully Deleted
 </div>
+<div class="bank-alert">
+<div class="alert alert-success" *ngIf="bankAccountCreated" role="alert">
+    Your Bank Account is create!
+</div>
+<div class="alert alert-success " *ngIf="bankAccountCreated" role="alert">
+    Bank Account have been Sync...
+</div>
+</div>
+
 <form class="m-3 bg-dark" (ngSubmit)="onCreateUser()" #form="ngForm">
     <h3 class="text-light ml-3 p-2">Create a New Driver</h3>
     <div class="row  text-light px-4 pt-2 pb-3">
@@ -78,7 +87,7 @@
             <th scope="col">Country Code</th>
             <th scope="col">City</th>
             <th scope="col">Actions</th>
-            <th scope="col">Payments</th>
+            
         </tr>
     </thead>
     <tbody>
@@ -155,34 +164,20 @@
                     <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Approved')">Approve</a>
                     <a class="dropdown-item" (click)="toggleDriverStatus(user, 'Declined')">Decline</a>
                 </div>
-
+            <button type="button" class="btn btn-primary" data-toggle="modal" 
+            data-target="#driverBankAccount" (click)="createBankAccount(user)">
+                Create Bank Account
+            </button>
 
 
 
             </td>
 
         </tr>
-        <td><button class="btn btn-outline-info">Payments</button></td>
+
     </tbody>
 </table>
 
-<div class="modal-dialog">
-    <div class="modal-content  paypal-payment">
-        <div class="modal-header ">
-            <h3 class="heading-text text-light">paypal Payment</h3>
-
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <form (submit)="handlePayment(); $event.preventDefault()">
-                <div id="card-element" class="form-control py-4  col-12"></div>
-                <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
-            </form>
-        </div>
-    </div>
-</div>
 
 
 <nav aria-label="Page navigation example">
@@ -244,8 +239,7 @@
 </div>
 <hr>
 
-<!-- Button to Open the Modal -->
-
+<!-- Modal -->
 
 <!-- The Modal -->
 <div class="modal" id="updateDriverModal">
@@ -344,3 +338,84 @@
         </div>
     </div>
 </div>
+
+
+<!-- Trigger Button -->
+
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="driverBankAccount" tabindex="-1" role="dialog" aria-labelledby="DriverBankAccount"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="bankAccountModalLabel">Create Driver Bank Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="bankAccountForm" (ngSubmit)="onSubmit()">
+                    <!-- Account Type -->
+                    <div class="mb-3">
+                        <label for="accountType" class="form-label"><i class="bi bi-wallet2 me-2"></i>Account
+                            Type</label>
+                        <select id="accountType" class="form-select" formControlName="account_type">
+                            <option value="" disabled selected>Select account type</option>
+                            <option value="bank_account">Bank Account</option>
+                            <option value="vpa">UPI</option>
+                        </select>
+                        <div *ngIf="bankAccountForm.get('account_type').touched && bankAccountForm.get('account_type').invalid"
+                            class="text-danger">
+                            Account type is required.
+                        </div>
+                    </div>
+        
+                    <!-- IFSC Code -->
+                    <div class="mb-3">
+                        <label for="ifsc" class="form-label"><i class="bi bi-bank2 me-2"></i>IFSC Code</label>
+                        <input type="text" id="ifsc" class="form-control" formControlName="ifsc"
+                            placeholder="e.g., HDFC0000123">
+                        <div *ngIf="bankAccountForm.get('ifsc').touched && bankAccountForm.get('ifsc').invalid"
+                            class="text-danger">
+                            <div *ngIf="bankAccountForm.get('ifsc').errors.required">IFSC code is required.</div>
+                            <div *ngIf="bankAccountForm.get('ifsc').errors.pattern">Invalid IFSC code.</div>
+                        </div>
+                    </div>
+        
+                    <!-- Bank Name -->
+                    <div class="mb-3">
+                        <label for="bankName" class="form-label"><i class="bi bi-building me-2"></i>Bank Name</label>
+                        <input type="text" id="bankName" class="form-control" formControlName="bank_name"
+                            placeholder="e.g., HDFC Bank">
+                        <div *ngIf="bankAccountForm.get('bank_name').touched && bankAccountForm.get('bank_name').invalid"
+                            class="text-danger">
+                            Bank name is required.
+                        </div>
+                    </div>
+        
+                    <!-- Account Number -->
+                    <div class="mb-3">
+                        <label for="accountNumber" class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>Account
+                            Number</label>
+                        <input type="text" id="accountNumber" class="form-control" formControlName="account_number"
+                            placeholder="e.g., 123456789">
+                        <div *ngIf="bankAccountForm.get('account_number').touched && bankAccountForm.get('account_number').invalid"
+                            class="text-danger">
+                            <div *ngIf="bankAccountForm.get('account_number').errors.required">Account number is
+                                required.</div>
+                            <div *ngIf="bankAccountForm.get('account_number').errors.pattern">Invalid account number.
+                            </div>
+                        </div>
+                    </div>
+        
+                    <button type="submit" class="btn btn-success w-100 mt-3" [disabled]="bankAccountForm.invalid">
+                        <i class="bi bi-check-circle me-2"></i>Submit
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+

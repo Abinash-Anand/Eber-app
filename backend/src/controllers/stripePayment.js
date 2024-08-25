@@ -1,7 +1,9 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PaymentToken = require('../models/stripePayment'); // Adjust the path as necessary
 const Booking = require('./bookedRidesController')
-const Pricing = require('./pricingController')
+const Pricing = require('../models/pricingModel')
+const { createRazorpayPayout } = require('./razorpayGateway')
+
 const createNewPayment = async (req, res) => {
     const { token } = req.body;
     console.log(req.body);
@@ -32,47 +34,65 @@ const createNewPayment = async (req, res) => {
             // Handle duplicate key error (code 11000 in MongoDB)
             return res.status(402).send({ error: 'Duplicate card entry detected' });
         }
+      
 
         console.error('Error saving payment token:', error.message); // Log the error
         res.status(500).send({ error: error.message });
     }
 };
 
-const TranscationInitiation = async (booking)=>{
-    // Check if the user has a payment token saved
-      
-        const paymentToken = await PaymentToken.findOne({ userId: user._id });
+const TranscationInitiation = async (booking) => {
+    try {
+        // Check if the user has a payment token saved
+        const paymentToken = await PaymentToken.findOne({ userId: booking.userId._id });
+        console.log("PaymentToken: ", paymentToken);
         if (!paymentToken) {
-            return res.status(400).send({ error: 'No payment token found for this user' });
+            return { error: 'No payment token found for this user' };
         }
-        // Create a charge on the user's card
-        const charge = await stripe.charges.create({
-            amount: booking.totalFare , 
-            currency: booking.country.currency,
-            source: paymentToken.token_id,
+        
+        // Create a Payment Intent
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: booking.bookingId.totalFare * 100, // Convert to cents if totalFare is in dollars
+            currency: 'USD',
+            payment_method: paymentToken.token_id,
+            customer: paymentToken.userId,  // Optional: Attach the customer ID if you have one
+            confirm: true, // Automatically confirm the Payment Intent
             description: `Charge for trip ${booking.bookingId._id}`,
         });
-        const pricing = await Pricing.findOne({country:booking.city._id})
+
+        console.log("PaymentIntent: ", paymentIntent);
+
+        const pricing = await Pricing.findOne({ _id: booking.city._id });
         // Calculate the amount to transfer to the driver
-        const driverShare = (booking.totalFare * (pricing.driverProfit/100)) * 100; // Example: 80% to the driver
-        const platformFee = booking.totalFare * 0.2 * 100; // Example: 20% platform fee
+        const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100)) * 100; // Example: 80% to the driver
+        const platformFee = paymentIntent.amount * 0.2 * 100; // Example: 20% platform fee
 
-      await transferReusable()
+        if (paymentIntent.status === 'succeeded') {
+            const paymentRecieved = await createRazorpayPayout(booking.driverObjectId, driverShare, paymentIntent);
+            return paymentRecieved;
+        } else {
+            throw new Error('Payment Intent was not successful');
+        }
 
-}
+    } catch (error) {
+        console.error('Error during transaction initiation:', error.message);
+        throw error;
+    }
+};
 
-async function transferReusable() {
-     // Transfer funds to the driver's Stripe account
-        const transfer = await stripe.transfers.create({
-            amount: driverShare,
-            currency: 'usd',
-            destination: driver.stripeAccountId, // The driver's connected Stripe account ID
-            source_transaction: charge.id,
-            description: `Payment for trip ${booking.bookingId._id}`,
-        });
+
+// async function transferReusable() {
+//      // Transfer funds to the driver's Stripe account
+//         const transfer = await stripe.transfers.create({
+//             amount: driverShare,
+//             currency: 'usd',
+//             destination: driver.stripeAccountId, // The driver's connected Stripe account ID
+//             source_transaction: charge.id,
+//             description: `Payment for trip ${booking.bookingId._id}`,
+//         });
     
-    return transfer;
-}
+//     return transfer;
+// }
 
 const fetchUserCardDetails = async (req, res) => {
     try {

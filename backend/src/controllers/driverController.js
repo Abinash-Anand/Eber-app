@@ -1,6 +1,6 @@
 
 const Driver = require('../models/driverModel');
-const { createContact, deactivateContact, createFundAccount } = require('./razorpayGateway')
+const { createContact, deactivateContact } = require('./razorpayGateway')
 const {driverBankAccount} = require('./driverBankAccount')
 // Create User Route - POST request
 const createNewDriver = async (req, res) => {
@@ -35,7 +35,7 @@ const createNewDriver = async (req, res) => {
         // Save the new user to the database
         await newUser.save();
         //----------CREATING FUND ACCOUNT RAZORPAY-------------------
-        await createFundAccount(newUser)
+        
         res.status(201).send(newUser);
     } catch (error) {
         console.error('Error:', error.message);

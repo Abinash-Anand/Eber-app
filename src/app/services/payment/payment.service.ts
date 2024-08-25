@@ -22,6 +22,10 @@ export class PaymentService {
   }
 
   async handlePayment() {
+    console.log("Payment service this.card Value: ", this.card);
+    console.log("Payment service this.card.mount Value: ", this.card.mount);
+
+    
     const { token, error } = await this.stripe.createToken(this.card);
 
     if (error) {

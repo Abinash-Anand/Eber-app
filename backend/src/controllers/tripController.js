@@ -15,7 +15,7 @@ const updateBookingStatus = async (req, res, io) => {
   try {
     const ride = await Ride.findById(bookingId);
       const booking = await Booking.findById(_id).populate('country')
-          .populate('city').populate('driverObjectId').populate("userId");
+          .populate('city').populate('driverObjectId').populate("userId").populate('bookingId');
 
     if (!booking || !ride) {
       return res.status(404).json({ message: 'Booking or ride not found' });
@@ -36,17 +36,20 @@ const updateBookingStatus = async (req, res, io) => {
     const id = reqId.toString()
     let inovice;
     // let nodemail;
+    // let transcationResponse;
+       //-------------------------Initiate Payment--------------------------------
+    await TranscationInitiation(booking)
     if (booking.status === 'Completed') {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
       //-------------------------Initiate Payment--------------------------------
-       await TranscationInitiation(booking)
+        // await TranscationInitiation(booking)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
-      if (booking.paymentOption === 'card') {
-        await createRazorpayPayout(booking.driverObjectId, booking.bookingId)
-      }
+      // if (booking.paymentOption === 'card') {
+      //   await createRazorpayPayout(booking.driverObjectId, booking.bookingId)
+      // }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
     // console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission

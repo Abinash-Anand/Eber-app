@@ -17,7 +17,8 @@ const fundAccountSchema = new mongoose.Schema({
   },
   contact_id: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   account_type: {
     type: String,

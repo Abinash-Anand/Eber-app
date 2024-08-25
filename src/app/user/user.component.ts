@@ -42,6 +42,7 @@ export class UserComponent implements OnInit {
   cardValidity: boolean = false
   cardSaved: boolean = false
   userObjectId: string = '';
+
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -240,13 +241,15 @@ export class UserComponent implements OnInit {
 
   //-------------stripe payment gateway-----------------------
  
-  async handlePayment() {
+  async handlePayment(event: Event) {
     try {
       const result = await this.paymentService.handlePayment();
       // Object.defineProperty(result.token, 'userId', { value: this.userObjectId})
         (result.token as any).userId = this.userObjectId; // Cast to any to add userId
-      console.log(result); // Output the result from handlePayment
-      await this.paymentService.sendTokenToServer(result.token).subscribe((response:any) => {
+      console.log("Event object: ",event); // Output the result from handlePayment
+      // const cardObject = result
+      // cardObject['cardNo'] = 
+       this.paymentService.sendTokenToServer(result.token).subscribe((response:any) => {
         console.log(response.status);
         if (response.status === 500) {
           this.cardValidity = true;

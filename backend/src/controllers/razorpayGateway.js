@@ -2,6 +2,7 @@ require('dotenv')
 const axios = require('axios');
 const Razorpay = require('razorpay');
 const Driver = require('../models/driverModel')
+const Account = require('../models/driverFundAccount')
 // Set up your Razorpay credentials
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID, // Your Razorpay API Key ID
@@ -119,14 +120,18 @@ const createFundAccount = async (driver) => {
 
 
 // Function to create a Razorpay payout
-const createRazorpayPayout = async (driverAccountId, booking) => {
+const createRazorpayPayout = async (driver,driverShare, charge) => {
     try {
+        const fundAccount = await Account.findOne({ driverObjectId: driver._id })
+        if (!fundAccount) {
+            throw new Error('fundAccount not Found!')
+        }
         // Create a payout to the driver's bank account
         const payoutResponse = await razorpayInstance.payouts.create({
             account_number: process.env.RAZORPAY_ACCOUNT_NUMBER, // Your Razorpay account number
-            fund_account_id: driverAccountId, // Driver's fund account ID (created using Razorpay's API)
-            amount: amount * 100, // Amount in paise (e.g., ₹10.00 should be 1000)
-            currency: currency, // Currency of the payout, e.g., 'INR'
+            fund_account_id: fundAccount.bank_account.account_number, // Driver's fund account ID (created using Razorpay's API)
+            amount: driverShare, // Amount in paise (e.g., ₹10.00 should be 1000)
+            currency: "USD", // Currency of the payout, e.g., 'INR'
             mode: 'IMPS', // Payment mode ('IMPS', 'NEFT', 'RTGS', or 'UPI')
             purpose: 'payout', // Purpose of the transfer
             queue_if_low_balance: true, // Whether to queue the payout if there is low balance

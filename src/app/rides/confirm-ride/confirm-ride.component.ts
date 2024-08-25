@@ -141,6 +141,8 @@ listenForUpdatedRideStatus() {
     console.log("Checking: ",this.selectedRide);
     this.rideStatus = status;
     this.driverListService.getDrivers().subscribe((drivers) => {
+      console.log("Driver: ", drivers);
+      
       if (drivers.status === 200) {
         this.driverList = drivers.body;
         // console.log(this.driverList);

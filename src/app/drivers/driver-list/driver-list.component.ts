@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { NgForm } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { SignupService } from '../../services/authentication/signup.service';
 import { UserService } from '../../services/users/user.service';
 import { Signup } from '../../shared/signup';
@@ -15,6 +15,7 @@ import { AssignedDriverBooking } from '../../shared/assigned-driver-booking';
 import { AssignVehicle } from '../../shared/assign-vehicle';
 import { Pricing } from '../../shared/pricing';
 import { Vehicle } from '../../shared/vehicle';
+import { BankAccountService } from '../../services/driverBankAccount/bank-account.service';
 
 @Component({
   selector: 'app-driver-list',
@@ -65,6 +66,7 @@ export class DriverListComponent implements OnInit {
   driverIndex: string = null;
   filteredCityArray = []; // Array to hold filtered cities
   driverObjectIncludeVehicle: any[] = [];
+  bankAccountCreated:boolean = false
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string, userId: string,
     countryCode: string, city: string
@@ -77,10 +79,11 @@ export class DriverListComponent implements OnInit {
   }
   driverIndexId: string = '';
   searchObject: { searchBy: string, searchInput: string } = { searchBy: '', searchInput: '' }
+  driverId: any;
   @ViewChild('searchForm') searchFormData: NgForm;
   @ViewChild('form') userForm: NgForm;
   @ViewChild('form') form: NgForm;
-
+    bankAccountForm: FormGroup;
   constructor(
     private driverListService: DriverlistService,
     private countryApiService: CountryApiService,
@@ -88,14 +91,22 @@ export class DriverListComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private rideService: RideService,
     private VehiclePricingService: VehiclePricingService,
-    private vehicleTypeService: VehicleTypeService
+    private vehicleTypeService: VehicleTypeService,
+    private fb: FormBuilder,
+    private bankAccountService:BankAccountService
   ) { }
 
   ngOnInit() {
     this.getAllUsers();
     this.getCountries();
     this.getVehicleData();
-    
+     // Initialize the form with controls and validators
+    this.bankAccountForm = this.fb.group({
+      account_type: ['', Validators.required],
+      ifsc: ['', [Validators.required, Validators.pattern('^[A-Z]{4}0[A-Z0-9]{6}$')]], // IFSC regex pattern
+      bank_name: ['', Validators.required],
+      account_number: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]] // Bank account number regex pattern
+    });
   }
 
   getCountries() {
@@ -396,9 +407,27 @@ onAssignBooking(vehicle, i) {
       }
     })
   }
-  getAllBookings() {
-    
+  createBankAccount(driver) {
+    console.log(driver);
+    this.driverId =  driver._id
+  
+}
+ onSubmit() {
+   if (this.bankAccountForm.valid) {
+      const bankDetails = this.bankAccountForm.value
+      console.log('Form Submitted', this.bankAccountForm.value);
+     this.bankAccountService.createNewBankAccount(this.driverId, bankDetails).subscribe((response) => {
+        console.log(response);
+       if (response.status === 201) {
+          this.bankAccountCreated = true
+       }
+       setTimeout(() => {
+        this.bankAccountCreated = false
+       }, 3000);
+      })
+      // Handle form submission logic here, such as sending the data to the backend
+    } else {
+      console.log('Form is invalid');
+    }
   }
-  handlePayment(){};
- 
 }

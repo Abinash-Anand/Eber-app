@@ -31,7 +31,7 @@
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
     const { sendWelcomeEmail, sendInvoiceEmail } = require('../controllers/nodemailer');
-
+    const {driverBankAccount} = require('../controllers/driverBankAccount')
 
     
     // Route to get the data from the vehicle type form
@@ -112,6 +112,8 @@
     router.get('/api/assigned-requests', getAllAcceptedRides)
     router.delete('/api/cancel-request/:id', deleteRideBooking)
     router.delete('/api/cancel-request/rides/delete/:id', cancelRide)
+//-----------------------driver bank account---------------------------------
+    router.post('/driver/create/bank_account/:id', driverBankAccount)
     //--------------------------Setting Pricing Routes--------------------------------
     //1.Post 
     router.post('/submit-pricing', setPricing);
