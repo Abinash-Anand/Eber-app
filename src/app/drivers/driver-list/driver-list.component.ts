@@ -399,5 +399,6 @@ onAssignBooking(vehicle, i) {
   getAllBookings() {
     
   }
+  handlePayment(){};
  
 }

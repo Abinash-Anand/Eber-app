@@ -78,6 +78,7 @@
             <th scope="col">Country Code</th>
             <th scope="col">City</th>
             <th scope="col">Actions</th>
+            <th scope="col">Payments</th>
         </tr>
     </thead>
     <tbody>
@@ -89,6 +90,7 @@
             <td>{{user.phone}}</td>
             <td>{{user.countryCode}}</td>
             <td>{{user.city}}</td>
+            
 
             <td>
                 <!-- <div class="dropdown">
@@ -158,9 +160,30 @@
 
 
             </td>
+
         </tr>
+        <td><button class="btn btn-outline-info">Payments</button></td>
     </tbody>
 </table>
+
+<div class="modal-dialog">
+    <div class="modal-content  paypal-payment">
+        <div class="modal-header ">
+            <h3 class="heading-text text-light">paypal Payment</h3>
+
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form (submit)="handlePayment(); $event.preventDefault()">
+                <div id="card-element" class="form-control py-4  col-12"></div>
+                <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">

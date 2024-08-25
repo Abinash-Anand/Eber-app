@@ -43,11 +43,12 @@ const updateBookingStatus = async (req, res, io) => {
        await TranscationInitiation(booking)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
-      
+      //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
+      if (booking.paymentOption === 'card') {
+        await createRazorpayPayout(booking.driverObjectId, booking.bookingId)
+      }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
- 
-  
     // console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission
     io.emit('rideStatusProgressed', ride);
   

@@ -1,9 +1,14 @@
-const express = require("express");
-const Driver = require('../models/driverModel');
 
+const Driver = require('../models/driverModel');
+const { createContact, deactivateContact, createFundAccount } = require('./razorpayGateway')
+const {driverBankAccount} = require('./driverBankAccount')
 // Create User Route - POST request
 const createNewDriver = async (req, res) => {
     try {
+
+            //-------- creating razorpay contact{Driver}--------------
+        const fundAccountContact = await createContact(req.body);
+        
         // Check if the username or email already exists
         const existingUser = await Driver.findOne({
             $or: [{ username: req.body.username }, { email: req.body.email }]
@@ -12,13 +17,25 @@ const createNewDriver = async (req, res) => {
         if (existingUser) {
             throw new Error("Username or email already in use");
         }
-
+        
         // Create a new user
-        const newUser = new Driver(req.body);
-
+        const driverObject = {
+            userProfile: req.body.userProfile,
+            username: req.body.username,
+            email: req.body.email,
+            phone: req.body.phone,
+            countryCode:req.body.countryCode,
+            city: req.body.city,
+            serviceType: req.body.serviceType,
+            status: req.body.status,
+            contactId:fundAccountContact.id
+            // [email, phone, country, city, serviceType,status,contactId]
+        }
+        const newUser = new Driver(driverObject);
         // Save the new user to the database
         await newUser.save();
-
+        //----------CREATING FUND ACCOUNT RAZORPAY-------------------
+        await createFundAccount(newUser)
         res.status(201).send(newUser);
     } catch (error) {
         console.error('Error:', error.message);
@@ -101,6 +118,7 @@ const deleteDriver = async (req, res) => {
     try {
         const user = await Driver.findByIdAndDelete(req.params.id);
         console.log(req.params.id);
+        await deactivateContact(user.contactId)
         res.status(200).send(user);
     } catch (error) {
         res.status(400).send(error);
@@ -164,6 +182,10 @@ const allDriversStatus = async (req, res) => {
     res.status(500).send(error)
   }
 }
+
+
+
+
 
 module.exports = { 
     createNewDriver, 
