@@ -60,7 +60,7 @@ const rideHistory = async (req, res) => {
             throw new Error("No rides found!");
         }
 
-        console.log(`---------------RIDES-------------`, rideData); // Log the rideData properly
+        // console.log(`---------------RIDES-------------`, rideData); // Log the rideData properly
         res.status(200).json({ success: true, data: rideData });
     } catch (error) {
         console.error('Error in rideHistory:', error); // Log the full error details
@@ -72,7 +72,7 @@ const rideHistory = async (req, res) => {
 const filteredHistory = async (req, res)=>{
  try {
      const filter = req.params.id;
-     console.log(filter)
+    //  console.log(filter)
      const rideHistory = await Booking.aggregate([
             {
                 $lookup: {
@@ -201,7 +201,7 @@ const searchHistory = async (req, res) => {
             // You can add more stages here if needed, like sorting, limiting results, etc.
         ]);
 
-        console.log(`Search Result: ${searchResult}`);
+        // console.log(`Search Result: ${searchResult}`);
         
         res.status(201).send(searchResult);
     } catch (error) {

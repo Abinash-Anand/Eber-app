@@ -1,111 +1,174 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const PaymentToken = require('../models/stripePayment'); // Adjust the path as necessary
-const Booking = require('./bookedRidesController')
-const Pricing = require('../models/pricingModel')
-const { createRazorpayPayout } = require('./razorpayGateway')
-
+const PaymentMethod = require('../models/stripePayment'); // Adjust the path as necessary
+const Booking = require('./bookedRidesController');
+const Pricing = require('../models/pricingModel');
+const { createRazorpayPayout } = require('./razorpayGateway');
+const chalk = require('chalk')
 const createNewPayment = async (req, res) => {
-    const { token } = req.body;
-    console.log(req.body);
+  const { paymentMethod } = req.body; // Payment method data from request body
 
-    if (!token || !token.id) {
-        return res.status(400).send({ error: 'Invalid token' });
-    }
+  if (!paymentMethod || !paymentMethod.id) {
+    return res.status(400).send({ error: 'Invalid payment method' });
+  }
 
-    try {
-        // Create a new PaymentToken instance
-        const paymentToken = new PaymentToken({
-            token_id: token.id,
-            userId: token.userId,
-            card_brand: token.card.brand,
-            card_last4: token.card.last4,
-            card_exp_month: token.card.exp_month,
-            card_exp_year: token.card.exp_year,
-            token_created: token.created,
-            client_ip: token.client_ip
+  // Capture the client's IP address from the request object
+  const client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+  try {
+    // Check if a payment method with the same card_last4 already exists for this user
+    const existingPaymentMethod = await PaymentMethod.findOne({
+      card_last4: paymentMethod.card.last4,
+      userId: paymentMethod.userId,
+    });
+
+    let customer; // Variable to store the customer object
+
+    // Check if customer exists or needs to be created
+    if (!existingPaymentMethod || !existingPaymentMethod.stripeCustomerId) {
+      // Check if customer already exists by email
+      let customerList = await stripe.customers.list({
+        email: req.body.email, // Use email from the request body, if available
+        limit: 1,
+      });
+
+      if (customerList.data.length === 0) {
+        // Create a new customer if none exists
+        customer = await stripe.customers.create({
+          email: req.body.email,
+        });
+      } else {
+        customer = customerList.data[0];
+      }
+
+      if (existingPaymentMethod) {
+        // Update existing payment method with the new customer ID and payment method ID
+        existingPaymentMethod.stripeCustomerId = customer.id;
+        existingPaymentMethod.payment_method_id = paymentMethod.id;
+        existingPaymentMethod.client_ip = client_ip;
+        await existingPaymentMethod.save();
+      } else {
+        // Attach the PaymentMethod to the new customer
+        await stripe.paymentMethods.attach(paymentMethod.id, {
+          customer: customer.id,
         });
 
-        // Attempt to save the new payment token
-        await paymentToken.save();
+        // Create and save a new payment method document in MongoDB
+        const newPaymentMethod = new PaymentMethod({
+          payment_method_id: paymentMethod.id,
+          userId: paymentMethod.userId,
+          stripeCustomerId: customer.id, // Save the Stripe customer ID
+          card_brand: paymentMethod.card.brand,
+          card_last4: paymentMethod.card.last4,
+          card_exp_month: paymentMethod.card.exp_month,
+          card_exp_year: paymentMethod.card.exp_year,
+          client_ip: client_ip,
+        });
 
-        res.status(200).send(paymentToken);
-    } catch (error) {
-        if (error.code === 11000) {
-            // Handle duplicate key error (code 11000 in MongoDB)
-            return res.status(402).send({ error: 'Duplicate card entry detected' });
-        }
-      
+        console.log("New Payment Method: ", newPaymentMethod);
+        await newPaymentMethod.save();
+        return res.status(200).send(newPaymentMethod);
+      }
 
-        console.error('Error saving payment token:', error.message); // Log the error
-        res.status(500).send({ error: error.message });
+      return res.status(200).send(existingPaymentMethod);
+    } else {
+      // If the payment method exists, attach it to the existing customer
+      await stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: existingPaymentMethod.stripeCustomerId,
+      });
+
+      // Update existing payment method details in MongoDB
+      existingPaymentMethod.payment_method_id = paymentMethod.id;
+      existingPaymentMethod.client_ip = client_ip;
+      await existingPaymentMethod.save();
+
+      return res.status(200).send(existingPaymentMethod);
     }
+  } catch (error) {
+    console.error('Error saving payment method:', error.message);
+    return res.status(500).send({ error: error.message });
+  }
 };
 
 const TranscationInitiation = async (booking) => {
-    try {
-        // Check if the user has a payment token saved
-        const paymentToken = await PaymentToken.findOne({ userId: booking.userId._id });
-        console.log("PaymentToken: ", paymentToken);
-        if (!paymentToken) {
-            return { error: 'No payment token found for this user' };
-        }
-        
-        // Create a Payment Intent
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: booking.bookingId.totalFare * 100, // Convert to cents if totalFare is in dollars
-            currency: 'USD',
-            payment_method: paymentToken.token_id,
-            customer: paymentToken.userId,  // Optional: Attach the customer ID if you have one
-            confirm: true, // Automatically confirm the Payment Intent
-            description: `Charge for trip ${booking.bookingId._id}`,
-        });
+  console.log("Booking: ", booking);
+  try {
+    // Fetch the payment method and ensure it includes the customer ID
+    const paymentMethod = await PaymentMethod.findOne({ userId: booking.userId._id });
 
-        console.log("PaymentIntent: ", paymentIntent);
-
-        const pricing = await Pricing.findOne({ _id: booking.city._id });
-        // Calculate the amount to transfer to the driver
-        const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100)) * 100; // Example: 80% to the driver
-        const platformFee = paymentIntent.amount * 0.2 * 100; // Example: 20% platform fee
-
-        if (paymentIntent.status === 'succeeded') {
-            const paymentRecieved = await createRazorpayPayout(booking.driverObjectId, driverShare, paymentIntent);
-            return paymentRecieved;
-        } else {
-            throw new Error('Payment Intent was not successful');
-        }
-
-    } catch (error) {
-        console.error('Error during transaction initiation:', error.message);
-        throw error;
+    if (!paymentMethod) {
+      return { error: 'No payment method found for this user' };
     }
+
+    // Use the Stripe customer ID stored in the payment method document
+    const customerId = paymentMethod.stripeCustomerId; // Correctly use the field storing the customer ID
+
+    // console.log("Payment Method: ", paymentMethod);
+
+    // Check if customerId is a valid string
+    if (typeof customerId !== 'string' || !customerId.trim()) {
+      throw new Error('Customer ID must be a valid non-empty string.');
+    }
+
+    // Create a Payment Intent using the saved payment_method_id and customer ID
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: booking.bookingId.totalFare * 100,
+      currency: 'INR',
+      payment_method: paymentMethod.payment_method_id,
+      customer: customerId,  // Correctly include the customer ID here
+      confirm: true,
+      return_url: 'http://localhost:4200/rides/confirm-ride',
+      description: `Charge for trip ${booking.bookingId._id}`,
+    });
+
+    if (paymentIntent.status === 'succeeded') {
+      const pricing = await Pricing.findOne({ city: booking.city._id });
+      if (!pricing) {
+        console.error('Pricing Data not found');
+        throw new Error('Pricing data not found');
+      }
+      const {  amount,
+      currency,
+      payment_method,
+      customer,// Correctly include the customer ID here
+      confirm,
+      return_url,
+      description} = paymentIntent
+    //   console.log("Pricing: ", pricing);
+      const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100));
+      console.log(chalk.bgCyan.bold("Intent: ",  amount,
+      currency,
+      payment_method,
+      customer,// Correctly include the customer ID here
+      confirm,
+      return_url,
+      description ))
+      console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
+      console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
+
+      const paymentReceived = await createRazorpayPayout(booking.driverObjectId, driverShare, paymentIntent);
+      return paymentReceived;
+    } else {
+      throw new Error('Payment Intent was not successful');
+    }
+  } catch (error) {
+    console.error('Error during transaction initiation:', error.message);
+    throw error;
+  }
 };
 
-
-// async function transferReusable() {
-//      // Transfer funds to the driver's Stripe account
-//         const transfer = await stripe.transfers.create({
-//             amount: driverShare,
-//             currency: 'usd',
-//             destination: driver.stripeAccountId, // The driver's connected Stripe account ID
-//             source_transaction: charge.id,
-//             description: `Payment for trip ${booking.bookingId._id}`,
-//         });
-    
-//     return transfer;
-// }
-
 const fetchUserCardDetails = async (req, res) => {
-    try {
-        const userId = req.params.id;
-        console.log(req.params.id);
-    const cards = await PaymentToken.find({userId})//---expect an object as argument
-    if (!cards) {
-        return res.status(404).send(cards);
+  try {
+    const userId = req.params.id;
+    console.log(req.params.id);
+    const cards = await PaymentMethod.find({ userId }); // Expect an object as an argument
+    if (!cards || cards.length === 0) {
+      return res.status(404).send({ error: 'No cards found for this user' });
     }
-    res.status(201).send(cards);
-    
-    } catch (error) {
-        res.status(500).send(error);
-    }
-}
-module.exports = { createNewPayment , fetchUserCardDetails, TranscationInitiation};
+    res.status(200).send(cards);
+  } catch (error) {
+    console.error('Error fetching card details:', error.message);
+    res.status(500).send({ error: error.message });
+  }
+};
+
+module.exports = { createNewPayment, TranscationInitiation, fetchUserCardDetails };

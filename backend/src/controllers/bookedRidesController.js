@@ -5,7 +5,7 @@ const DriverVehicleModel = require('../models/driverVehiclePricingModel')
 const Ride = require('../models/createRideModel')
 // Object to store timeouts for each booking
 const bookingTimeouts = {};
-
+const {createRazorpayPayout} = require('./razorpayGateway')
 // Function to handle ride booking
 const rideBooked = async (req, res, io) => {
   try {

@@ -1,6 +1,11 @@
 <div class="alert alert-success" role="alert" *ngIf="userCreated">
     User Successfully Deleted
 </div>
+<div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+</div>
+
+<!-- Other template content -->
 
 <form class="m-3 bg-dark" (ngSubmit)="onCreateUser()" #form="ngForm">
     <h3 class="text-light ml-3 p-2">Create a New User</h3>
@@ -132,7 +137,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form (submit)="handlePayment($event); $event.preventDefault()">
+                <form (submit)="handlePayment(); $event.preventDefault()">
                     <div id="card-element" class="form-control py-4  col-12" ></div>
                     <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
                 </form>

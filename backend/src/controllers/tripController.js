@@ -15,8 +15,9 @@ const updateBookingStatus = async (req, res, io) => {
   try {
     const ride = await Ride.findById(bookingId);
       const booking = await Booking.findById(_id).populate('country')
-          .populate('city').populate('driverObjectId').populate("userId").populate('bookingId');
+          .populate('city').populate("userId").populate('bookingId').populate('driverObjectId')
 
+    
     if (!booking || !ride) {
       return res.status(404).json({ message: 'Booking or ride not found' });
     }
@@ -43,7 +44,7 @@ const updateBookingStatus = async (req, res, io) => {
     inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
       //-------------------------Initiate Payment--------------------------------
-        // await TranscationInitiation(booking)
+        await TranscationInitiation(booking)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------

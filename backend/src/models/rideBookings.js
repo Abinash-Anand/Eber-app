@@ -21,7 +21,7 @@ const rideBookingSchema = new mongoose.Schema({
   },
   driverObjectId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'DriverVehicleModel',
+    ref: 'driverModel',
     required: true,
     // unique:true
   },

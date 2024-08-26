@@ -118,7 +118,10 @@ const deleteDriver = async (req, res) => {
     try {
         const user = await Driver.findByIdAndDelete(req.params.id);
         console.log(req.params.id);
+        if(user.contactId){
         await deactivateContact(user.contactId)
+            
+        }
         res.status(200).send(user);
     } catch (error) {
         res.status(400).send(error);

@@ -1,9 +1,9 @@
 // payment.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { environment } from '../../../environment';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
-import { Observable } from 'rxjs';
+import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -22,29 +22,38 @@ export class PaymentService {
   }
 
   async handlePayment() {
-    console.log("Payment service this.card Value: ", this.card);
-    console.log("Payment service this.card.mount Value: ", this.card.mount);
-
-    
-    const { token, error } = await this.stripe.createToken(this.card);
+    const { paymentMethod, error } = await this.stripe.createPaymentMethod({
+      type: 'card',
+      card: this.card,
+    });
 
     if (error) {
-      console.error('Error creating token:', error);
+      console.error('Error creating payment method:', error);
       throw error;
     } else {
-      console.log('Token created:', token);
-      return { token };
+      console.log('Payment method created:', paymentMethod);
+      return { paymentMethod };
     }
   }
 
-  sendTokenToServer(token: any): Observable<HttpResponse<any>> {
-    console.log(token);
-    
-    return this.http.post<any>(`${environment.backendServerPORT}/create-payment-intent`, { token , observe:'response'});
+  sendPaymentMethodToServer(paymentMethod: any): Observable<HttpResponse<any>> {
+    return this.http.post<any>(`${environment.backendServerPORT}/create-payment-intent`, { paymentMethod }, { observe: 'response' })
+      .pipe(catchError(this.handleError));
   }
-   fetchUserCards(id:string){
-    console.log(id);
-    
-    return this.http.get<any>(`${environment.backendServerPORT}/fetch-all-cards/${id}`, {  observe:'response'});
+
+  // Error handling method
+  private handleError(error: HttpErrorResponse): Observable<never> {
+    let errorMessage = 'An unknown error occurred!';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.error(errorMessage);
+    return throwError(errorMessage);
+  }
+
+  fetchUserCards(id: string) {
+    return this.http.get<any>(`${environment.backendServerPORT}/fetch-all-cards/${id}`, { observe: 'response' });
   }
 }

@@ -36,13 +36,13 @@ export class UserComponent implements OnInit {
   cityArray: any[] = [];
   invalidEmail: boolean = false;
   searchByFilter: string = 'Search By';
+  errorMessage:string=''
   selectedCountryId: string | null = null;
   filteredCityArray: any[] = [];
   countries: Country[] = [];
   cardValidity: boolean = false
   cardSaved: boolean = false
   userObjectId: string = '';
-
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -241,33 +241,40 @@ export class UserComponent implements OnInit {
 
   //-------------stripe payment gateway-----------------------
  
-  async handlePayment(event: Event) {
-    try {
-      const result = await this.paymentService.handlePayment();
-      // Object.defineProperty(result.token, 'userId', { value: this.userObjectId})
-        (result.token as any).userId = this.userObjectId; // Cast to any to add userId
-      console.log("Event object: ",event); // Output the result from handlePayment
-      // const cardObject = result
-      // cardObject['cardNo'] = 
-       this.paymentService.sendTokenToServer(result.token).subscribe((response:any) => {
-        console.log(response.status);
+ async handlePayment() {
+  try {
+    const result = await this.paymentService.handlePayment();
+    (result.paymentMethod as any).userId = this.userObjectId; // Cast to any to add userId
+    console.log(result); // Output the result from handlePayment
+
+    this.paymentService.sendPaymentMethodToServer(result.paymentMethod).subscribe({
+      next: (response: any) => {
         if (response.status === 500) {
           this.cardValidity = true;
+        } else if (response.status === "succeeded") {
+          this.cardSaved = true;
         }
-        else if (response.status === "succeeded") {
-          this.cardSaved = true
-        }
+        this.errorMessage = '';
         setTimeout(() => {
           this.cardSaved = false;
           this.cardValidity = false;
-
         }, 3000);
-        
-      });
-    } catch (error) {
-      console.error('Payment handling error:', error);
-    }
+      },
+      error: (error) => {
+        console.error('Server error:', error);
+        this.errorMessage = 'An error occurred while processing your payment. Please try again.';
+        setTimeout(() => {
+          this.cardSaved = false;
+          this.cardValidity = false;
+          this.errorMessage = ''; 
+        }, 3000);
+      }
+    });
+  } catch (error) {
+    console.error('Payment handling error:', error);
   }
+}
+
   onAddPayment(user:any) {
     console.log(user._id);
     this.userObjectId = user._id

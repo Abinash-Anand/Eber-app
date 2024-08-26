@@ -1,16 +1,27 @@
-require('dotenv')
+require('dotenv').config(); // Correctly load environment variables
+
 const axios = require('axios');
 const Razorpay = require('razorpay');
-const Driver = require('../models/driverModel')
-const Account = require('../models/driverFundAccount')
+const Driver = require('../models/driverModel');
+const Account = require('../models/driverFundAccount');
+const chalk = require('chalk');
+
+// Check environment variables
+if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+  throw new Error('RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is not defined in .env file');
+}
+
 // Set up your Razorpay credentials
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID, // Your Razorpay API Key ID
-  key_secret: process.env.RAZORPAY_KEY_SECRET // Your Razorpay API Key Secret
+  key_secret: process.env.RAZORPAY_KEY_SECRET, // Your Razorpay API Key Secret
 });
 
-
-
+// Ensure the Razorpay instance is initialized correctly
+if (!razorpayInstance) {
+  console.error('Failed to initialize Razorpay instance');
+  throw new Error('Razorpay instance is not defined');
+}
 
 const createContact = async (driver) => {
   const contactData = {
@@ -24,7 +35,7 @@ const createContact = async (driver) => {
       note_key_2: 'This is the second note'
     }
   };
-//   console.log("Inside CreateContact: ", contactData)
+
   try {
     const response = await axios.post('https://api.razorpay.com/v1/contacts', contactData, {
       auth: {
@@ -36,20 +47,12 @@ const createContact = async (driver) => {
     console.log('Contact created successfully:', response.data);
     return response.data;
   } catch (error) {
-    console.error('Error creating contact:', error.response.data);
+    console.error('Error creating contact:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
 
-// Call the function to create a contact
-createContact().then((contact) => {
-  console.log('Created Contact:', contact);
-}).catch((error) => {
-  console.error('Error:', error.message);
-});
-//----------------------deactivate the contact-----------------------------------
-// const contactId = 'cont_Op7bxiIh0Lt36S'
-
+//---------------------- Deactivate the contact -----------------------------------
 const deactivateContact = async (contactId) => {
   try {
     const response = await axios({
@@ -71,23 +74,17 @@ const deactivateContact = async (contactId) => {
     throw error;
   }
 };
-// Call the function to deactivate the contact
-// deactivateContact(contactId).then((result) => {
-//   console.log('Deactivated Contact:', result);
-// }).catch((error) => {
-//   console.error('Error:', error.message);
-// });
 
-//===================CREATE A FUND ACCOUNT============================================
+//=================== CREATE A FUND ACCOUNT ============================================
 
 const createFundAccount = async (driver) => {
   const fundAccountData = {
     contact_id: driver.contactId,
-    account_type: 'bank_account',  // or 'vpa' for UPI
+    account_type: 'bank_account', // or 'vpa' for UPI
     bank_account: {
       name: driver.username,
-      ifsc: 'HDFC0000053',  // Example IFSC code
-      account_number: '765432123456789',  // Example account number
+      ifsc: 'HDFC0000053', // Example IFSC code
+      account_number: '765432123456789', // Example account number
     }
   };
 
@@ -107,53 +104,54 @@ const createFundAccount = async (driver) => {
   }
 };
 
-// Call the function to create a fund account
-// createFundAccount(contactId).then((fundAccount) => {
-//   console.log('Created Fund Account:', fundAccount);
-// }).catch((error) => {
-//   console.error('Error:', error.message);
-// });
-
-
 //===========================================================================================
 
-
-
 // Function to create a Razorpay payout
-const createRazorpayPayout = async (driver,driverShare, charge) => {
-    try {
-        const fundAccount = await Account.findOne({ driverObjectId: driver._id })
-        if (!fundAccount) {
-            throw new Error('fundAccount not Found!')
-        }
-        // Create a payout to the driver's bank account
-        const payoutResponse = await razorpayInstance.payouts.create({
-            account_number: process.env.RAZORPAY_ACCOUNT_NUMBER, // Your Razorpay account number
-            fund_account_id: fundAccount.bank_account.account_number, // Driver's fund account ID (created using Razorpay's API)
-            amount: driverShare, // Amount in paise (e.g., ₹10.00 should be 1000)
-            currency: "USD", // Currency of the payout, e.g., 'INR'
-            mode: 'IMPS', // Payment mode ('IMPS', 'NEFT', 'RTGS', or 'UPI')
-            purpose: 'payout', // Purpose of the transfer
-            queue_if_low_balance: true, // Whether to queue the payout if there is low balance
-            reference_id: `txn_${new Date().getTime()}`, // Unique transaction reference ID
-            narration: 'Payout for ride completion', // Transaction narration
-        });
 
-        console.log('Payout created successfully:', payoutResponse);
-        return payoutResponse;
-    } catch (error) {
-        console.error('Error creating payout:', error);
-        throw error;
+const createRazorpayPayout = async (driver, driverShare, paymentIntent) => {
+  try {
+    const fundAccount = await Account.findOne({ driverObjectId: driver._id });
+    if (!fundAccount) {
+      throw new Error('Fund account not found!');
     }
+
+    console.log('Fund Account:', fundAccount);
+
+    // Setup the request parameters for Razorpay payout
+    const payoutParams = {
+      account_number: fundAccount.bank_account.account_number, // Your Razorpay account number or Customer Identifier
+      fund_account_id: fundAccount.id, // Driver's fund account ID
+      amount: driverShare, // Amount in paise (e.g., ₹10.00 should be 1000)
+      currency: "INR", // Correct currency for payouts, e.g., 'INR'
+      mode: 'IMPS', // Payment mode ('IMPS', 'NEFT', 'RTGS', or 'UPI')
+      purpose: 'payout', // Purpose of the payout
+      queue_if_low_balance: true, // Whether to queue the payout if there is low balance
+      reference_id: `txn_${new Date().getTime()}`, // Unique transaction reference ID
+      narration: 'Payout for ride completion', // Transaction narration
+    };
+
+    // Create a payout using Axios to call the Razorpay API endpoint
+    const response = await axios.post('https://api.razorpay.com/v1/payouts', payoutParams, {
+      auth: {
+        username: process.env.RAZORPAY_KEY_ID, // Your Razorpay API Key ID
+        password: process.env.RAZORPAY_KEY_SECRET // Your Razorpay API Key Secret
+      }
+    });
+
+    console.log('Payout created successfully:', response.data);
+    return response.data;
+  } catch (error) {
+    // Log detailed error if available
+    if (error.response) {
+      console.error('Error creating payout:', error.response.data);
+    } else {
+      console.error('Error creating payout:', error.message);
+    }
+    throw error;
+  }
 };
 
-// // Example usage
-// createRazorpayPayout('driver_fund_account_id', 500, 'INR')
-//     .then(response => {
-//         console.log('Payout response:', response);
-//     })
-//     .catch(error => {
-//         console.error('Error during payout:', error.message);
-//     });
+module.exports = { createRazorpayPayout };
 
-    module.exports = {createContact, deactivateContact, createFundAccount, createRazorpayPayout}
+
+module.exports = { createContact, deactivateContact, createFundAccount, createRazorpayPayout };
