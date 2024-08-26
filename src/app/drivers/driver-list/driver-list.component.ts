@@ -66,6 +66,9 @@ export class DriverListComponent implements OnInit {
   driverIndex: string = null;
   filteredCityArray = []; // Array to hold filtered cities
   driverObjectIncludeVehicle: any[] = [];
+  descriptions: any[] = ['Earnings Deposit Account',
+    'Fuel Reimbursement Account', 'Maintenance Cost Payout',
+    'Incentives and Bonuses Account', 'Ride Cancellations Refund']
   bankAccountCreated:boolean = false
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string, userId: string,
@@ -101,12 +104,16 @@ export class DriverListComponent implements OnInit {
     this.getCountries();
     this.getVehicleData();
      // Initialize the form with controls and validators
-    this.bankAccountForm = this.fb.group({
-      account_type: ['', Validators.required],
-      ifsc: ['', [Validators.required, Validators.pattern('^[A-Z]{4}0[A-Z0-9]{6}$')]], // IFSC regex pattern
-      bank_name: ['', Validators.required],
-      account_number: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]] // Bank account number regex pattern
-    });
+ this.bankAccountForm = this.fb.group({
+  account_type: ['', Validators.required],
+  ifsc: ['', [Validators.required, Validators.pattern('^[A-Z]{4}0[A-Z0-9]{6}$')]], // IFSC regex pattern
+  bank_name: ['', Validators.required],
+  account_number: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]], // Bank account number regex pattern
+  description: ['', Validators.required], // Description for the virtual account
+  project_name: ['', Validators.required], // Project name for notes
+});
+
+
   }
 
   getCountries() {
@@ -410,7 +417,7 @@ onAssignBooking(vehicle, i) {
   createBankAccount(driver) {
     console.log(driver);
     this.driverId =  driver._id
-  
+    
 }
  onSubmit() {
    if (this.bankAccountForm.valid) {

@@ -54,10 +54,11 @@ const fundAccountSchema = new mongoose.Schema({
     type: Boolean,
     default: true // Defaults to true, assuming newly created accounts are active
   },
-  created_at: {
-    type: Number,
-    required: true
-  }
+     customerId: {
+        type: String,
+        ref: 'Customer',
+        required:true
+  },
 }, {
   timestamps: true  // Automatically creates createdAt and updatedAt timestamps
 });

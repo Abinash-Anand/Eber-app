@@ -341,10 +341,6 @@
 
 
 <!-- Trigger Button -->
-
-
-
-
 <!-- Modal -->
 <div class="modal fade" id="driverBankAccount" tabindex="-1" role="dialog" aria-labelledby="DriverBankAccount"
     aria-hidden="true">
@@ -370,7 +366,7 @@
                             Account type is required.
                         </div>
                     </div>
-        
+
                     <!-- IFSC Code -->
                     <div class="mb-3">
                         <label for="ifsc" class="form-label"><i class="bi bi-bank2 me-2"></i>IFSC Code</label>
@@ -382,7 +378,7 @@
                             <div *ngIf="bankAccountForm.get('ifsc').errors.pattern">Invalid IFSC code.</div>
                         </div>
                     </div>
-        
+
                     <!-- Bank Name -->
                     <div class="mb-3">
                         <label for="bankName" class="form-label"><i class="bi bi-building me-2"></i>Bank Name</label>
@@ -393,11 +389,11 @@
                             Bank name is required.
                         </div>
                     </div>
-        
+
                     <!-- Account Number -->
                     <div class="mb-3">
-                        <label for="accountNumber" class="form-label"><i class="bi bi-credit-card-2-front me-2"></i>Account
-                            Number</label>
+                        <label for="accountNumber" class="form-label"><i
+                                class="bi bi-credit-card-2-front me-2"></i>Account Number</label>
                         <input type="text" id="accountNumber" class="form-control" formControlName="account_number"
                             placeholder="e.g., 123456789">
                         <div *ngIf="bankAccountForm.get('account_number').touched && bankAccountForm.get('account_number').invalid"
@@ -408,7 +404,33 @@
                             </div>
                         </div>
                     </div>
-        
+
+                    <!-- Virtual Account Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label"><i class="bi bi-info-circle me-2"></i>Virtual
+                            Account Description</label>
+                        <select id="description" class="form-select form-control" formControlName="description">
+                            <option [value]="description"  selected *ngFor="let description of descriptions">{{description}}
+                            </option>
+                        </select>
+                        <div *ngIf="bankAccountForm.get('description').touched && bankAccountForm.get('description').invalid"
+                            class="text-danger">
+                            Description is required.
+                        </div>
+                    </div>
+
+                    <!-- Project Name -->
+                    <div class="mb-3">
+                        <label for="projectName" class="form-label"><i class="bi bi-briefcase me-2"></i>Project
+                            Name</label>
+                        <input type="text" id="projectName" class="form-control" formControlName="project_name"
+                            placeholder="e.g., Eber App Driver Fund">
+                        <div *ngIf="bankAccountForm.get('project_name').touched && bankAccountForm.get('project_name').invalid"
+                            class="text-danger">
+                            Project name is required.
+                        </div>
+                    </div>
+
                     <button type="submit" class="btn btn-success w-100 mt-3" [disabled]="bankAccountForm.invalid">
                         <i class="bi bi-check-circle me-2"></i>Submit
                     </button>
@@ -417,5 +439,3 @@
         </div>
     </div>
 </div>
-
-
