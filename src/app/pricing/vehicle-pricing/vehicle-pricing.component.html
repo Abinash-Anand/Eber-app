@@ -1,0 +1,62 @@
+<div class="card-saved" *ngIf="newPricing">
+    <h4>New Vehicle Pricing Created</h4>
+</div>
+<div class="container text-white p-3 ml-3">
+    <div class="row">
+        <div class="col-12 col-md-6 bg-dark p-3">
+            <form [formGroup]="pricingForm" (ngSubmit)="onSubmit()">
+                <!-- Dropdown for selecting country -->
+                <div class="mb-3 row">
+                    <label for="countrySelect" class="form-label col-sm-4">Select Country</label>
+                    <div class="col-sm-8">
+                        <select id="countrySelect" class="form-select form-control" formControlName="country"
+                            (change)="onCountryChange($event)">
+                            <option value="" disabled #selectCountryOption selected>Select Country</option>
+                            <option *ngFor="let country of countries" [id]="country._id" [value]="country.countryCode">
+                                {{country.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for selecting city/zone -->
+                <div class="mb-3 row">
+                    <label for="citySelect" class="form-label col-sm-4">Select City/Zone</label>
+                    <div class="col-sm-8">
+                        <select id="citySelect" class="form-select form-control" formControlName="city"
+                            (change)="onCityChange($event)">
+                            <option value="" disabled selected>Select City/Zone</option>
+                            <option *ngFor="let city of filteredCityArray" [value]="city._id">{{city.city}}</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Dropdown for selecting vehicle type -->
+                <div class="mb-3 row">
+                    <label for="vehicleTypeSelect" class="form-label col-sm-4">Select Vehicle Type</label>
+                    <div class="col-sm-8">
+                        <select id="vehicleTypeSelect" class="form-select form-control" formControlName="vehicleType"
+                            (change)="getSelectedVehicleType($event)">
+                            <option value="" disabled selected>Select Vehicle Type</option>
+                            <option *ngFor="let vehicle of vehicleTypeArray" [value]="vehicle">{{vehicle}}</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Pricing inputs for each pricing type -->
+                <div class="mb-3 row" *ngFor="let control of pricingControls">
+                    <label class="form-label col-sm-4">{{control.label}}</label>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" [placeholder]="control.placeholder"
+                            [formControlName]="control.name">
+                    </div>
+                </div>
+                <!-- Button to submit pricing -->
+                <div class="row">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <button type="submit" class="btn btn-outline-primary btn-lg" [disabled]="pricingForm.invalid">Set
+                            Pricing</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

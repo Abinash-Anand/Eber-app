@@ -1,0 +1,41 @@
+<div class="container">
+    <div class="alert alert-success" role="alert" *ngIf="successMsg">
+        New Zone Created!
+    </div>
+    <div class="row py-3 text-white" >
+        <div class="  col-lg-4  col-md-6 bg-dark p-3">
+            <h1 class="mb-3">City Form</h1>
+            <form [formGroup]="cityForm" (ngSubmit)="onAddCity()">
+                <div class="mb-3">
+                    <label for="countrySelect" class="form-label" style="font-size: 1.3rem;">Country</label>
+                    <select id="countrySelect" class="form-select p-2 br-2 ml-3" formControlName="country"
+                        (change)="onCountryChange($event)">
+                        <option value="" disabled selected>Select Country</option>
+                        <option *ngFor="let country of countries"
+                         [value]="country.countryCode"
+                          [attr.data-country-id]="country._id"
+                            >{{ country.name }}
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="zoneInput" class="form-label " style="font-size: 1.3rem;">Zone (City/Area)</label>
+                    <input type="text" class="form-control" id="zoneInput" formControlName="zone"
+                        placeholder="Enter city name" (focus)="initAutocomplete()" >
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg" >Add City</button>
+            </form>
+
+                <button type="button" class="btn btn-primary btn-lg btn-block mt-5 py-3" 
+                (click)="onGetZones()" [routerLink]="['/pricing/city/city-list']">View My Zones</button>
+
+
+        </div>
+        <div class="col-lg-8 col-md-6">
+            <div id="map" #mapRef style="height: 500px; width: 100%; "></div>
+            </div>
+        </div>
+   
+</div>
+    <router-outlet></router-outlet>
+

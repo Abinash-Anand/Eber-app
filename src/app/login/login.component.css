@@ -1,0 +1,33 @@
+.container{
+    margin-top: 1%;
+    padding:20px;
+    max-width: 50%;
+    height: 70vh;
+    box-shadow: 20px 20px 20px rgba(0, 0, 0, 0.521);
+background-image: linear-gradient(to right bottom, #393133, #383035, #362f37, #322f3a, #2c2f3c);
+    /* box-shadow: 5px 5px 5px rgb(71, 71, 71); */
+    
+}
+
+.nav, .container{
+    background-color: #014792;
+    color: white;
+
+}
+label{
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+form{
+    padding: 20px;
+}
+.login{
+    padding: 1% 10%;
+    background-color: rgb(159, 233, 159);
+    position: relative;
+    top: 10%;
+    z-index: 1000;
+    /* opacity: 0.7; */
+    border-radius: 0px;
+
+}

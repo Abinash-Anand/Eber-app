@@ -1,0 +1,185 @@
+<div class="alert alert-success m-2" role="alert" *ngIf="rideCompleteStatus">
+    <strong>Your Ride Has been Completed!🎉 </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Accepted'">
+    <strong>Your Ride Has been Accepted </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Arrived'">
+    <strong>Your Ride Has been Arrived </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Picked'">
+    <strong>Customer Have been Picked From the Set Location </strong>
+</div>
+<div class="alert alert-success m-2" role="alert" *ngIf="currentRideStatus === 'Started'">
+    <strong>Your Ride Has Started! </strong>
+</div>
+
+<img width="100" *ngIf="nodemail" class="email" height="100" src="https://img.icons8.com/papercut/60/new-post.png" alt="new-post" />
+
+
+
+<div class="container mt-3">
+    <h2>Running Requests</h2>
+    <hr>
+    <div *ngIf="emptyBookingError" class="alert alert-danger">
+        No assigned requests found!
+    </div>
+    <table class="table table-bordered" *ngIf="assignedRequests.length > 0">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>User Name</th>
+                <th>Pick Up Location</th>
+                <th>Drop Off Location</th>
+                <th>Service Type</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let request of assignedRequests" (click)="selectRequest(request)">
+                <td>{{ request._id }}</td>
+                <td>{{ request.userId?.username }}</td>
+                <td>{{ request.pickupLocation }}</td>
+                <td>{{ request.dropOffLocation }}</td>
+                <td>{{ request.serviceType }}</td>
+            <td *ngIf="request.status === 'Assigned'; else rideProgress">
+                <button class="btn btn-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
+                <button class="btn btn-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
+            </td>
+            <ng-template #rideProgress>
+                <td>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Ride Status
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Arrived')">Arrived</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Picked')">Picked</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Started')">Started</a>
+                            <a class="dropdown-item" (click)="onChangeRideProgress(request, 'Completed')">Completed</a>
+                        </div>
+                    </div>
+                </td>
+            </ng-template>
+
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+    <div class="booking-request p-4" *ngIf="selectedRequest && !showInvoice" >
+        <h3>Request Details</h3>
+        <hr>
+        <p><strong>Request ID:</strong> {{ selectedRequest._id }}</p>
+        <p><strong>User Name:</strong> {{ selectedRequest.userId?.username }}</p>
+        <p><strong>Phone:</strong> {{ selectedRequest.userId?.phone }}</p>
+        <p><strong>Pick Up Location:</strong> {{ selectedRequest.pickupLocation }}</p>
+        <p><strong>Drop Off Location:</strong> {{ selectedRequest.dropOffLocation }}</p>
+        <p><strong>Service Type:</strong> {{ selectedRequest.serviceType }}</p>
+        <p><strong>Status:</strong> {{ selectedRequest.status }}</p>
+           
+    </div>
+   
+    <hr>
+</div>
+
+<div class="container my-5" *ngIf="showInvoice" >
+    <!-- Invoice Header -->
+    <div class="row invoice-header">
+        <div class="col-md-6">
+            <h2>Invoice</h2>
+            <p><strong>Invoice Number:</strong> {{invoiceObject.invoiceNo}}</p>
+            <p><strong>Date:</strong> {{invoiceObject.invoiceDate}}</p>
+            <p><strong>Due Date:</strong> {{invoiceObject.dueDate | date: medium}}</p>
+        </div>
+        <div class="col-md-6 text-right">
+            <h4>Seller</h4>
+            <p><strong>Eber</strong></p>
+
+        <img class="mt-5" [src]="invoiceObject.vehicleImageURL" style="width: 10rem; height:max-content" alt="">
+        </div>
+    </div>
+
+    <!-- Buyer Information -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Buyer</h4>
+            <p>User ID: <strong>{{invoiceObject.userId}}</strong><br>Phone: <strong>{{invoiceObject.phone}}</strong></p>
+        </div>
+    </div>
+
+    <!-- Booking Details -->
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Booking Details</h4>
+            <p><strong>Booking ID:</strong> {{invoiceObject.bookingId}}</p>
+            <p><strong>Service Type:</strong> {{invoiceObject.serviceType}}</p>
+            <p><strong>Vehicle Name:</strong> {{invoiceObject.vehicleName}}</p>
+            <p><strong>Vehicle Type:</strong> {{invoiceObject.vehicleType}}</p>
+            <p><strong>Pickup Location:</strong>{{invoiceObject.pickupLocation}} </p>
+            <p><strong>Drop Off Location:</strong>{{invoiceObject.dropOffLocation}} </p>
+            <p><strong>Estimated Time:</strong> {{invoiceObject.EstimatedTime}} Min</p>
+            <p><strong>Total Distance:</strong>{{invoiceObject.totalDistance}} km</p>
+        </div>
+    </div>
+
+    <!-- Invoice Table -->
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Description</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Base Price (1 km)</td>
+                        <td>1</td>
+                        <td>$20.00</td>
+                        <td>$20.00</td>
+                    </tr>
+                    <tr>
+                        <td>Distance Price ({{invoiceObject.bookingId.totalDistance}} km)</td>
+                        <td>1</td>
+                        <td>$10.00/km</td>
+                        <td>$81.20</td>
+                    </tr>
+                    <tr>
+                        <td>Time Price ({{invoiceObject.bookingId.EstimatedTime}} minutes)</td>
+                        <td>1</td>
+                        <td>$1.00/min</td>
+                        <td>{{invoiceObject.bookingId.EstimatedTime  * 1}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total</strong></td>
+                        <td></td>
+                        <td></td>
+                        <td><strong>{{invoiceObject.bookingId.totalFare}}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Payment Information -->
+    <div class="row">
+        <div class="col-md-6">
+            <h4>Payment Information</h4>
+            <p><strong>Payment Option:</strong> {{invoiceObject.paymentOptions}}</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="row invoice-footer">
+        <div class="col-md-12 text-center">
+            <p>Thank you for your business!</p>
+            <p>If you have any questions regarding this invoice, please contact us at (123) 456-7890.</p>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "cashfreedocs-new",
+      "source": "@cashfreedocs-new/v4#i7dxxzloy7ysqr",
+      "integrity": "sha512-SfmI21SbNALLqydsKgqWxNNbweqxYa0Ydqk355I83QnsD5i4h9XPfCY/nIaJ0A37ZLeYW97Guio8ClLQAtQAKA==",
+      "installerVersion": "6.1.2"
+    }
+  ]
+}

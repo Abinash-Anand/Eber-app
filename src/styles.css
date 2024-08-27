@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+div{
+    border-radius: 10px;
+}
+body{
+    overflow-x:hidden ;
+    
+}
+
+.card-saved {
+    background-image: linear-gradient(to right, #006b08, #418c3a, #6dad65, #98d091, #c4f3bf);
+    color: white;
+    padding: 4% 6%;
+    width: 40%;
+    /* font-weight: 600; */
+    position: absolute;
+    z-index: 50;
+    right: 0%;
+    border: none;
+    border-radius: 0px;
+    box-shadow: 20px 30px 20px rgb(30, 30, 30);
+}

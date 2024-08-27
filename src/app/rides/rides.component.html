@@ -1,0 +1,16 @@
+<div class="container">
+    <div class="row">
+        <div class="col-12 mt-5 ">
+            <ul class="nav nav-links bg-dark">
+                <li class="p-4"><a [routerLink]="['/rides/create-ride']">Create Ride</a></li>
+                <li class="p-4"><a [routerLink]="['/rides/confirm-ride']">Confirm Ride</a></li>
+                <li class="p-4"><a [routerLink]="['/rides/ride-history']">Ride History</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <router-outlet></router-outlet>
+    </div>
+</div>

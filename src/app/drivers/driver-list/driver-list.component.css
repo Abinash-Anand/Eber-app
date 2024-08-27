@@ -1,0 +1,23 @@
+.form-container{
+    margin-left: 7%;
+}
+.bookings:hover{
+background-color: rgba(0, 0, 0, 0.792);
+color: white;
+list-style-type: none;
+transition: 0.1s ease-in;
+border-radius: 10px;
+cursor: pointer;
+border: 2px solid black;
+}
+
+.bank-alert{
+    position: absolute;
+    top: -20%;
+    right: 0%;
+    z-index: 1000;
+    
+}
+.alert{
+box-shadow: 5px 10px 15px rgba(65, 65, 65, 0.694);
+}

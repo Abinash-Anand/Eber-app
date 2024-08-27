@@ -1,0 +1,10 @@
+.filter-bar{
+    /* border: 1px solid black */
+}
+.hover-row:hover{
+    cursor: pointer;
+    background-color: rgba(31, 31, 31, 0.941);
+    color: white;
+    font-weight: 400;
+    transition: 0.2s ease-in;
+}

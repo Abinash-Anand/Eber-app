@@ -1,0 +1,23 @@
+
+    <div class="alert alert-success  " role="alert" *ngIf="redirectlogin">
+        Signup Successful!
+    </div>
+    <div class="col-6 signup mt-5">
+    <h1 style="text-align: center;">SignUp</h1>
+    <form (ngSubmit)="onSignup()" #form="ngForm">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Name</label>
+            <input type="email" name="name" required class="form-control" id="name" ngModel aria-describedby="emailHelp"
+                placeholder="Enter email">
+                <label for="exampleInputEmail1">Phone No.</label>
+                <input type="email" name="phone" required class="form-control" id="phone" ngModel aria-describedby="emailHelp" placeholder="Enter email">
+        <label for="exampleInputEmail1">Email address</label>
+        <input type="email" name="email" required class="form-control" id="email" ngModel aria-describedby="emailHelp" placeholder="Enter email">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" name="password" required class="form-control" id="password" ngModel placeholder="Password">
+    
+    </div>
+
+        <button  type="submit" class="btn btn-outline-light px-5 py-2" [disabled]="!form.valid">Submit</button>
+    </form>
+    </div>

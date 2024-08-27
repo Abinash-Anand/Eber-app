@@ -1,0 +1,15 @@
+
+li:hover{
+  background-color: black;  
+  color: white;
+  text-decoration: none;
+}
+ul{
+  border-radius: 10px;
+}
+.pricing-list{
+  /* border: 1px solid black; */
+  margin-left: 20px;
+  margin-top: 20px;
+  background-color: rgba(155, 163, 248, 0.126);
+}

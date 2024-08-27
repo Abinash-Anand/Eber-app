@@ -1,0 +1,147 @@
+.user-found-alert{
+    background-color: rgb(175, 255, 175);
+    padding: 2% 10%;
+    width: 40%;
+    border-radius: 0px;
+    border: none;
+    position: absolute;
+    right: 0%;
+    top: -8%;
+    z-index: 12;
+    box-shadow: 10px 20px 10px rgba(124, 224, 166, 0.47);
+}
+
+
+.request-time{
+    border: 5px solid rgba(82, 255, 82, 0.932);
+    background-color: rgb(185, 235, 185);
+}
+ul {
+    list-style-type: none;
+    margin-top: 5px;
+    padding-left: 0;
+    border-radius: 10px;
+    box-shadow: 10px 5px 10px black;
+}
+
+.map-container {
+    border-radius: 10px;
+}
+
+li {
+    background-color: black;
+    border: 1px solid rgba(24, 24, 24, 0.715);
+    padding: 10px;
+    color: white
+}
+
+li:hover {
+    background-color: rgba(0, 0, 0, 0.822);
+    /* color: rgb(255, 255, 255); */
+    box-shadow: 10px 5px 10px rgba(0, 0, 0, 0.589);
+    cursor: pointer;
+}
+
+input {
+    border-radius: 10px;
+    height: 3rem;
+}
+
+/* .btn{
+font-size: smaller;
+border: none !important;
+
+} */
+
+.direction:hover {
+    background-color: rgb(198, 228, 200);
+    transition: 0.3s ease-out;
+    box-shadow: 5px 5px 5px black;
+    color: white;
+    /* background:none;
+border: none;   */
+}
+
+
+.suggestions-list {
+    position: relative;
+    top: 100%;
+    /* Position below the input field */
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    /* Ensure it appears above other elements */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.suggestions-list li {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.card {
+    position: absolute;
+    top: 5%;
+    left: 3%;
+    z-index: 1;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.service{
+    border: 1px solid black;
+    background-color: white;
+    
+}
+.service:hover{
+    background-color: #000000d6;
+    color: white;
+    box-shadow: 10px 20px 10px rgb(133, 132, 132);
+    transition: 0.3s ease;
+}
+.vehicle-img{
+    width: 100%;
+    height: max-content;
+    border-radius: 10px
+}
+.vehicleCount{
+    font-size: normal !important;
+}
+.user{
+    background-color: rgba(9, 203, 9, 0.258);
+    width: 50%;
+    
+}
+.buy:hover{
+    cursor: pointer;
+    /* background-color: rgba(81, 78, 78, 0.89); */
+}
+
+.select-card {
+    background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, #685396);
+    color: white;
+}
+.select-card option{
+    color: black;
+}
+/* .customAlerts{
+    position: absolute;
+    top: -25%;
+    right: -100%;
+    z-index: 100;
+} */
+
+.selected{
+        background-color: #000000d6;
+        color: white;
+        box-shadow: 10px 20px 10px rgb(133, 132, 132);
+        /* transition: 0.3s ease; */
+}
+/* .deselect{
+        background-color: ;
+        color: ;
+        box-shadow: 10px 20px 10px rgb(133, 132, 132);
+        transition: 0.3s ease;
+} */

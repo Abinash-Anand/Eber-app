@@ -1,0 +1,24 @@
+.row{
+    /* background-image: url('https://qph.cf2.quoracdn.net/main-qimg-8ccbc4ab01aa15ee102420d26b9a6ca8-lq'); */
+    /* background-repeat: no-repeat; */
+    height: 90vh;
+    width:100%;
+    
+
+}
+.heading{
+    position: absolute;
+    box-shadow: 30px 40px 0px rgb(0, 0, 0);
+    /* background: transparent; */
+    opacity: 0.1;
+    padding:5px 10px;
+}
+.heading-2{
+    position: absolute;
+    bottom: 4%;
+    right: 4%;
+        box-shadow: 40px 20px 0px rgb(0, 0, 0);
+        /* background: transparent; */
+        opacity: 0.1;
+        padding: 5px 10px;
+}
