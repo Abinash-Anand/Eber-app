@@ -1,71 +1,50 @@
-import { Injectable, NgZone, Inject, PLATFORM_ID } from '@angular/core';
-import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
-import { fromEvent, merge, Observable, Subscription } from 'rxjs';
-import { debounceTime, tap } from 'rxjs/operators';
+// // inactivity-tracker.service.ts
+// import { Injectable, HostListener } from '@angular/core';
+// import { Subject, timer } from 'rxjs';
+// import { switchMap } from 'rxjs/operators';
+// import { LoginService } from '../authentication/login.service';
+// // import { LoginService } from './login.service'; // Import LoginService
 
-@Injectable({
-  providedIn: 'root'
-})
-export class UserActivityService {
-  private timeoutId: any;
-  private readonly timeout: number = 15 * 60 * 1000; // 15 minutes
-  private activityEvents$: Observable<Event>;
-  private activitySubscription: Subscription;
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class UserActivityService {
+//   private inactivityTimeout =1 * 60 * 1000; // 20 minutes
+//   private activitySubject = new Subject<void>();
+//   private timeoutId: any;
 
-  constructor(
-    private router: Router,
-    private ngZone: NgZone,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {
-    if (isPlatformBrowser(this.platformId)) {
-      this.activityEvents$ = merge(
-        fromEvent(document, 'click'),
-        fromEvent(document, 'mousemove'),
-        fromEvent(document, 'keydown'),
-        fromEvent(document, 'scroll')
-      );
-      this.setupActivityListeners();
-    }
-  }
+//   constructor(private loginService: LoginService) { // Inject LoginService
+//     this.startTracking();
+//   }
 
-  setupActivityListeners() {
-    console.log('Setting up activity listeners');
-    this.ngZone.runOutsideAngular(() => {
-      this.activitySubscription = this.activityEvents$
-        .pipe(
-          debounceTime(300),
-          tap(() => this.resetTimer())
-        )
-        .subscribe();
-      this.startTimer();
-    });
-  }
+//  private startTracking() {
+//   console.log('Inactivity tracking started');
+//   this.activitySubject.pipe(
+//     switchMap(() => timer(this.inactivityTimeout))
+//   ).subscribe(() => {
+//     console.log('Inactivity timeout reached');
+//     this.loginService.autoLoguot();
+//   });
 
-  removeActivityListeners() {
-    console.log('Removing activity listeners');
-    if (this.activitySubscription) {
-      this.activitySubscription.unsubscribe();
-    }
-  }
+//   // Listen for user activity
+//   this.resetTimer();
+// }
 
-  startTimer() {
-    console.log('Starting inactivity timer');
-    this.timeoutId = setTimeout(() => {
-      console.log('Inactivity timeout reached');
-      this.logout();
-    }, this.timeout);
-  }
-
-  resetTimer() {
-    console.log('Resetting inactivity timer');
-    clearTimeout(this.timeoutId);
-    this.startTimer();
-  }
-
-  logout() {
-    console.log('Logging out due to inactivity');
-    localStorage.removeItem('token');
-    this.router.navigate(['/login']);
-  }
-}
+// @HostListener('window:mousemove')
+// @HostListener('window:keydown')
+// @HostListener('window:scroll')
+// onUserActivity() {
+//   console.log('User activity detected');
+//   this.resetTimer();
+// }
+//  private resetTimer() {
+//   if (this.timeoutId) {
+//     clearTimeout(this.timeoutId);
+//   }
+//   console.log('Timer reset');
+//   this.timeoutId = setTimeout(() => {
+//     console.log('Inactivity timeout reached after reset');
+//     this.loginService.autoLoguot();
+//   }, this.inactivityTimeout);
+// }
+// }

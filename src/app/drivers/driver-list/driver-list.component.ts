@@ -105,12 +105,8 @@ export class DriverListComponent implements OnInit {
     this.getVehicleData();
      // Initialize the form with controls and validators
  this.bankAccountForm = this.fb.group({
-  account_type: ['', Validators.required],
-  ifsc: ['', [Validators.required, Validators.pattern('^[A-Z]{4}0[A-Z0-9]{6}$')]], // IFSC regex pattern
   bank_name: ['', Validators.required],
   account_number: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]], // Bank account number regex pattern
-  description: ['', Validators.required], // Description for the virtual account
-  project_name: ['', Validators.required], // Project name for notes
 });
 
 

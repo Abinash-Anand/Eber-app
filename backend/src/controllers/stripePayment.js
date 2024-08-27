@@ -2,7 +2,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PaymentMethod = require('../models/stripePayment'); // Adjust the path as necessary
 const Booking = require('./bookedRidesController');
 const Pricing = require('../models/pricingModel');
-const { createRazorpayPayout } = require('./razorpayGateway');
+const { createRazorpayTransfer } = require('./razorpayGateway');
 const chalk = require('chalk')
 const createNewPayment = async (req, res) => {
   const { paymentMethod } = req.body; // Payment method data from request body
@@ -145,7 +145,7 @@ const TranscationInitiation = async (booking) => {
       console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
       console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
 
-      const paymentReceived = await createRazorpayPayout(booking.driverObjectId, driverShare, paymentIntent);
+      const paymentReceived = await createRazorpayTransfer(booking.driverObjectId, driverShare);
       return paymentReceived;
     } else {
       throw new Error('Payment Intent was not successful');

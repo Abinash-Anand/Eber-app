@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { LoginService } from './services/authentication/login.service';
 import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute } from '@angular/router';
+import { BnNgIdleService } from 'bn-ng-idle';
+
 
 @Component({
   selector: 'app-root',
@@ -11,16 +13,25 @@ import { Router, ActivatedRoute } from '@angular/router';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'eber-app';
   isLoggedIn: boolean = false;
+  
   private loginStatusSubscription: Subscription;
 
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private bnIdle:BnNgIdleService
   ) {}
 
   ngOnInit() {
     this.checkAuth();
+    this.bnIdle.startWatching(5).subscribe((isTimedOut: boolean) => {
+      if (isTimedOut) {
+        console.log('session expired');
+        this.loginService.autoLoguot()
+        this.bnIdle.stopTimer();
+      }
+    });
   }
 
   checkAuth() {

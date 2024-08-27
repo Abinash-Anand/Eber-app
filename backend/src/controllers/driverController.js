@@ -7,7 +7,7 @@ const createNewDriver = async (req, res) => {
     try {
 
             //-------- creating razorpay contact{Driver}--------------
-        const fundAccountContact = await createContact(req.body);
+        // const fundAccountContact = await createContact(req.body);
         
         // Check if the username or email already exists
         const existingUser = await Driver.findOne({

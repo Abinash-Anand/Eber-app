@@ -50,6 +50,7 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { SocketService } from './services/sockets/socket.service';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environment';
+import { BnNgIdleService } from 'bn-ng-idle'; // import bn-ng-idle service
 
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
@@ -116,7 +117,8 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     DriverlistService,
     UserService,
     cityVehicleTypeService,
-    SocketService
+    SocketService,
+    BnNgIdleService
   ],
   bootstrap: [AppComponent]
 })

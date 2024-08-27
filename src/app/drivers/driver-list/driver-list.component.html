@@ -353,7 +353,7 @@
             <div class="modal-body">
                 <form [formGroup]="bankAccountForm" (ngSubmit)="onSubmit()">
                     <!-- Account Type -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="accountType" class="form-label"><i class="bi bi-wallet2 me-2"></i>Account
                             Type</label>
                         <select id="accountType" class="form-select" formControlName="account_type">
@@ -365,10 +365,10 @@
                             class="text-danger">
                             Account type is required.
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- IFSC Code -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="ifsc" class="form-label"><i class="bi bi-bank2 me-2"></i>IFSC Code</label>
                         <input type="text" id="ifsc" class="form-control" formControlName="ifsc"
                             placeholder="e.g., HDFC0000123">
@@ -377,7 +377,7 @@
                             <div *ngIf="bankAccountForm.get('ifsc').errors.required">IFSC code is required.</div>
                             <div *ngIf="bankAccountForm.get('ifsc').errors.pattern">Invalid IFSC code.</div>
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Bank Name -->
                     <div class="mb-3">
@@ -406,7 +406,7 @@
                     </div>
 
                     <!-- Virtual Account Description -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="description" class="form-label"><i class="bi bi-info-circle me-2"></i>Virtual
                             Account Description</label>
                         <select id="description" class="form-select form-control" formControlName="description">
@@ -417,10 +417,10 @@
                             class="text-danger">
                             Description is required.
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Project Name -->
-                    <div class="mb-3">
+                    <!-- <div class="mb-3">
                         <label for="projectName" class="form-label"><i class="bi bi-briefcase me-2"></i>Project
                             Name</label>
                         <input type="text" id="projectName" class="form-control" formControlName="project_name"
@@ -429,7 +429,7 @@
                             class="text-danger">
                             Project name is required.
                         </div>
-                    </div>
+                    </div> -->
 
                     <button type="submit" class="btn btn-success w-100 mt-3" [disabled]="bankAccountForm.invalid">
                         <i class="bi bi-check-circle me-2"></i>Submit
