@@ -15,6 +15,7 @@ import { Vehicle } from '../../shared/vehicle';
 import { CreateRideForm } from '../../shared/create-ride-form';
 import { PaymentService } from '../../services/payment/payment.service';
 import { response } from 'express';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-create-ride',
@@ -104,7 +105,9 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     private pricingService: VehiclePricingService,
     private cityService: CityService,
     private paymentService: PaymentService,
-    private vehicleTypeService: VehicleTypeService
+    private vehicleTypeService: VehicleTypeService,
+    private router: Router,
+    
   ) { }
 
   ngOnInit(): void {
@@ -575,9 +578,10 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
         if (response) {
           this.formSubmitted = true;
           this.loading = true
-        setTimeout(() => {
-          this.formSubmitted = false
-        }, 2500);
+          setTimeout(() => {
+            this.formSubmitted = false
+            this.router.navigate(['/rides/confirm-ride'])
+        }, 2000);
         }
        
       },

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
 import { DriverlistService } from '../../services/drivers/driverlist.service';
 import { Ride } from '../../shared/ride';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-confirmed-rides',
@@ -29,7 +30,10 @@ export class ConfirmRideComponent implements OnInit {
   serverRideStatus: string = '';
   constructor(private rideService: RideService,
               private socketService: SocketService,
-              private driverListService: DriverlistService) { }
+    private driverListService: DriverlistService,
+    private router: Router,
+  private renderer: Renderer2) { }
+    @ViewChild('myModal') myModal: ElementRef; // Access the modal using @ViewChild
 
   ngOnInit(): void {
     this.fetchConfirmedRides();
@@ -60,6 +64,17 @@ listenForUpdatedRideStatus() {
     }
    
   });
+
+  //when driver rejects the ride request
+   this.socketService.rideRequestRejectedByDriver().subscribe((rejectedRide) => {
+     this.serverRideStatus = rejectedRide.status
+     this.filteredRides = this.filteredRides.map((ride) => {
+      if (ride._id === rejectedRide._id) {
+        return { ...ride, status: rejectedRide.status };
+      }
+      return ride;
+    });
+    })
 
   this.socketService.rideStatusProgressed().subscribe((newStatus: any) => {
     this.serverRideStatus = newStatus;
@@ -153,18 +168,27 @@ listenForUpdatedRideStatus() {
     });
   }
 
-  filterDriverList(ride: any): void {
+ filterDriverList(ride: any): void {
     const filterDriver = this.driverList.filter((driver) => {
-      if (driver.driverObjectId.status.toLowerCase() === 'approved') {
-        return ride.pickupLocation.includes(driver.driverObjectId.city) ;
+        // Ensure the driver's status is 'approved'
+        const isApproved = driver.driverObjectId.status.toLowerCase() === 'approved';
         
-      }
+        // Ensure the driver's city matches the ride's pickup location
+        const isCityMatch = ride.pickupLocation.includes(driver.driverObjectId.city);
+      console.log("Ride: ", ride)
+        // Ensure the driver's vehicle type matches the ride's vehicle type
+        const isVehicleTypeMatch = driver.vehicleType === ride.serviceType;
+
+        // All three conditions must be true
+        return isApproved && isCityMatch && isVehicleTypeMatch;
     });
+
     console.log("Filtered drivers: ", filterDriver);
-
+    // Do something with the filtered drivers
     this.filteredDriverList = filterDriver;
-  }
+}
 
+  
   onDriverSelect(driver: any, index: number): void {
     
     this.selectedDriver = driver;
@@ -194,9 +218,12 @@ listenForUpdatedRideStatus() {
         console.log(rideResponse);
         if (rideResponse.status === 201) {
           this.rideAccepted = true;
+           console.log("Assigning selected driver...");
+         this.closeModal(); // Close the modal after action
         } 
         setTimeout(() => {
           this.rideAccepted = false;
+          this.router.navigate(['/drivers/running-request'])
         }, 2000);
         
       })
@@ -248,10 +275,12 @@ assignAnyAvailableDriver(): void {
     this.rideService.submitRideRequestData(this.selectedRide).subscribe((response) => {
       console.log(response);
        if (response.status === 201) {
-          this.rideAccepted = true;
+         this.rideAccepted = true;
+          this.closeModal(); // Close the modal after action
         } 
         setTimeout(() => {
           this.rideAccepted = false;
+          this.router.navigate(['/drivers/running-request'])
         }, 2000);
         
 
@@ -266,6 +295,17 @@ assignAnyAvailableDriver(): void {
 
 
 }
+
+  closeModal() {
+    // Use Renderer2 to manipulate DOM elements
+    this.renderer.removeClass(this.myModal.nativeElement, 'show');
+    this.renderer.setStyle(this.myModal.nativeElement, 'display', 'none');
+    this.renderer.removeClass(document.body, 'modal-open');
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+      this.renderer.removeChild(document.body, backdrop);
+    }
+  }
 
 
   

@@ -6,7 +6,15 @@ const chalk = require('chalk')
 const Ride = require('../models/createRideModel')
 // Object to store timeouts for each booking
 const bookingTimeouts = {};
-const {createRazorpayPayout} = require('./razorpayGateway')
+const { createRazorpayPayout } = require('./razorpayGateway')
+let listOfDriversRejectedBooking = [];
+let currentIndex = 0; // To keep track of the current driver index being checked
+let countdownIntervalId; // To store the interval ID for the countdown timer
+
+
+
+
+//========================================================================================
 // Function to handle ride booking
 const rideBooked = async (req, res, io) => {
   try {
@@ -56,7 +64,8 @@ const rideBooked = async (req, res, io) => {
 
     // Start the timer for request expiration
     // scheduleRequestTimeout(newBooking);
-    scheduledReassignDriver(newBooking)
+    // scheduledReassignDriver(newBooking)
+    cronSchedularExecuter(newBooking, io)
     res.status(201).send({ Message: "New Booking Created", newBooking });
   } catch (error) {
     console.error("Error in rideBooked: ", error);
@@ -183,7 +192,7 @@ const reassignRequest = async (req, res) => {
   }
 };
 
-const deleteRideBooking = async (req, res) => {
+const rideRejectedByDriver = async (req, res, io) => {
   try {
     const requestId = req.params.id;
     console.log('Request ID:', requestId);
@@ -198,14 +207,21 @@ const deleteRideBooking = async (req, res) => {
     const bookingId = booking.bookingId;
 
     // Delete the associated Ride document
-    const deleteOriginalBooking = await Ride.findByIdAndDelete(bookingId);
-    console.log('Original booking deleted:', deleteOriginalBooking);
-
+    const OriginalBooking = await Ride.findById(bookingId);
+    console.log('Original booking deleted:', OriginalBooking);
+    if (!OriginalBooking) {
+      res.status(404).send("Ride Request not Found!")
+    }
+    //Ride is rejected by the driver Status changes to Pending agian to Reassign Driver Manually
+    OriginalBooking.status = 'Pending'
+    io.emit('ride-rejected-by-driver', OriginalBooking); 
+    await OriginalBooking.save()
     // Delete the Booking document
     const deletedBooking = await Booking.findByIdAndDelete(requestId);
     console.log('Booking deleted:', deletedBooking);
 
     res.status(200).send({ message: 'Succeeded' });
+   
   } catch (error) {
     console.error('Error deleting ride booking:', error);
     res.status(500).send({ message: 'Internal Server Error', error });
@@ -218,41 +234,130 @@ const deleteRideBooking = async (req, res) => {
 //   cron.schedule("*/5 * * * * *", () => scheduledReassignDriver(booking)); // Ensure booking is passed correctly
 // }
 
-let listOfDriversRejectedBooking = [];
 
-const scheduledReassignDriver = async (booking) => {
-  // console.log("booking : ", booking)
+const scheduledReassignDriver = async (booking, io) => {
   try {
-    // Add the rejected driver to the list
+    console.log("Counter: ", currentIndex);
+
+    // Add the rejected driver to the list of rejected bookings
     listOfDriversRejectedBooking.push({ driverId: booking.driverObjectId });
 
-    const bookingRequest = await Booking.findOne({ _id: booking._id }).populate('driverObjectId').populate('city');
+    // Find the booking request with populated fields
+    const bookingRequest = await Booking.findOne({ _id: booking._id })
+      .populate('driverObjectId')
+      .populate('city');
+
     if (!bookingRequest) {
       console.error('Booking request not found');
       return;
     }
-    // console.log("Booking request: ", bookingRequest)
-    // Fetch the list of available drivers
-    const allDriversList = await DriverVehicleModel.find().populate('city').populate('driverObjectId');
-    console.log(chalk.bgBlack("Available Drivers:", allDriversList));
-    
+
+    // Fetch all drivers with populated fields
+    const allDriversList = await DriverVehicleModel.find()
+      .populate('city')
+      .populate('driverObjectId');
+
+    console.log(chalk.bgBlack("Available Drivers:", allDriversList.length));
+
+    // Filter available drivers by city, status, and vehicle type
     const availableDriverList = allDriversList.filter((driver) => {
-      return driver.city.city === bookingRequest.city.city &&driver.driverObjectId.status === bookingRequest.driverObjectId.status &&driver.vehicleType === bookingRequest.serviceType
-    
-    })
+      return driver.city.city === bookingRequest.city.city &&
+        driver.driverObjectId.status === bookingRequest.driverObjectId.status &&
+        driver.vehicleType === bookingRequest.serviceType;
+    });
 
-    console.log(chalk.bgBlack("Available Drivers:", availableDriverList));
+    console.log(chalk.bgBlack("Available Drivers after filtering by city, status, and vehicle type:", availableDriverList.length));
 
-    // Filter out drivers who have previously rejected the booking
+    // Exclude drivers who have already rejected this booking
     const filteredDriverList = availableDriverList.filter((driver) =>
-      !listOfDriversRejectedBooking.some((cancelledDriver) => cancelledDriver.driverId !== driver._id)
+      !listOfDriversRejectedBooking.some((cancelledDriver) => cancelledDriver.driverId === driver._id)
     );
 
-    console.log(chalk.bgBlack("Filtered Driver List:", filteredDriverList));
+    console.log(chalk.bgBlack("Filtered Driver List after excluding rejected drivers:", filteredDriverList.length));
+
+    // If there are no more drivers to check, stop the cron job
+    if (currentIndex >= filteredDriverList.length) {
+      console.log('No more drivers available to check.');
+      io.emit('no-drivers-available', { bookingId: booking._id });
+      stopCountdown(); // Stop the countdown timer
+      return;
+    }
+
+    // Select the current driver from the filtered list
+    const currentDriver = filteredDriverList[currentIndex];
+
+    // Emit the driver details to the client via socket.io
+    io.emit('cron-driver-assignment', {
+      driver: currentDriver,
+      bookingId: booking._id
+    });
+
+    // Set up a timeout to handle driver non-response
+    const timeoutDuration = 15000; // 15 seconds or any desired duration
+    const timeoutId = setTimeout(() => {
+      console.log(`Driver ${currentDriver.driverObjectId._id} did not respond in time for booking ${booking._id}`);
+      currentIndex++;
+      scheduledReassignDriver(booking, io); // Re-run the function with the next driver
+    }, timeoutDuration);
+
+    // Start the countdown timer
+    startCountdown(timeoutDuration / 1000, io, booking._id);
+
+    // Listen for client response on driver acceptance or rejection
+    io.once('driver-response-to-cron', (response) => {
+      clearTimeout(timeoutId); // Clear the timeout if driver responds
+      stopCountdown(); // Stop the countdown timer
+      if (response.accepted) {
+        console.log(`Driver ${currentDriver.driverObjectId._id} accepted for booking ${booking._id}`);
+        return; // Exit the function to stop the cron job
+      } else {
+        console.log(`Driver ${currentDriver.driverObjectId._id} rejected for booking ${booking._id}`);
+        currentIndex++;
+        scheduledReassignDriver(booking, io); // Re-run the function with the next driver
+      }
+    });
+
   } catch (error) {
     console.error('Error in scheduledReassignDriver:', error);
   }
 };
+
+// Function to start the countdown timer
+const startCountdown = (duration, io, bookingId) => {
+  let timeRemaining = duration;
+
+  // Emit initial timer value
+  io.emit('request-timer', { bookingId, timeRemaining });
+
+  // Set interval to emit timer updates every second
+  countdownIntervalId = setInterval(() => {
+    if (timeRemaining > 0) {
+      timeRemaining--;
+
+      // Log the countdown timer every second
+      console.log(`Countdown for booking ${bookingId}: ${timeRemaining} seconds remaining`);
+
+      io.emit('request-timer', { bookingId, timeRemaining });
+    } else {
+      clearInterval(countdownIntervalId); // Clear the interval when timer reaches zero
+    }
+  }, 1000);
+};
+
+// Function to stop the countdown timer
+const stopCountdown = () => {
+  if (countdownIntervalId) {
+    clearInterval(countdownIntervalId);
+    countdownIntervalId = null;
+  }
+};
+
+const cronSchedularExecuter = (booking, io) => {
+  cron.schedule('*/15 * * * * *', () => {
+    scheduledReassignDriver(booking, io);
+  });
+};
+
 
 
 // const scheduleRequestTimeout = (booking) => {
@@ -306,6 +411,6 @@ const scheduledReassignDriver = async (booking) => {
 //   // console.log("----------Booking TimeOuts: ", bookingTimeouts);
 // };
 
-module.exports = { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking };
+module.exports = { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, rideRejectedByDriver };
 
 

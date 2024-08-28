@@ -27,7 +27,7 @@
     const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
     const { assignedDriver } = require('../controllers/driverAssignedRide');
     const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
-    const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking } = require('../controllers/bookedRidesController')
+    const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, rideRejectedByDriver } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
     const { sendWelcomeEmail, sendInvoiceEmail } = require('../controllers/nodemailer');
@@ -110,7 +110,7 @@
 
     //----------------------Driver Running requests------------------------------
     router.get('/api/assigned-requests', getAllAcceptedRides)
-    router.delete('/api/cancel-request/:id', deleteRideBooking)
+    router.patch('/api/cancel-request/:id', (req, res) => rideRejectedByDriver(req, res, req.app.get('socketio')))
     router.delete('/api/cancel-request/rides/delete/:id', cancelRide)
 //-----------------------driver bank account---------------------------------
     router.post('/driver/create/bank_account/:id', driverBankAccount)
@@ -132,7 +132,7 @@
     //-------------------------------Confirm Ride Section-------------------------------
     router.get('/confirmed-rides', getConfirmedRides); // -corouter.post('/api/reassign-request/', reassignRequest);nfirmed ride
     router.patch('/update-ride-status/:id', updateRideStatus);
-    router.delete('/cancel-ride/:id', cancelRide); // - cancel ride
+    router.patch('/cancel-ride/:id', cancelRide); // - cancel ride
 
     //-------------------------------Assign Driver socket connections----------------------
     router.post('/driver-assigned', (req, res) => assignedDriver(req, res, req.app.get('socketio')));

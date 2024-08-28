@@ -338,7 +338,6 @@ export class DriverListComponent implements OnInit {
     return object.city.city === driver.city;
   });
   console.log("Filtered Pricing Array: ", filteredPricingArray);
-  
   // Filtering vehicleDataArray with parameter vehicleType
   const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
     return filteredPricingArray.some((dataObject) => {
@@ -386,7 +385,7 @@ onAssignBooking(vehicle, i) {
   console.log(this.driverIndexId);
   
   this.driverObjectIncludeVehicle = { ...vehicle, driverObjectId: this.driverIndexId };
-  console.log(this.driverObjectIncludeVehicle);
+  console.log("Driver with Vehicle Payload: ",this.driverObjectIncludeVehicle);
   
   this.driverListService.assignDriverToVehicle(this.driverObjectIncludeVehicle).subscribe((payLoad) => {
     console.log(payLoad);

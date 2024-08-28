@@ -5,36 +5,38 @@
 
 <!-- confirmed-rides.component.html -->
 
-<hr>
-<!-- Filter Section -->
-<div class="filter-section mb-4 ">
-    <div class="row g-3">
-        <div class="col-md-4">
-            <label for="statusFilter" class="form-label">Filter by Status:</label>
-            <select id="statusFilter" class="form-select" (change)="filterByStatus($event)">
-                <option value="">All</option>
-                <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <label for="vehicleFilter" class="form-label">Filter by Vehicle:</label>
-            <select id="vehicleFilter" class="form-select" (change)="filterByVehicle($event)">
-                <option value="">All</option>
-                <option *ngFor="let vehicle of vehicleOptions" [value]="vehicle">{{vehicle}}</option>
-            </select>
-        </div>
-        <div class="col-md-4">
-            <div class="input-group">
-                <label for="searchInput" class="input-group-text">Search:</label>
-                <input id="searchInput" type="text" class="form-control"
-                    placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <!-- Rides Table -->
 <div class="table-responsive">
+    <!-- Filter Section -->
+    <div class="filter-section mx-0 mt-3 mb-0 p-3 bg-dark text-light">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="statusFilter" class="form-label text-start w-100">Filter by Status:</label>
+                <select id="statusFilter" class="form-select form-control" (change)="filterByStatus($event)">
+                    <option value="">All</option>
+                    <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="vehicleFilter" class="form-label text-start w-100">Filter by Vehicle:</label>
+                <select id="vehicleFilter" class="form-select form-control" (change)="filterByVehicle($event)">
+                    <option value="">All</option>
+                    <option *ngFor="let vehicle of vehicleOptions" [value]="vehicle">{{vehicle}}</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <div class="input-group">
+                    <label for="searchInput" class="form-label text-start w-100">Search</label>
+                    <input id="searchInput" type="text" class="form-control"
+                        placeholder="Search by username, phone, or request ID" (input)="searchRides($event)">
+                </div>
+            </div>
+        </div>
+    
+</div>
+
     <table class="table table-bordered table-striped">
         <thead class="table-dark">
             <tr>
@@ -86,7 +88,7 @@
 </div>
 
 <div class="modal fade"  id="confirm-ride" tabindex="-1" role="dialog" aria-labelledby="confirmRideModalLabel"
-    aria-hidden="true">
+    aria-hidden="true" #myModal>
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">

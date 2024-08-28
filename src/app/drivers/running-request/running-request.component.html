@@ -18,7 +18,7 @@
 
 
 
-<div class="container mt-3">
+
     <h2>Running Requests</h2>
     <hr>
     <div *ngIf="emptyBookingError" class="alert alert-danger">
@@ -33,6 +33,7 @@
                 <th>Drop Off Location</th>
                 <th>Service Type</th>
                 <th>Actions</th>
+                <th>Request Timer</th>
             </tr>
         </thead>
         <tbody>
@@ -42,6 +43,7 @@
                 <td>{{ request.pickupLocation }}</td>
                 <td>{{ request.dropOffLocation }}</td>
                 <td>{{ request.serviceType }}</td>
+                
             <td *ngIf="request.status === 'Assigned'; else rideProgress">
                 <button class="btn btn-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
                 <button class="btn btn-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
@@ -62,7 +64,7 @@
                     </div>
                 </td>
             </ng-template>
-
+            <td>{{countdownTimer}}</td>
             </tr>
         </tbody>
     </table>
@@ -82,7 +84,7 @@
     </div>
    
     <hr>
-</div>
+
 
 <div class="container my-5" *ngIf="showInvoice" >
     <!-- Invoice Header -->

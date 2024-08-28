@@ -36,7 +36,15 @@ export class SocketService {
   rideStatusProgressed(): Observable<any> {
     return this.socket.fromEvent('rideStatusProgressed');
   }
-
+  cronReassignDriver(): Observable<any>{
+    return this.socket.fromEvent('cron-driver-assignment');
+  }
+  requestCountdownTimer(): Observable<any>{
+    return this.socket.fromEvent('request-timer');
+  }
+  rideRequestRejectedByDriver(): Observable<any>{
+    return this.socket.fromEvent('ride-rejected-by-driver')
+  }
   disconnect() {
     this.socket.disconnect();
   }

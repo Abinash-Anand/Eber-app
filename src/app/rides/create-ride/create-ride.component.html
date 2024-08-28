@@ -2,8 +2,8 @@
     <h1>User Found!</h1>
 </div>
 
-<div class="container mt-3">
-    <div class="row">
+
+    <div class="row px-3 my-4">
         <div class="col-md-6 bg-light">
             <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" #createRideForm="ngForm">
                 <!-- Phone Number Field -->
@@ -168,8 +168,8 @@
                 <div class="alert-success customAlerts px-4 py-2" *ngIf="formSubmitted">
                     <h4>Congrats🎉Your Ride is Created!</h4>
                 </div>
+              
                 <button type="submit" class="btn my-3 btn-lg px-5 btn-outline-primary">Book Ride</button>
-                
                 
             </form>
                 
@@ -187,4 +187,3 @@
             <div  id="map" #mapRef style="height: 500px; width: 100%; border: 1px solid #212121;"></div>
         </div>
     </div>
-</div>

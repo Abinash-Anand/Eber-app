@@ -23,7 +23,7 @@ export class RideService {
   }
 
   cancelRide(rideId: string): Observable<any> {
-    return this.http.delete<any>(`${this.apiUrl}/cancel-ride/${rideId}`);
+    return this.http.patch<any>(`${this.apiUrl}/cancel-ride/${rideId}`,{});
   }
   submitRideRequestData(rideRequest: Ride):Observable<HttpResponse<Ride[]>> {
    return this.http.post<Ride[]>(`${environment.backendServerPORT}/create/new/ride-booking`, rideRequest, {observe:'response'}) 

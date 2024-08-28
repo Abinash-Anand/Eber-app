@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { SocketService } from '../../services/sockets/socket.service';
 import { catchError, Observable, throwError } from 'rxjs';
 import { environment } from '../../../environment';
@@ -29,8 +29,8 @@ export class DriverRunningRequestService {
     return this.http.patch(`${environment.backendServerPORT}/api/accept-request/${requestId}`, {});
   }
 
-  cancelRequestFromRideBookedCollection(requestId: string): Observable<any> {
-    return this.http.delete(`${environment.backendServerPORT}/api/cancel-request/${requestId}`);
+  cancelRequestFromRideBookedCollection(requestId: string): Observable<HttpResponse<any>> {
+    return this.http.patch<any>(`${environment.backendServerPORT}/api/cancel-request/${requestId}`, {observe:'response'});
   }
 
   cancelRequestFromRidesCollection(requestId: string): Observable<any> {

@@ -4,6 +4,7 @@ import { SocketService } from '../../services/sockets/socket.service';
 import { RideService } from '../../services/rides/ride.service';
 import { TripControlServiceService } from '../../services/tripControlSerivce/trip-control-service.service';
 import { response } from 'express';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'app-running-request',
@@ -24,12 +25,15 @@ export class RunningRequestComponent implements OnInit {
   currentRideStatus:string = ''
   rideCompleteStatus: boolean = false;
   nodemail: boolean = false;
+  countdownTimer: number = null;
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
     private rideService: RideService,
     private tripControlService: TripControlServiceService,
-    private cdr : ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private route : ActivatedRoute
   ) { }
 
   ngOnInit(): void {
@@ -63,6 +67,15 @@ export class RunningRequestComponent implements OnInit {
       this.assignedRequests.push(ConfirmedRideDriver);
       
     });
+    this.socketService.cronReassignDriver().subscribe((newAssignedDriver) => {
+      console.log("CRON ASSIGNED DRIVER: ", newAssignedDriver)
+      this.countdownTimer = newAssignedDriver.timeRemaining;
+    })
+   
+    //count down timer
+    this.socketService.requestCountdownTimer().subscribe((countdown) => {
+      console.log("countdown: ",countdown)
+    })
   }
 
   selectRequest(request: any): void {
@@ -98,12 +111,16 @@ acceptRequest(request: any): void {
 }
 
   cancelRequest(request: any): void {
-    this.requestService.cancelRequestFromRideBookedCollection(request._id).subscribe(() => {
+    
+    this.requestService.cancelRequestFromRideBookedCollection(request._id).subscribe((response:any) => {
+      if(response.message === '"Succeeded"')
+      console.log(response);
       this.removeRequest(request._id);
+      this.router.navigate(['/rides/confirm-ride'])
     });
-    this.requestService.cancelRequestFromRidesCollection(request.bookingId).subscribe(() => {
-      this.removeRequest(request._id);
-    });
+    // this.requestService.cancelRequestFromRidesCollection(request.bookingId).subscribe(() => {
+    //   this.removeRequest(request._id);
+    // });
   }
 
   reassignRequest(request: any): void {

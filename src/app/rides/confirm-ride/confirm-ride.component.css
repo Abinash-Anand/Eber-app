@@ -22,3 +22,12 @@
     cursor: pointer;    
  }
 
+.filter-section {
+   border-radius: 10px 10px 0px 0px;
+}
+.filter-section .form-label {
+   padding-left: 0;
+   /* Remove padding on the left */
+   margin-bottom: 5px;
+   /* Adjust the space below the label */
+}
