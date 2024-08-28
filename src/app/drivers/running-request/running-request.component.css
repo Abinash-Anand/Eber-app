@@ -32,3 +32,17 @@
 
     z-index: 100;
  }
+ .countdown-timer{
+  /* padding: 5px 10px;
+    border-radius: 50%;
+    color: red;
+    border: 1px solid red;
+    color: white; */
+    font-size: 1.2rem;
+    color: red;
+    font-weight: bolder;
+    
+ }
+ .ruler{
+    border: 5px solid rgba(128, 128, 128, 0.358)
+ }

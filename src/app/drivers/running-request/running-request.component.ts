@@ -26,6 +26,7 @@ export class RunningRequestComponent implements OnInit {
   rideCompleteStatus: boolean = false;
   nodemail: boolean = false;
   countdownTimer: number = null;
+  booking_id: string =''
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
@@ -44,8 +45,8 @@ export class RunningRequestComponent implements OnInit {
   loadAssignedRequests(): void {
     this.requestService.getAssignedRequests().subscribe({
       next: (requests) => {
+        console.log("assignedRequests: ",requests);
         this.emptyBookingError = false;
-        console.log(this.assignedRequests);
         this.filteredRequests(requests);
       },
       error: (error) => {
@@ -67,14 +68,22 @@ export class RunningRequestComponent implements OnInit {
       this.assignedRequests.push(ConfirmedRideDriver);
       
     });
-    this.socketService.cronReassignDriver().subscribe((newAssignedDriver) => {
-      console.log("CRON ASSIGNED DRIVER: ", newAssignedDriver)
-      this.countdownTimer = newAssignedDriver.timeRemaining;
-    })
-   
+      this.socketService.cronReassignDriver().subscribe((driverListWithNewAssignedDriver) => {
+        console.log("CRON ASSIGNED DRIVER: ", driverListWithNewAssignedDriver)
+        if (driverListWithNewAssignedDriver) {
+          const filteredDriverList = driverListWithNewAssignedDriver.filter((ride) => {
+            return !(ride.status === 'Completed');
+          })
+          this.assignedRequests = filteredDriverList
+          // const filteredAssignedRequests = assignedRequests.
+        }
+      })
+    
     //count down timer
     this.socketService.requestCountdownTimer().subscribe((countdown) => {
-      console.log("countdown: ",countdown)
+      this.booking_id = countdown.booking._id
+      console.log("countdown: ", countdown.booking._id)
+      this.countdownTimer = countdown.timeRemaining
     })
   }
 

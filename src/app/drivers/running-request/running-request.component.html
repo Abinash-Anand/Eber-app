@@ -19,8 +19,8 @@
 
 
 
-    <h2>Running Requests</h2>
-    <hr>
+    <h2 class="m-3">Running Requests</h2>
+    <hr class="ruler">
     <div *ngIf="emptyBookingError" class="alert alert-danger">
         No assigned requests found!
     </div>
@@ -32,6 +32,7 @@
                 <th>Pick Up Location</th>
                 <th>Drop Off Location</th>
                 <th>Service Type</th>
+                <th>Assigned Driver</th>
                 <th>Actions</th>
                 <th>Request Timer</th>
             </tr>
@@ -43,15 +44,15 @@
                 <td>{{ request.pickupLocation }}</td>
                 <td>{{ request.dropOffLocation }}</td>
                 <td>{{ request.serviceType }}</td>
-                
+                <td>{{request.driverObjectId.username}}</td>
             <td *ngIf="request.status === 'Assigned'; else rideProgress">
-                <button class="btn btn-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
-                <button class="btn btn-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
+                <button class="btn btn-outline-success btn-sm p-2 m-1" (click)="acceptRequest(request)">Accept</button>
+                <button class="btn btn-outline-danger btn-sm p-2 m-1" (click)="cancelRequest(request)">Cancel</button>
             </td>
             <ng-template #rideProgress>
                 <td>
                     <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Ride Status
                         </button>
@@ -64,7 +65,8 @@
                     </div>
                 </td>
             </ng-template>
-            <td>{{countdownTimer}}</td>
+            <!-- working on it *ngIf="booking_id === request._id" -->
+            <td class="countdown-timer p-3" >{{countdownTimer}}</td>
             </tr>
         </tbody>
     </table>
