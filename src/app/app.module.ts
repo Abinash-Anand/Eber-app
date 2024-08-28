@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -46,11 +46,14 @@ import { UserService } from './services/users/user.service';
 import { cityVehicleTypeService } from './services/city-vehicle-type-association.service';
 import { StripePaymentComponent } from './stripe-payment/stripe-payment.component';
 import { LottieDirective } from './animation/lottie.directive';
-import { NgxSpinnerModule } from 'ngx-spinner';
 import { SocketService } from './services/sockets/socket.service';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from '../environment';
-import { BnNgIdleService } from 'bn-ng-idle'; // import bn-ng-idle service
+import { BnNgIdleService } from 'bn-ng-idle';
+import { NotificationsComponent } from './notifications/notifications.component';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { SpinnerInterceptor } from './services/spinner.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
@@ -82,9 +85,12 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     CityListComponent,
     CountryListComponent,
     StripePaymentComponent,
-   LottieDirective
+   LottieDirective,
+   NotificationsComponent,
 
   ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
+
   imports: [
     BrowserModule,
     HttpClientModule,
@@ -94,9 +100,10 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     GoogleMapsModule,
     ReactiveFormsModule,
     CommonModule,
-    NgxSpinnerModule,
     SocketIoModule.forRoot(config),
-    
+    BrowserAnimationsModule,
+    NgxSpinnerModule
+        
 
   ],
   providers: [
@@ -118,7 +125,13 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     UserService,
     cityVehicleTypeService,
     SocketService,
-    BnNgIdleService
+    BnNgIdleService,
+    SpinnerInterceptor,
+     {
+      provide: HTTP_INTERCEPTORS,
+      useClass: SpinnerInterceptor,  // Provide the interceptor
+      multi: true
+    }
   ],
   bootstrap: [AppComponent]
 })

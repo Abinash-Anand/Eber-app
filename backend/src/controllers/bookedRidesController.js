@@ -2,6 +2,7 @@ const Booking = require('../models/rideBookings'); // Ensure the correct path to
 const cron = require('node-cron'); // For scheduling tasks
 const driverModel = require('../models/driverVehiclePricingModel'); // Ensure the correct path to your model
 const DriverVehicleModel = require('../models/driverVehiclePricingModel')
+const chalk = require('chalk')
 const Ride = require('../models/createRideModel')
 // Object to store timeouts for each booking
 const bookingTimeouts = {};
@@ -48,14 +49,14 @@ const rideBooked = async (req, res, io) => {
       vehicleType: driver.vehicleType
     });
 
-    console.log("New Booking Object: ", newBooking);
+    // console.log("New Booking Object: ", newBooking);
 
     await newBooking.save();
     io.emit('rideDriverConfirmed', newBooking); // 'rideDriverConfirmed' is the event name, newBooking is the data sent with the event
 
     // Start the timer for request expiration
-    // scheduleRequestTimeout(newBooking._id, requestTimer, io);
-
+    // scheduleRequestTimeout(newBooking);
+    scheduledReassignDriver(newBooking)
     res.status(201).send({ Message: "New Booking Created", newBooking });
   } catch (error) {
     console.error("Error in rideBooked: ", error);
@@ -211,50 +212,100 @@ const deleteRideBooking = async (req, res) => {
   }
 };
 
-let count = 1;
+// let count = 1;
 // Schedule cron job to handle request timeouts
-const scheduleRequestTimeout = (bookingId, requestTimer, io) => {
-    //  setInterval(() => {
-        
-    //     console.log("CountDown: ", count);
-    //     count++
-    //     if (count > 60) {
-    //         return 
-    //     }
-    // }, 1000);
-  const timeout = setTimeout(async () => {
-    const booking = await Booking.findOne(bookingId);
-    if (!booking) {
-      clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout if the booking no longer exists
-      delete bookingTimeouts[bookingId];
+// const scheduleRequestTimeout = (booking) => {
+//   cron.schedule("*/5 * * * * *", () => scheduledReassignDriver(booking)); // Ensure booking is passed correctly
+// }
+
+let listOfDriversRejectedBooking = [];
+
+const scheduledReassignDriver = async (booking) => {
+  // console.log("booking : ", booking)
+  try {
+    // Add the rejected driver to the list
+    listOfDriversRejectedBooking.push({ driverId: booking.driverObjectId });
+
+    const bookingRequest = await Booking.findOne({ _id: booking._id }).populate('driverObjectId').populate('city');
+    if (!bookingRequest) {
+      console.error('Booking request not found');
       return;
     }
+    // console.log("Booking request: ", bookingRequest)
+    // Fetch the list of available drivers
+    const allDriversList = await DriverVehicleModel.find().populate('city').populate('driverObjectId');
+    console.log(chalk.bgBlack("Available Drivers:", allDriversList));
+    
+    const availableDriverList = allDriversList.filter((driver) => {
+      return driver.city.city === bookingRequest.city.city &&driver.driverObjectId.status === bookingRequest.driverObjectId.status &&driver.vehicleType === bookingRequest.serviceType
+    
+    })
 
-    const now = new Date();
-    const bookingTime = new Date(booking.createdAt).getTime();
-    const elapsedTime = (now.getTime() - bookingTime) / 1000; // in seconds
+    console.log(chalk.bgBlack("Available Drivers:", availableDriverList));
 
-    if (elapsedTime >= booking.requestTimer) {
-      const availableDriver = await findAnotherDriver(booking.driverObjectId, booking.city, booking.vehicleType);
-      if (availableDriver) {
-        booking.driverObjectId = availableDriver._id;
-        await booking.save();
-        io.emit('assignedRequest', booking);
-      } else {
-        booking.status = 'Cancelled';
-        await booking.save();
-        io.emit('cancelledRequest', booking);
-      }
-      clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout after processing
-      delete bookingTimeouts[bookingId];
-    }
-  }, requestTimer * 1000); // Convert requestTimer from seconds to milliseconds
+    // Filter out drivers who have previously rejected the booking
+    const filteredDriverList = availableDriverList.filter((driver) =>
+      !listOfDriversRejectedBooking.some((cancelledDriver) => cancelledDriver.driverId !== driver._id)
+    );
 
-  // Store the timeout so it can be cleared if needed
-  bookingTimeouts[bookingId] = timeout;
-  console.log("----------Booking TimeOuts: ", bookingTimeouts);
+    console.log(chalk.bgBlack("Filtered Driver List:", filteredDriverList));
+  } catch (error) {
+    console.error('Error in scheduledReassignDriver:', error);
+  }
 };
 
-module.exports = { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking, scheduleRequestTimeout };
+
+// const scheduleRequestTimeout = (booking) => {
+
+//   cron.schedule("*/5 * * * * * ", scheduledReassignDriver)
+    
+
+
+
+
+
+
+//     //  setInterval(() => {
+        
+//     //     console.log("CountDown: ", count);
+//     //     count++
+//     //     if (count > 60) {
+//     //         return 
+//     //     }
+//     // }, 1000);
+//   // const timeout = setTimeout(async () => {
+//   //   const booking = await Booking.findOne(bookingId);
+//   //   if (!booking) {
+//   //     clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout if the booking no longer exists
+//   //     delete bookingTimeouts[bookingId];
+//   //     return;
+//   //   }
+
+//   //   const now = new Date();
+//   //   const bookingTime = new Date(booking.createdAt).getTime();
+//   //   const elapsedTime = (now.getTime() - bookingTime) / 1000; // in seconds
+
+//   //   if (elapsedTime >= booking.requestTimer) {
+//   //     const availableDriver = await findAnotherDriver(booking.driverObjectId, booking.city, booking.vehicleType);
+//   //     if (availableDriver) {
+//   //       booking.driverObjectId = availableDriver._id;
+//   //       await booking.save();
+//   //       io.emit('assignedRequest', booking);
+//   //     } else {
+//   //       booking.status = 'Cancelled';
+//   //       await booking.save();
+//   //       io.emit('cancelledRequest', booking);
+//   //     }
+//   //     clearTimeout(bookingTimeouts[bookingId]); // Clear the timeout after processing
+//   //     delete bookingTimeouts[bookingId];
+//   //   }
+//   // }, requestTimer * 1000); // Convert requestTimer from seconds to milliseconds
+
+//   // // Store the timeout so it can be cleared if needed
+//   // bookingTimeouts[bookingId] = timeout;
+//   // console.log("----------Booking TimeOuts: ", bookingTimeouts);
+// };
+
+module.exports = { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, deleteRideBooking };
 
 

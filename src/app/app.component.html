@@ -1,4 +1,11 @@
 <!-- <div class="dashboard" *ngIf="isLoggedIn"> -->
+    <!-- app.component.html -->
+<ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="red" type="square-loader" [fullScreen]="true">
+    <p style="color: white"> Loading... </p>
+</ngx-spinner>
+
+    
+
     <app-header *ngIf="isLoggedIn"></app-header>
     <app-dashboard-menu  (loginEvent)="stateChange()" *ngIf="isLoggedIn; else redirect"  ></app-dashboard-menu>
     <!-- <app-login *ngIf="!isLoggedIn"></app-login> -->

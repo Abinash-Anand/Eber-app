@@ -38,19 +38,18 @@ const updateBookingStatus = async (req, res, io) => {
     let inovice;
     // let nodemail;
     // let transcationResponse;
-       //-------------------------Initiate Payment--------------------------------
-    await TranscationInitiation(booking)
+    // await TranscationInitiation(booking)
+//================================= When Ride is Completed================================
     if (booking.status === 'Completed') {
-    inovice =   await calculateInvoice(id)
+      //-------------------------Initiate Invoice--------------------------------
+      inovice =   await calculateInvoice(id)
       // console.log(chalk.blue(id))
-      //-------------------------Initiate Payment--------------------------------
-        await TranscationInitiation(booking)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
-      // if (booking.paymentOption === 'card') {
-      //   await createRazorpayPayout(booking.driverObjectId, booking.bookingId)
-      // }
+      if (booking.paymentOption === 'card') {
+        await TranscationInitiation(booking)
+      }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
     // console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission

@@ -25,6 +25,7 @@ import { CountryListComponent } from './pricing/country/country-list/country-lis
 import { UserComponent } from './user/user.component';
 import { DriverListComponent } from './drivers/driver-list/driver-list.component';
 import { HomeComponent } from './home/home.component';
+import { NotificationsComponent } from './notifications/notifications.component';
 
 const routes: Routes = [
   {path:'', component:HomeComponent},
@@ -32,6 +33,7 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   {path:'users', component:UserComponent} ,
   { path: 'signup', component: SignupComponent },
+  {path:'notification', component:NotificationsComponent},
   {
     path: 'rides', component: RidesComponent, children: [
       { path: 'confirm-ride', component: ConfirmRideComponent },

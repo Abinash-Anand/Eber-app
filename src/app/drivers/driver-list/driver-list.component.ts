@@ -331,7 +331,7 @@ export class DriverListComponent implements OnInit {
 
   onAssignVehicle(driver) {
   this.driverIndexId = driver._id;
-  console.log(driver.city);
+  console.log(this.driverIndexId);
   
   // Filtering the pricingDataArray according to the driver's city
   const filteredPricingArray = this.pricingDataArray.filter((object: any) => {

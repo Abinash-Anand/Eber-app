@@ -54,11 +54,11 @@ const driverSchema = new mongoose.Schema({
         enum: ['approved', 'declined'],
         default: 'declined' // Default status
     },
-    contactId: {
-        type: String,
-        required:true,
-        unique:true
-    },
+    // contactId: {
+    //     type: String,
+    //     required:true,
+    //     unique:true
+    // },
     
 }, { timestamps: true });
 
