@@ -38,7 +38,7 @@ const updateBookingStatus = async (req, res, io) => {
     let inovice;
     // let nodemail;
     // let transcationResponse;
-    await TranscationInitiation(booking)
+    // await TranscationInitiation(booking)
 //================================= When Ride is Completed================================
     if (booking.status === 'Completed') {
       //-------------------------Initiate Invoice--------------------------------

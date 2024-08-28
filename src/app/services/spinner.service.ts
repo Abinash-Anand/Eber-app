@@ -19,7 +19,7 @@ export class SpinnerInterceptor implements HttpInterceptor {
     this.spinner.show();  // Show the spinner in the foreground before the HTTP request is made
 
     return next.handle(request).pipe(
-      delay(300),  // Optional: Add a small delay to ensure the spinner is visible
+      delay(500),  // Optional: Add a small delay to ensure the spinner is visible
       finalize(() => this.spinner.hide())  // Hide the spinner after the HTTP request is completed
     );
   }
