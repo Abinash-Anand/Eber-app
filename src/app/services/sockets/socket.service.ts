@@ -45,6 +45,9 @@ export class SocketService {
   rideRequestRejectedByDriver(): Observable<any>{
     return this.socket.fromEvent('ride-rejected-by-driver')
   }
+  sessionCountDownTimer(): Observable<any>{
+    return this.socket.fromEvent('session-timer')
+  }
   disconnect() {
     this.socket.disconnect();
   }

@@ -1,23 +1,74 @@
 
-    <div class="alert alert-success  " role="alert" *ngIf="redirectlogin">
-        Signup Successful!
+<div class="container signup-container d-flex align-items-center justify-content-center vh-100" *ngIf="componentSwitch !=='login'">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-6 signup-form p-4 position-relative">
+            <div class="text-center mb-4">
+                <div class="icon-container">
+                    <img width="96" height="96" src="https://img.icons8.com/pulsar-gradient/96/user.png" alt="user" />
+                </div>
+            </div>
+            <div class="alert alert-success" role="alert" *ngIf="redirectlogin">
+                Signup Successful!
+            </div>
+               <div class="heading pt-3 text-dark">
+                <h3>Create an Eber Account</h3>
+               </div>
+            <form (ngSubmit)="onSignup('login')" class="py-5" #form="ngForm" novalidate>
+               
+                <div class="form-group input-design mb-3" [ngClass]="{'was-validated': form.submitted}">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="25" height="25" src="https://img.icons8.com/nolan/64/name.png" alt="name" />
+                            </span>
+                        </div>
+                        <input type="text" class="form-control input-custom" name="name" required ngModel #name="ngModel"
+                            id="name" placeholder="Name" [ngClass]="{'is-invalid': name.invalid && form.submitted}">
+                        <div class="invalid-feedback">Please enter your name.</div>
+                    </div>
+                </div>
+                <div class="form-group input-design mb-3" [ngClass]="{'was-validated': form.submitted}">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="25" height="25" src="https://img.icons8.com/nolan/64/phone.png" alt="phone" />
+                            </span>
+                        </div>
+                        <input type="text" class="form-control input-custom" name="phone" required ngModel #phone="ngModel"
+                            id="phone" placeholder="Phone No." pattern="^[0-9]*$" [ngClass]="{'is-invalid': phone.invalid && form.submitted}">
+                        <div class="invalid-feedback">Please enter a valid phone number.</div>
+                    </div>
+                </div>
+                <div class="form-group input-design mb-3" [ngClass]="{'was-validated': form.submitted}">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="25" height="25" src="https://img.icons8.com/nolan/64/new-post.png" alt="email" />
+                            </span>
+                        </div>
+                        <input type="email" class="form-control input-custom" name="email" required ngModel #email="ngModel"
+                            id="email" placeholder="Email address" [ngClass]="{'is-invalid': email.invalid && form.submitted}">
+                        <div class="invalid-feedback">Please enter a valid email address.</div>
+                    </div>
+                </div>
+                <div class="form-group input-design mb-4" [ngClass]="{'was-validated': form.submitted}">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="25" height="25" src="https://img.icons8.com/nolan/64/password.png" alt="password" />
+                            </span>
+                        </div>
+                        <input type="password" class="form-control input-custom" name="password" required ngModel #password="ngModel"
+                            id="password" placeholder="Password" [ngClass]="{'is-invalid': password.invalid && form.submitted}">
+                        <div class="invalid-feedback">Please enter your password.</div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-3 btn-lg" [disabled]="!form.valid" >Sign Up</button>
+            </form>
+        </div>
     </div>
-    <div class="col-6 signup mt-5">
-    <h1 style="text-align: center;">SignUp</h1>
-    <form (ngSubmit)="onSignup()" #form="ngForm">
-        <div class="form-group">
-            <label for="exampleInputEmail1">Name</label>
-            <input type="email" name="name" required class="form-control" id="name" ngModel aria-describedby="emailHelp"
-                placeholder="Enter email">
-                <label for="exampleInputEmail1">Phone No.</label>
-                <input type="email" name="phone" required class="form-control" id="phone" ngModel aria-describedby="emailHelp" placeholder="Enter email">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" name="email" required class="form-control" id="email" ngModel aria-describedby="emailHelp" placeholder="Enter email">
-            <label for="exampleInputPassword1">Password</label>
-            <input type="password" name="password" required class="form-control" id="password" ngModel placeholder="Password">
-    
-    </div>
+</div>
 
-        <button  type="submit" class="btn btn-outline-light px-5 py-2" [disabled]="!form.valid">Submit</button>
-    </form>
-    </div>
+<div class="col-sm" *ngIf="componentSwitch === 'login'">
+    <app-login></app-login>
+</div>

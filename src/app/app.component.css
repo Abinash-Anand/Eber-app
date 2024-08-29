@@ -1,0 +1,13 @@
+.lottie-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: max-content;
+    z-index: -100;
+    
+    /* Ensures it stays in the background */
+    overflow: hidden;
+    border-radius: 0px;
+    /* Ensures no scrollbars */
+}

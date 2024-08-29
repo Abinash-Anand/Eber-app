@@ -131,7 +131,8 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
       provide: HTTP_INTERCEPTORS,
       useClass: SpinnerInterceptor,  // Provide the interceptor
       multi: true
-    }
+    },
+     LoginService
   ],
   bootstrap: [AppComponent]
 })

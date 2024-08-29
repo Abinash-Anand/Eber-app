@@ -15,7 +15,7 @@ export class LoginComponent implements AfterViewInit {
   @Output() loginEvent = new EventEmitter<boolean>();
    minTimer =  20.0;
   secondsTimer = 0.1;
-  
+  componentSwitch:string =''
   login: boolean = false;
   wrongCredentials: boolean = false;
   expiredSession: string = 'Your Session Expired';
@@ -77,5 +77,10 @@ export class LoginComponent implements AfterViewInit {
   }
   autoExpireSession() {
     this.loginService.autoLoguot()
+  }
+  onRegister(componentSwitch: string) {
+    
+    this.componentSwitch = componentSwitch;
+
   }
 }

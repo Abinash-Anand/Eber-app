@@ -1,34 +1,54 @@
-<!-- <div class="login" *ngIf="login">
-    <h1>Admin Logged in Successful!</h1>
-</div> -->
-<!-- <div class="login " *ngIf="!tokenExpired">
-    <h1>{{expiredSession}}</h1>
-</div> -->
-<!-- <nav class="navbar nav "><h1>Login</h1></nav> -->
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h1 style="text-align: center;">Login </h1>
-            <hr class="bg-light">
-            <form (ngSubmit)="onLogin()" #form="ngForm">
-                    <div class="form-group col-10">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input type="email" class="form-control"
-                        required name="email" ngModel id="exampleInputEmail1" aria-describedby="emailHelp"
-                            placeholder="Enter email">
-                        <small id="emailHelp" class="form-text  text-light">We'll never share your email with anyone else.</small>
+<div class="container login-container d-flex align-items-center justify-content-center vh-100" *ngIf="componentSwitch !=='signup'">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-6 login-form   position-relative">
+            <div class="text-center ">
+                <div class="icon-container">
+                <img width="96" height="96" src="https://img.icons8.com/pulsar-gradient/96/user.png" alt="user" />
+                </div>
+            </div>
+            <div class="heading text-dark mb-5">
+                <h3>Login to Eber</h3>
+            </div>
+            <form (ngSubmit)="onLogin()" class="w-100" #form="ngForm">
+                <div class="form-group input-design mb-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="35" height="35" src="https://img.icons8.com/nolan/64/new-post.png"
+                                    alt="new-post" />
+                            </span>
+                        </div>
+                        <input type="email" class="form-control input-custom" required name="email" ngModel
+                            id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Email ID">
                     </div>
-                    <div class="form-group col-10">
-                        <label for="exampleInputPassword1">Password</label>
-                        <input type="password" class="form-control"
-                        required name="password" ngModel id="exampleInputPassword1" placeholder="Password">
-                        <p class="text-danger mt-2" *ngIf="wrongCredentials">Please Provide Correct Credentials!</p>
+                </div>
+                <div class="form-group input-design mb-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-transparent border-0">
+                                <img width="35" height="35" src="https://img.icons8.com/nolan/64/password.png"
+                                    alt="password" />
+                            </span>
+                        </div>
+                        <input type="password" class="form-control input-custom" required name="password" ngModel
+                            id="exampleInputPassword1" placeholder="Password">
                     </div>
-                    <button type="submit" class="btn ml-3 btn-outline-light px-5 py-2 mt-3 btn-lg"
-                     [disabled]="!form.valid"  >Submit</button>
-                </form>
+                </div>
+                <div class="form-group form-check d-flex justify-content-between align-items-center">
+                    <div>
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <a href="#" class="text-secondary">Forgot Password?</a>
+                </div>
+                <p class="text-danger mt-2" *ngIf="wrongCredentials">Please provide correct credentials!</p>
+                <button type="submit" class="btn btn-primary w-100  btn-lg" [disabled]="!form.valid">LOGIN</button>
+            </form>
+            <p class="mt-3">Don't have an account? <strong><a [routerLink]="['/signup']" (click)="onRegister('signup')" class="text-primary">Register</a></strong></p>
         </div>
-   
     </div>
+</div>
 
+<div class="col-sm" *ngIf="componentSwitch === 'signup'">
+    <app-signup></app-signup>
 </div>

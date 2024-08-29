@@ -17,12 +17,13 @@ export class SignupComponent {
     email: '',
     password:''
   }
+  componentSwitch: string = '';
   redirectlogin:boolean = false
   constructor(private signupService: SignupService,
     private router: Router,
     private route:ActivatedRoute
   ){}
-  onSignup() {
+  onSignup(componentSwitch:string) {
     this.userData.name = this.formObject.value.name
     this.userData.phone = this.formObject.value.phone
     this.userData.email = this.formObject.value.email
@@ -34,6 +35,7 @@ export class SignupComponent {
       
       if (response.status === 201) {
         this.redirectlogin = true
+        this.componentSwitch = componentSwitch;
         setTimeout(() => {
           this.router.navigate(['/login'], {relativeTo:this.route})
           this.redirectlogin = false;

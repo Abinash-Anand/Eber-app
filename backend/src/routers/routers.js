@@ -72,7 +72,7 @@
     //sign up routes
     router.post('/signup', user);
     //login user
-    router.post('/login', loginUser);
+    router.post('/login', (req,res)=>loginUser(req,res,req.app.get('socketio')));
 
     //==============================user section routes=========================
     //1. create new user

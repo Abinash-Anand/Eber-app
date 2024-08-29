@@ -1,28 +1,17 @@
-<!-- <div class="dashboard" *ngIf="isLoggedIn"> -->
-    <!-- app.component.html -->
+<!-- Lottie Animation Wrapper -->
+<div class="lottie-background" *ngIf="!isLoggedIn">
+    <div class="row" [appLottie]="lottieOptions"></div>
+</div>
+
+<!-- Angular Spinner -->
 <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="red" type="square-loader" [fullScreen]="true">
     <p style="color: white"> Loading... </p>
 </ngx-spinner>
 
-    
+<!-- Main Content -->
+<app-header *ngIf="isLoggedIn"></app-header>
+<app-dashboard-menu (loginEvent)="stateChange()" *ngIf="isLoggedIn; else redirect"></app-dashboard-menu>
 
-    <app-header *ngIf="isLoggedIn"></app-header>
-    <app-dashboard-menu  (loginEvent)="stateChange()" *ngIf="isLoggedIn; else redirect"  ></app-dashboard-menu>
-    <!-- <app-login *ngIf="!isLoggedIn"></app-login> -->
-    <ng-template #redirect>
-        <!-- <div class="row"> -->
-            <!-- <div class="col-6"> -->
-
-                <app-login></app-login>
-            <!-- </div> -->
-            <!-- <div class="col-sm">
-
-                <app-signup></app-signup>
-            </div> -->
-        <!-- </div> -->
-    </ng-template>
-    
-    
-    <!-- <router-outlet></router-outlet> -->
-<!-- <div class="login-page" *ngIf="!isLoggedIn"> -->
-<!-- </div> -->
+<ng-template #redirect>
+    <app-login></app-login>
+</ng-template>

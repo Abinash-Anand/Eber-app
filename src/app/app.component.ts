@@ -45,7 +45,9 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  lottieOptions = {
+    path:  '../../assets/icons/appBackground.json'         // URL to your JSON file
+  };
   checkAuth() {
     this.loginStatusSubscription = this.loginService.loginStatus$.subscribe(status => {
       this.isLoggedIn = status;

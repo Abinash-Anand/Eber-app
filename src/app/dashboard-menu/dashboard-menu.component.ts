@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../services/authentication/login.service';
+import { SocketService } from '../services/sockets/socket.service';
 
 @Component({
   selector: 'app-dashboard-menu',
@@ -10,9 +11,16 @@ export class DashboardMenuComponent implements OnInit {
   logoutState: boolean = false
   timer = 20;
 
-  constructor(private loginService: LoginService) { }
+  constructor(private loginService: LoginService,
+    private sessionSocketService: SocketService,
+  ) { }
   ngOnInit(): void {
-
+    this.sessionSocketService.sessionCountDownTimer().subscribe((countdown) => {
+      console.log(countdown);
+      
+    })
+    console.log();
+    
       
   }
   onLogout() {
