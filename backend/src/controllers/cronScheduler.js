@@ -6,89 +6,124 @@ const chalk = require('chalk')
 const Ride = require('../models/createRideModel')
 // Object to store timeouts for each booking
 const bookingTimeouts = {};
-
+const mongoose = require('mongoose')
+// let currentIndex = 0; // To keep track of the current driver index being checked
+let iteration =0
 let listOfDriversRejectedBooking = [];
-let currentIndex = 0; // To keep track of the current driver index being checked
 let countdownIntervalId; // To store the interval ID for the countdown timer
-
-
-const scheduledReassignDriver = async (booking, io) => {
-    console.log(chalk.bgBlack.bold('Booking Object: ', booking))
+let uniqueRejectedDrivers;
+let cronScheduler;
+const scheduledReassignDriver = async ( booking, io, driver) => {
+  // console.log("Booking", booking);
+  // console.log("DRiver: ", driver)
   try {
-    console.log("Counter: ", currentIndex);
+    // console.log("Iteration: ", iteration)
+    if (driver !== null) {
+      // console.log("IF BLOCK Current Driver:  ", driver)
+    const driverId = new mongoose.Types.ObjectId(driver.driverObjectId._id);
+    const driverIdString = driverId.toString();//"dhfiuwyy9ewyrrw33443"- example
+    listOfDriversRejectedBooking.push(driverIdString)
+    uniqueRejectedDrivers = [...new Set(listOfDriversRejectedBooking)]
+    // console.log("IF SET ARRAY: ", uniqueRejectedDrivers)
+    } else {
+    const driverId = new mongoose.Types.ObjectId(booking.driverObjectId._id);
+    const driverIdString = driverId.toString();//"dhfiuwyy9ewyrrw33443"- example
+    listOfDriversRejectedBooking.push(driverIdString)
+     uniqueRejectedDrivers = [...new Set(listOfDriversRejectedBooking)]
+    // console.log("ELSE SET ARRAY: ", uniqueRejectedDrivers)
+    }
 
-    // Add the rejected driver to the list of rejected bookings
-    listOfDriversRejectedBooking.push({ driverId: booking.driverObjectId });
-
+   
     // Find the booking request with populated fields
     const bookingRequest = await Booking.findOne({ _id: booking._id })
-      .populate('driverObjectId')
-      .populate('city');
-
+    .populate('driverObjectId')
+    .populate('city');
+    
     if (!bookingRequest) {
       console.error('Booking request not found');
       return;
     }
-
+    
     // Fetch all drivers with populated fields
     const allDriversList = await DriverVehicleModel.find()
-      .populate('city')
-      .populate('driverObjectId');
-
-    console.log(chalk.bgBlack("Available Drivers:", allDriversList.length));
-
+    .populate('city')
+    .populate('driverObjectId');
+    
+    // console.log("Available Drivers:", allDriversList.length);
+    
     // Filter available drivers by city, status, and vehicle type
-    const availableDriverList = allDriversList.filter((driver) => {
-      return driver.city.city === bookingRequest.city.city &&
-        driver.driverObjectId.status === bookingRequest.driverObjectId.status &&
-        driver.vehicleType === bookingRequest.serviceType;
-    });
+    const availableDriverList = allDriversList.filter((driver) => 
+      driver.city.city === bookingRequest.city.city &&
+    driver.driverObjectId.status === bookingRequest.driverObjectId.status &&
+        driver.vehicleType === bookingRequest.serviceType
+      // console.log(`checking filter availableDriverList ${driver.city.city} === ${bookingRequest.city.city}`) 
+      // console.log(`checking filter availableDriverList ${driver.driverObjectId.status} === ${bookingRequest.driverObjectId.status}` )  
+      // console.log(`checking filter availableDriverList ${driver.vehicleType} === ${bookingRequest.serviceType}` )  
+      
+    
+  );
+  
+  // console.log("Available Drivers after filtering:", availableDriverList.length);
+  
+// Create a Set of rejected driver IDs for fast lookup
+const rejectedDriverIds = new Set(uniqueRejectedDrivers.map(driverId => driverId));
 
-    console.log(chalk.bgBlack("Available Drivers after filtering by city, status, and vehicle type:", availableDriverList.length));
+// Exclude drivers who have already rejected this booking
+const filteredDriverList = availableDriverList.filter(driver => {
+  const driverIdString =  new mongoose.Types.ObjectId(driver.driverObjectId._id).toString();
+  const isRejected = rejectedDriverIds.has(driverIdString);
+  // console.log(`Driver ID: ${driverIdString} - Rejected: ${isRejected}`);
+  return !isRejected;
+});
 
-    // Exclude drivers who have already rejected this booking
-    const filteredDriverList = availableDriverList.filter((driver) =>
-      !listOfDriversRejectedBooking.some((cancelledDriver) => cancelledDriver.driverId === driver._id)
-    );
+// console.log("Filtered Driver List after excluding rejected drivers:", filteredDriverList.length);
 
-    console.log(chalk.bgBlack("Filtered Driver List after excluding rejected drivers:", filteredDriverList.length));
 
-    // If there are no more drivers to check, stop the cron job
-    if (currentIndex >= filteredDriverList.length) {
+// console.log("Filtered Driver List after excluding rejected drivers:", filteredDriverList.length);
+
+    if (filteredDriverList.length === 0) {
       console.log('No more drivers available to check.');
+      console.log("Available Driver's length: ", filteredDriverList.length)
+      const reassignedBookingStatus = reassignBookingToPending(booking)
+      
       io.emit('no-drivers-available', { bookingId: booking._id });
       stopCountdown(); // Stop the countdown timer
       return;
     }
 
     // Select the current driver from the filtered list
-    const currentDriver = filteredDriverList[currentIndex];
-    const driverAssignedToBookings = await driverAssignedWithADriver(currentDriver, booking, listOfDriversRejectedBooking)
+    const currentDriver = filteredDriverList[0];
+    // console.log("Current Driver: ", currentDriver);
+
+    // Assign the driver to the booking
+    const driverAssignedToBookings = await driverAssignedWithABooking(currentDriver, booking, listOfDriversRejectedBooking);
+
     // Emit the driver details to the client via socket.io
     io.emit('cron-driver-assignment', driverAssignedToBookings);
-
+    iteration++
     // Set up a timeout to handle driver non-response
     const timeoutDuration = 15000; // 15 seconds or any desired duration
     const timeoutId = setTimeout(() => {
       console.log(`Driver ${currentDriver.driverObjectId._id} did not respond in time for booking ${booking._id}`);
-      currentIndex++;
-      scheduledReassignDriver(booking, io); // Re-run the function with the next driver
+      console.log("INSIDE SET TIMEOUT Driver Value: ", currentDriver)
+      scheduledReassignDriver(booking, io, currentDriver); // Re-run the function with the next driver
+
     }, timeoutDuration);
 
     // Start the countdown timer
     startCountdown(timeoutDuration / 1000, io, booking);
 
     // Listen for client response on driver acceptance or rejection
-   await io.once('driver-response-to-cron', (response) => {
+    io.once('driver-response-to-cron', (response) => {
+      console.log("RESPONSE FROM DRIVER: ", response)
       clearTimeout(timeoutId); // Clear the timeout if driver responds
-      stopCountdown(); // Stop the countdown timer
-      if (response.accepted) {
+      if (response.status === 'Accepted') {
         console.log(`Driver ${currentDriver.driverObjectId._id} accepted for booking ${booking._id}`);
-        return; // Exit the function to stop the cron job
+        stopCountdown(); // Stop the countdown timer
+        // return; // Exit the function to stop the cron job
       } else {
         console.log(`Driver ${currentDriver.driverObjectId._id} rejected for booking ${booking._id}`);
-        currentIndex++;
-        scheduledReassignDriver(booking, io); // Re-run the function with the next driver
+        scheduledReassignDriver(booking, io, currentDriver); // Re-run the function with the next driver
       }
     });
 
@@ -97,6 +132,11 @@ const scheduledReassignDriver = async (booking, io) => {
   }
 };
 
+
+//Reassigning the status Pending as no driver left to assign booking
+const reassignBookingToPending = (booking) => {
+   
+ }
 // Function to start the countdown timer
 const startCountdown = (duration, io, booking) => {
   let timeRemaining = duration;
@@ -123,8 +163,8 @@ const startCountdown = (duration, io, booking) => {
 
 //===========================FUNCTION TO ASSOCIATE DRIVER WITH THE RIDE BOOKING============
 
-const driverAssignedWithADriver = async (currentDriver, booking,listOfDriversRejectedBooking ) => {
-  console.log(chalk.inverse("Current Driver and Booking", currentDriver, booking));
+const driverAssignedWithABooking = async (currentDriver, booking,listOfDriversRejectedBooking ) => {
+  console.log(chalk.inverse("Current Driver and Booking", currentDriver.username, booking._id));
   try {
     // Fetch the booking and associated ride to update
     const bookingToUpdate = await Booking.findById(booking._id).populate('driverObjectId').populate('bookingId');
@@ -143,29 +183,29 @@ const driverAssignedWithADriver = async (currentDriver, booking,listOfDriversRej
     await bookingToUpdate.save();
     await rideToUpdate.save();
 
-      const allRideBookings = await Booking.find()
-          .populate('bookingId')
-          .populate('driverObjectId')
-          .populate('city')  
+//       const allRideBookings = await Booking.find()
+//           .populate('bookingId')
+//           .populate('driverObjectId')
+//           .populate('city')  
  
-        const filteredRidesArray = allRideBookings.filter(ride => 
-  !listOfDriversRejectedBooking.some(rejected => {
-    const rideDriverId = ride.driverObjectId._id.toString(); // Convert to string
-    const rejectedId = rejected; // Convert to string if it's an ObjectID
+//         const filteredRidesArray = allRideBookings.filter(ride => 
+//   !listOfDriversRejectedBooking.some(rejected => {
+//     const rideDriverId = ride.driverObjectId._id.toString(); // Convert to string
+//     const rejectedId = rejected; // Convert to string if it's an ObjectID
 
-    console.log("Check Comparison rideDriverId: ", rideDriverId); // Properly log both IDs
-    console.log( rejectedId); // Properly log both IDs
+//     // console.log("Check Comparison rideDriverId: ", rideDriverId); // Properly log both IDs
+//     // console.log( rejectedId); // Properly log both IDs
 
-    return rideDriverId === rejectedId; // Correct comparison
-  })
-);
+//     return rideDriverId === rejectedId; // Correct comparison
+//   })
+// );
 
 // Optionally, add a new ride or modify the array in some other way
-    filteredRidesArray.push(bookingToUpdate);
-    console.log("Filtered Rides Array:", filteredRidesArray);
+    // filteredRidesArray.push(bookingToUpdate);
+    // console.log(`==========FIltered Rides Array ${filteredRidesArray.length}========`);
     // console.log("Updated ConfirmRide Booking:", rideToUpdate);
-    
-    return filteredRidesArray; // Return the updated booking document
+    console.log("DRIVER => RIDE RELATION: ",bookingToUpdate)
+    return bookingToUpdate; // Return the updated booking document
 
   } catch (error) {
     console.error("Error in driverAssignedWithADriver:", error.message);
@@ -179,12 +219,26 @@ const stopCountdown = () => {
   if (countdownIntervalId) {
     clearInterval(countdownIntervalId);
     countdownIntervalId = null;
+   
+    
   }
+   if (cronScheduler) {
+    cronScheduler.stop(); // Stop the cron job from running further
+     // cronScheduler.destroy(); // Completely remove the cron job
+     cronScheduler = null
+     console.log('Cron scheduler destroyed.');
+     
+
+  }
+  
 };
 
-const cronSchedularExecuter = (booking, io) => {
-  cron.schedule('*/15 * * * * *', () => {
-    scheduledReassignDriver(booking, io);
+const cronSchedularExecuter = (booking, io, driver) => {
+  cronScheduler =  cron.schedule('*/15 * * * * *', () => {
+    scheduledReassignDriver(booking, io, driver);
   });
+  if (cronScheduler) {
+    console.log('CRON SCHEDULER DESTROYED')
+  }
 };
 module.exports = {cronSchedularExecuter}

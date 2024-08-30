@@ -68,14 +68,17 @@ export class RunningRequestComponent implements OnInit {
       this.assignedRequests.push(ConfirmedRideDriver);
       
     });
-      this.socketService.cronReassignDriver().subscribe((driverListWithNewAssignedDriver) => {
-        console.log("CRON ASSIGNED DRIVER: ", driverListWithNewAssignedDriver)
-        if (driverListWithNewAssignedDriver) {
-          const filteredDriverList = driverListWithNewAssignedDriver.filter((ride) => {
-            return !(ride.status === 'Completed');
+      this.socketService.cronReassignDriver().subscribe((newDriverBooking) => {
+        console.log("CRON ASSIGNED DRIVER: ", newDriverBooking)
+        if (newDriverBooking) {
+          const filteredDriverList = this.assignedRequests.filter((ride) => {
+            return ride.driverObjectId._id === newDriverBooking.driverObjectId._id
           })
+          console.log("FilteredDriverList: ", filteredDriverList);
+          
           this.assignedRequests = filteredDriverList
           // const filteredAssignedRequests = assignedRequests.
+          this.assignedRequests.push(newDriverBooking)
         }
       })
     
@@ -112,11 +115,16 @@ export class RunningRequestComponent implements OnInit {
   //   }, 1000);
   // }
 
-acceptRequest(request: any): void {
+  acceptRequest(request: any): void {
+  console.log(request)
   this.requestService.acceptRequest(request._id).subscribe((response) => {
     this.loadAssignedRequests();
     this.cdr.detectChanges(); // Manually trigger change detection
   });
+    this.socketService.emitDriverResponse(request).subscribe((response) => {
+    console.log(response)
+  })
+
 }
 
   cancelRequest(request: any): void {

@@ -4,6 +4,9 @@ export const environment = {
   countryApiUrl: 'https://restcountries.com/v3.1',
   backendServerPORT: 'http://localhost:5000',
   stripePublishableKey:'pk_test_51PcXjn2LMAO7sEDS05CJUthyergofvkgCi7KJ71cN3w4EtVO8lkR90nPVf1Mq1eY6I0AlBOIccZhTDp2pCa8Fy7l00U210dBvj',
-  socketUrl:'http://localhost:5000'
+  socketUrl: 'http://localhost:5000',
+  vapidPublicKey: "BHxn_Fl7oy_DiwWGI789dE2_dwbSBLEIgVME--yDMkR_8t3ApN-OKFVELNSrDxqfBDK8UCZgGOLVUod28t9NTDM",
+  vapidPrivateKey: 'hDmEqUhxnvZF9iMqMNx1lZ8M8_HcJJzH8Hy-baWG8Sc'
+
 };
 

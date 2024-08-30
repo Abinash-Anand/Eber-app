@@ -48,6 +48,9 @@ export class SocketService {
   sessionCountDownTimer(): Observable<any>{
     return this.socket.fromEvent('session-timer')
   }
+  emitDriverResponse(response:any): Observable<any>{
+    return this.socket.emit('driver-response-to-cron', response)
+  }
   disconnect() {
     this.socket.disconnect();
   }

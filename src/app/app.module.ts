@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, isDevMode } from '@angular/core';
 import { BrowserModule, provideClientHydration } from '@angular/platform-browser';
 import { HTTP_INTERCEPTORS, HttpClientModule, provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -54,7 +54,8 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerInterceptor } from './services/spinner.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { SwPush } from '@angular/service-worker';
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
 @NgModule({
@@ -102,8 +103,12 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     CommonModule,
     SocketIoModule.forRoot(config),
     BrowserAnimationsModule,
-    NgxSpinnerModule
-        
+    NgxSpinnerModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
+   
 
   ],
   providers: [
@@ -132,7 +137,8 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
       useClass: SpinnerInterceptor,  // Provide the interceptor
       multi: true
     },
-     LoginService
+    LoginService,
+     SwPush
   ],
   bootstrap: [AppComponent]
 })

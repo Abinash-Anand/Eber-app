@@ -58,7 +58,7 @@ const rideBooked = async (req, res, io) => {
     // Start the timer for request expiration
     // scheduleRequestTimeout(newBooking);
     // scheduledReassignDriver(newBooking)
-    cronSchedularExecuter(newBooking, io)
+    cronSchedularExecuter(newBooking, io, driverObject=null)
     res.status(201).send({ Message: "New Booking Created", newBooking });
   } catch (error) {
     console.error("Error in rideBooked: ", error);

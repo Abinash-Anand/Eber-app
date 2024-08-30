@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs';
 import { Router, ActivatedRoute, NavigationStart, NavigationEnd, NavigationCancel, NavigationError } from '@angular/router';
 import { BnNgIdleService } from 'bn-ng-idle';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { environment } from '../environment';
+import { SwPush, SwUpdate } from '@angular/service-worker';
 
 
 @Component({
@@ -14,7 +16,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'eber-app';
   isLoggedIn: boolean = false;
-  
+  readonly VAPID_PUBLIC_KEY = environment.vapidPublicKey;
+
   private loginStatusSubscription: Subscription;
 
   constructor(
@@ -22,10 +25,15 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private bnIdle: BnNgIdleService,
-    private spinner: NgxSpinnerService
-  ) {}
+    private spinner: NgxSpinnerService,
+    private swUpdate: SwUpdate,
+    private swPush:SwPush
+  ) {this.swUpdate.checkForUpdate()}
 
   ngOnInit() {
+    this.swPush.messages.subscribe((message:any) => {
+      console.log("Message: ", message)
+    })
     this.checkAuth();
     this.bnIdle.startWatching(1200).subscribe((isTimedOut: boolean) => {
       if (isTimedOut) {
