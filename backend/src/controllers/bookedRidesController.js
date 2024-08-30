@@ -4,7 +4,7 @@ const driverModel = require('../models/driverVehiclePricingModel'); // Ensure th
 const DriverVehicleModel = require('../models/driverVehiclePricingModel')
 const chalk = require('chalk')
 const Ride = require('../models/createRideModel')
-const {cronSchedularExecuter} = require('./cronScheduler')
+const {cronSchedularExecuter, countdownIntervalId, cronScheduler, stopCountdown} = require('./cronScheduler')
 
 
 //========================================================================================
@@ -58,7 +58,7 @@ const rideBooked = async (req, res, io) => {
     // Start the timer for request expiration
     // scheduleRequestTimeout(newBooking);
     // scheduledReassignDriver(newBooking)
-    cronSchedularExecuter(newBooking, io, driverObject=null)
+      cronSchedularExecuter(newBooking, io, driverObject=null)
     res.status(201).send({ Message: "New Booking Created", newBooking });
   } catch (error) {
     console.error("Error in rideBooked: ", error);
@@ -146,15 +146,17 @@ const assignDriver = async (req, res) => {
     // Update statuses
     booking.status = 'Accepted';
     originalBookingObject.status = 'Accepted';
-
     // Save both objects
     await booking.save();
     await originalBookingObject.save(); // Ensure you save the updated originalBookingObject
-
-    console.log('Original Booking after update:', originalBookingObject);
-    console.log('----------------Ride Request Accepted by driver---------------------');
-
+    console.log('BEFORE EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
+    
+    // console.log('Original Booking after update:', originalBookingObject);
+    // console.log('----------------Ride Request Accepted by driver---------------------');
+    // stopCountdown()
     req.app.get('socketio').emit('assignedRequest', originalBookingObject);
+    console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
+
     res.status(200).send({ message: 'Driver Accepted the request', booking });
   } catch (error) {
     console.error('Error assigning driver:', error);
@@ -213,7 +215,7 @@ const rideRejectedByDriver = async (req, res, io) => {
     const deletedBooking = await Booking.findByIdAndDelete(requestId);
     console.log('Booking deleted:', deletedBooking);
 
-    res.status(200).send({ message: 'Succeeded' });
+    res.status(200).send(OriginalBooking);
    
   } catch (error) {
     console.error('Error deleting ride booking:', error);

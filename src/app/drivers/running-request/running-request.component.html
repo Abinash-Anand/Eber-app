@@ -72,6 +72,16 @@
     </table>
 
     <hr>
+    <div class="cronJOBDRiver" *ngIf="cronDataBooking">
+        <h3>CRON DRIVER</h3>
+        <hr>
+        <p><strong>Request ID:</strong> {{ cronDataBooking.driverObjectId._id }}</p>
+        <p><strong>BOOKING ID:</strong> {{ cronDataBooking._id }}</p>
+        <p><strong>DRIVER:</strong> {{ cronDataBooking.driverObjectId.userProfile }}</p>
+        <p><strong>Status:</strong> {{ cronDataBooking.status }}</p>
+        <p><strong>Phone:</strong> {{ cronDataBooking.driverObjectId.phone }}</p>
+    </div>
+
     <div class="booking-request p-4" *ngIf="selectedRequest && !showInvoice" >
         <h3>Request Details</h3>
         <hr>

@@ -41,7 +41,10 @@ const scheduledReassignDriver = async ( booking, io, driver) => {
     
     if (!bookingRequest) {
       console.error('Booking request not found');
+      countdownIntervalId = null;
+      stopCountdown();
       return;
+
     }
     
     // Fetch all drivers with populated fields
@@ -81,12 +84,13 @@ const filteredDriverList = availableDriverList.filter(driver => {
 
 // console.log("Filtered Driver List after excluding rejected drivers:", filteredDriverList.length);
 
-    if (filteredDriverList.length === 0) {
+    if (filteredDriverList.length === 0 ) {
       console.log('No more drivers available to check.');
       console.log("Available Driver's length: ", filteredDriverList.length)
       const reassignedBookingStatus = reassignBookingToPending(booking)
       
       io.emit('no-drivers-available', { bookingId: booking._id });
+      io.emit('ride-rejected-by-driver', reassignedBookingStatus)
       stopCountdown(); // Stop the countdown timer
       return;
     }
@@ -114,19 +118,40 @@ const filteredDriverList = availableDriverList.filter(driver => {
     startCountdown(timeoutDuration / 1000, io, booking);
 
     // Listen for client response on driver acceptance or rejection
-    io.once('driver-response-to-cron', (response) => {
-      console.log("RESPONSE FROM DRIVER: ", response)
-      clearTimeout(timeoutId); // Clear the timeout if driver responds
-      if (response.status === 'Accepted') {
-        console.log(`Driver ${currentDriver.driverObjectId._id} accepted for booking ${booking._id}`);
-        stopCountdown(); // Stop the countdown timer
-        // return; // Exit the function to stop the cron job
-      } else {
-        console.log(`Driver ${currentDriver.driverObjectId._id} rejected for booking ${booking._id}`);
-        scheduledReassignDriver(booking, io, currentDriver); // Re-run the function with the next driver
-      }
-    });
+     // Listen for driver response from any client
+ io.on('connection', (socket) => {
+  console.log('Client connected with id:', socket.id);
 
+  // Listen for driver response from any client
+  socket.on('driver-response-to-cron', (response, ack) => {
+    console.log("RESPONSE FROM DRIVER: ", response);
+    clearTimeout(timeoutId); // Clear the timeout if driver responds
+
+    if (response.booking.status === 'Accepted') {
+      console.log(`Driver ${currentDriver.driverObjectId._id} accepted for booking ${booking._id}`);
+      stopCountdown(); // Stop the countdown timer
+
+      // Send acknowledgment back to the client
+      if (ack) {
+        ack({ status: 'success', message: 'Booking accepted' });
+      }
+    } else {
+      console.log(`Driver ${currentDriver.driverObjectId._id} rejected for booking ${booking._id}`);
+      scheduledReassignDriver(booking, io, currentDriver); // Re-run the function with the next driver
+
+      // Send acknowledgment back to the client
+      if (ack) {
+        ack({ status: 'failure', message: 'Booking rejected' });
+      }
+    }
+  });
+
+  // Handle disconnections
+  socket.on('disconnect', () => {
+    console.log('Client disconnected with id:', socket.id);
+  });
+});
+    
   } catch (error) {
     console.error('Error in scheduledReassignDriver:', error);
   }
@@ -134,8 +159,16 @@ const filteredDriverList = availableDriverList.filter(driver => {
 
 
 //Reassigning the status Pending as no driver left to assign booking
-const reassignBookingToPending = (booking) => {
-   
+const reassignBookingToPending = async (booking) => {
+  const rideRequest = await Ride.findById(booking.bookingId._id)
+  if (!rideRequest) {
+    throw new Error('Ride Request Not Found! ', rideRequest)
+  }
+  await Booking.findByIdAndDelete(booking._id)
+  rideRequest.status = "Pending";
+  await rideRequest.save();
+  console.log("Ride Request Updated TO PENDING: ", rideRequest)
+  return rideRequest;
  }
 // Function to start the countdown timer
 const startCountdown = (duration, io, booking) => {
@@ -175,7 +208,7 @@ const driverAssignedWithABooking = async (currentDriver, booking,listOfDriversRe
     }
 
     // Update the booking and ride fields
-    bookingToUpdate.driverObjectId._id = currentDriver._id; // Assign new driver
+    bookingToUpdate.driverObjectId = currentDriver.driverObjectId; // Assign new driver
     bookingToUpdate.status = 'Assigned'; // Update status of booking
     rideToUpdate.status = 'Assigned'; // Update status of ride
 
@@ -216,19 +249,16 @@ const driverAssignedWithABooking = async (currentDriver, booking,listOfDriversRe
 
 // Function to stop the countdown timer
 const stopCountdown = () => {
-  if (countdownIntervalId) {
+  if (countdownIntervalId || cronScheduler) {
     clearInterval(countdownIntervalId);
     countdownIntervalId = null;
-   
-    
   }
-   if (cronScheduler) {
+  if (cronScheduler) {
     cronScheduler.stop(); // Stop the cron job from running further
-     // cronScheduler.destroy(); // Completely remove the cron job
      cronScheduler = null
-     console.log('Cron scheduler destroyed.');
-     
-
+    console.log('Cron scheduler destroyed.');
+      console.log("cronScheduler: ", cronScheduler)
+      console.log("countdownIntervalId: ", countdownIntervalId)
   }
   
 };
@@ -237,8 +267,8 @@ const cronSchedularExecuter = (booking, io, driver) => {
   cronScheduler =  cron.schedule('*/15 * * * * *', () => {
     scheduledReassignDriver(booking, io, driver);
   });
-  if (cronScheduler) {
+  if (!cronScheduler) {
     console.log('CRON SCHEDULER DESTROYED')
   }
 };
-module.exports = {cronSchedularExecuter}
+module.exports = {cronSchedularExecuter, countdownIntervalId, cronScheduler, stopCountdown}

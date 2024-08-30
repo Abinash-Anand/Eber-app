@@ -49,7 +49,7 @@ export class SocketService {
     return this.socket.fromEvent('session-timer')
   }
   emitDriverResponse(response:any): Observable<any>{
-    return this.socket.emit('driver-response-to-cron', response)
+    return this.socket.emit('assignedRequest', response)
   }
   disconnect() {
     this.socket.disconnect();

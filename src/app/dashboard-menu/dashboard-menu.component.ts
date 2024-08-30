@@ -10,9 +10,12 @@ import { SocketService } from '../services/sockets/socket.service';
 export class DashboardMenuComponent implements OnInit {
   logoutState: boolean = false
   timer = 20;
-
+  hours: string = ''
+  minutes: string = '';
+  seconds: string = '';
   constructor(private loginService: LoginService,
     private sessionSocketService: SocketService,
+    private socketService: SocketService,
   ) { }
   ngOnInit(): void {
     this.sessionSocketService.sessionCountDownTimer().subscribe((countdown) => {
@@ -20,7 +23,7 @@ export class DashboardMenuComponent implements OnInit {
       
     })
     console.log();
-    
+    this.listenToSessionTimer()
       
   }
   onLogout() {
@@ -33,5 +36,14 @@ export class DashboardMenuComponent implements OnInit {
     
     
     
+  }
+
+  listenToSessionTimer() {
+    this.socketService.sessionCountDownTimer().subscribe((timer) => {
+      this.hours = timer.hours
+      this.minutes = timer.minutes
+      this.seconds = timer.seconds
+      console.log(this.minutes, this.seconds)
+    })
   }
 }

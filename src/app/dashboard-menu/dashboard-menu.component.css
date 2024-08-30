@@ -93,3 +93,15 @@ ul>li,
     margin: auto 40% auto auto  ;
 }
 
+.session-timer{
+    /* background-color: white; */
+    color: rgb(255, 255, 255);
+    padding: 1rem 2rem;
+    border-radius: 15px;
+    box-shadow: 3px 8px 5px rgb(46, 46, 46);
+}
+.bottom-container{
+    position: relative;
+    top: 15vw;
+    letter-spacing: 3px;
+}

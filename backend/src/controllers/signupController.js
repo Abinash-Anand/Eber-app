@@ -5,16 +5,8 @@ const { v4: uuidv4 } = require('uuid');
 const User = require('../models/signupUser');
 const { setUser, getUser } = require('../services/auth');
 const bcrypt = require('bcrypt');
-
-// Set the countdown time in hours, minutes, and seconds
-let hours = 1;    // Example: 1 hour
-let minutes = 0;  // Example: 0 minutes
-let seconds = 0;  // Example: 0 seconds
-
-// Convert total time to seconds
-let totalTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
-
-
+const {sessionCountdownTimer} =  require('../services/sessionTimer')
+// const io = require('socket.io')
 
 const user = async (req, res) => {
     try {
@@ -59,6 +51,8 @@ const loginUser = async (req, res, next,io) => {
         });
         console.log('Cookie set with token');
         res.status(200).send({ message: 'Login successful' ,token});
+          const io = req.app.get('socketio');
+        sessionCountdownTimer(io);
     } catch (error) {
         console.error('Login error:', error); // Log error for debugging
         res.status(500).send(error);
@@ -68,41 +62,8 @@ const loginUser = async (req, res, next,io) => {
 
 
 
-// Function to format the time as HH:MM:SS
-function formatTime(totalSeconds) {
-  const hrs = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  const secs = totalSeconds % 60;
-  return {
-    hours: hrs.toString().padStart(2, '0'),
-    minutes: mins.toString().padStart(2, '0'),
-    seconds: secs.toString().padStart(2, '0')
-  };
-}
 
-// Function to update the countdown timer
-function updateCountdown(io) {
-  if (totalTimeInSeconds > 0) {
-    totalTimeInSeconds--; // Decrease the total time by 1 second
 
-    // Emit the updated time to the client
-    const formattedTime = formatTime(totalTimeInSeconds);
-    io.emit('session-timer', formattedTime);
-
-    // Log to the server console (for debugging purposes)
-    console.log(`${formattedTime.hours}:${formattedTime.minutes}:${formattedTime.seconds}`);
-  } else {
-    clearInterval(countdownInterval); // Clear the interval when the countdown is over
-    io.emit('timer-finished', { message: "Countdown finished!" }); // Notify clients that the countdown has finished
-    console.log("Countdown finished!");
-  }
-}
-
-// Start the countdown timer and emit updates every second
-const countdownInterval = async (io) => {
-    
-    setInterval(updateCountdown, 1000); // Update every second
-}
-    
+ 
 
 module.exports = { user, loginUser };

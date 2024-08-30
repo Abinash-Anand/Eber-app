@@ -26,6 +26,7 @@ export class RunningRequestComponent implements OnInit {
   rideCompleteStatus: boolean = false;
   nodemail: boolean = false;
   countdownTimer: number = null;
+  cronDataBooking: any
   booking_id: string =''
   constructor(
     private requestService: DriverRunningRequestService,
@@ -71,14 +72,15 @@ export class RunningRequestComponent implements OnInit {
       this.socketService.cronReassignDriver().subscribe((newDriverBooking) => {
         console.log("CRON ASSIGNED DRIVER: ", newDriverBooking)
         if (newDriverBooking) {
-          const filteredDriverList = this.assignedRequests.filter((ride) => {
-            return ride.driverObjectId._id === newDriverBooking.driverObjectId._id
-          })
-          console.log("FilteredDriverList: ", filteredDriverList);
+          this.cronDataBooking = newDriverBooking
+          // const filteredDriverList = this.assignedRequests.filter((ride) => {
+          //   return ride.driverObjectId._id === newDriverBooking.driverObjectId._id
+          // })
+          // console.log("FilteredDriverList: ", filteredDriverList);
           
-          this.assignedRequests = filteredDriverList
-          // const filteredAssignedRequests = assignedRequests.
-          this.assignedRequests.push(newDriverBooking)
+          // this.assignedRequests = filteredDriverList
+          // // const filteredAssignedRequests = assignedRequests.
+          // this.assignedRequests.push(newDriverBooking)
         }
       })
     
@@ -117,24 +119,33 @@ export class RunningRequestComponent implements OnInit {
 
   acceptRequest(request: any): void {
   console.log(request)
-  this.requestService.acceptRequest(request._id).subscribe((response) => {
-    this.loadAssignedRequests();
-    this.cdr.detectChanges(); // Manually trigger change detection
+    this.requestService.acceptRequest(request._id).subscribe((response) => {
+      console.log("ACCEPT REQUEST: ", response)
+      if (response) {
+        this.loadAssignedRequests();
+        this.cdr.detectChanges(); // Manually trigger change detection
+  //          this.socketService.emitDriverResponse(response).subscribe((response) => {
+  //   console.log(response)
+  // })
+    }
+    
   });
-    this.socketService.emitDriverResponse(request).subscribe((response) => {
-    console.log(response)
-  })
+ 
 
 }
 
   cancelRequest(request: any): void {
     
     this.requestService.cancelRequestFromRideBookedCollection(request._id).subscribe((response:any) => {
-      if(response.message === '"Succeeded"')
+      if(response)
       console.log(response);
+  //      this.socketService.emitDriverResponse(response).subscribe((response) => {
+  //     console.log("Socket response: ",response)
+  // })
       this.removeRequest(request._id);
       this.router.navigate(['/rides/confirm-ride'])
     });
+   
     // this.requestService.cancelRequestFromRidesCollection(request.bookingId).subscribe(() => {
     //   this.removeRequest(request._id);
     // });

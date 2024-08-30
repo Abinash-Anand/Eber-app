@@ -3,7 +3,7 @@
 
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-2 col-sm-12 d-block mt-5   sidebar">
+        <nav class="col-md-2 col-sm-12  mt-5   sidebar">
             <div class="position-sticky nav-items-container">
                
                 <ul class="nav flex-column">
@@ -110,13 +110,18 @@
                     </li>
                 </ul>
             </div>
-           
             <div class="logout">
-                <button class="btn mt-5 btn-danger px-4 logout"
-                (click)="onLogout()">
+                <button class="btn mt-5 btn-lg btn-outline-danger py-3 px-4 logout" (click)="onLogout()">
                     Logout
                 </button>
             </div>
+           <div class="bottom-container">
+            
+            <div class="session-timer col-7">
+                <span>{{minutes}} </span>:<span> {{seconds}}</span>
+            </div>
+           </div>
+           
         </nav>
 
         <!-- Sub-component -->
@@ -126,5 +131,6 @@
             </div>
             <router-outlet></router-outlet>
         </div>
+        
     </div>
 </div>
