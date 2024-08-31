@@ -29,7 +29,7 @@ export class LoginComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     if (this.login) {
-      this.countDownTimer()
+      // this.countDownTimer()
     }
   }
 
@@ -51,9 +51,9 @@ export class LoginComponent implements AfterViewInit {
           this.loginService.setLoginStatus(true); // Notify login service about the successful login
           this.router.navigate(['/']); // Redirect to dashboard
           // this.countDownTimer()
-          setTimeout(() => {
-            this.autoExpireSession()
-          }, 60000);
+          // setTimeout(() => {
+          //   this.autoExpireSession()
+          // }, 60000);
         }
       },
       error: (error) => {

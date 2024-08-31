@@ -5,45 +5,57 @@ import { SocketService } from '../services/sockets/socket.service';
 @Component({
   selector: 'app-dashboard-menu',
   templateUrl: './dashboard-menu.component.html',
-  styleUrl: './dashboard-menu.component.css'
+  styleUrls: ['./dashboard-menu.component.css']
 })
+
 export class DashboardMenuComponent implements OnInit {
-  logoutState: boolean = false
+  logoutState: boolean = false;
   timer = 20;
-  hours: string = ''
+  hours: string = '';
   minutes: string = '';
   seconds: string = '';
-  constructor(private loginService: LoginService,
+  sessionTime: string = '';
+  sessionEndingAlert: boolean = false;
+
+  constructor(
+    private loginService: LoginService,
     private sessionSocketService: SocketService,
-    private socketService: SocketService,
+    private socketService: SocketService
   ) { }
+
   ngOnInit(): void {
-    this.sessionSocketService.sessionCountDownTimer().subscribe((countdown) => {
-      console.log(countdown);
-      
-    })
-    console.log();
-    this.listenToSessionTimer()
-      
+    this.listenToSessionTimer();
   }
+
   onLogout() {
     setTimeout(() => {
-      this.loginService.logoutUser()
-      
+      this.loginService.logoutUser();
     }, 2000);
-    this.logoutState = this.loginService.isLoggedIn
+    this.loginService.sessionLogoutStopTimer().subscribe();
+    this.logoutState = this.loginService.isLoggedIn;
     console.log(this.logoutState);
-    
-    
-    
   }
 
   listenToSessionTimer() {
     this.socketService.sessionCountDownTimer().subscribe((timer) => {
-      this.hours = timer.hours
-      this.minutes = timer.minutes
-      this.seconds = timer.seconds
-      console.log(this.minutes, this.seconds)
-    })
+      // Ensure timer values are initialized correctly
+      this.hours = timer.hours ? timer.hours : '0';
+      this.minutes = timer.minutes ? timer.minutes : '0';
+      this.seconds = timer.seconds ? timer.seconds : '0';
+
+      console.log(this.minutes, this.seconds);
+
+      // Prevent immediate logout by checking for non-zero minutes initially
+      if (+this.minutes === 0 && +this.seconds === 0 && +this.hours === 0) {
+        this.loginService.logoutUser();
+      }
+    });
+
+    this.socketService.sessionEnding().subscribe((response) => {
+      console.log(response);
+      if (response.sessionEnding === true) {
+        this.sessionEndingAlert = true;
+      }
+    });
   }
 }

@@ -5,7 +5,7 @@
     const upload = require('../config/multerConfig');
     const { addCountry, getCountries, singleCountry } = require('../controllers/countryController');
     const { addZone, allCities, allCountries } = require('../controllers/cityController');
-    const { user, loginUser } = require('../controllers/signupController');
+    const { user, loginUser,loggedOutSessionTimer } = require('../controllers/signupController');
     const { createVehicleCityAssociation, VehicleTypesByCity } = require('../controllers/vehicleCityController');
     const { createNewUser, allUsers, updateUser, deleteUser, searchUser } = require('../controllers/userController');
     const {
@@ -73,7 +73,7 @@
     router.post('/signup', user);
     //login user
     router.post('/login', (req,res)=>loginUser(req,res,req.app.get('socketio')));
-
+    router.post('/auth/logout/session', loggedOutSessionTimer)
     //==============================user section routes=========================
     //1. create new user
     router.post('/user/create-user', createNewUser);

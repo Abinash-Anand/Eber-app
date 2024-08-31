@@ -37,7 +37,9 @@ export class LoginService {
     this.router.navigate(['/login']);
     console.log("session expired");
   }
-
+  sessionLogoutStopTimer() {
+   return this.http.post<any>(`${environment.backendServerPORT}/auth/logout/session`,{observe:'response'} )
+  }
   setLoginStatus(status: boolean) {
     this.loginStatusSubject.next(status);
   }

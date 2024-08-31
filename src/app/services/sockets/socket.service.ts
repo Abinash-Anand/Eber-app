@@ -51,6 +51,9 @@ export class SocketService {
   emitDriverResponse(response:any): Observable<any>{
     return this.socket.emit('assignedRequest', response)
   }
+  sessionEnding(): Observable<any>{
+    return this.socket.emit('one-minute-left')
+  }
   disconnect() {
     this.socket.disconnect();
   }

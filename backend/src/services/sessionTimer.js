@@ -1,25 +1,41 @@
-// Set the countdown time in hours, minutes, and seconds
-let hours = 0;    // Example: 1 hour
-let minutes = 19;  // Example: 0 minutes
-let seconds = 60;  // Example: 0 seconds
+let tempSessionInterval;
 
-// Convert total time to seconds
-// let totalTimeInSeconds = hours * 3600 + minutes * 60 + seconds;
+const sessionCountdownTimer = (io, initialHours = 0, initialMinutes = 1, initialSeconds = 60) => {
+    let hours = initialHours;
+    let minutes = initialMinutes;
+    let seconds = initialSeconds;
 
-const sessionCountdownTimer = (io) => {
-    setInterval(() => {
+    const sessionInterval = setInterval(() => {
         if (seconds > 0) {
-            io.emit('session-timer', {hours, minutes, seconds})
-            seconds--
-        } else if (seconds === 0) {
-            minutes--
-            io.emit('session-timer', {hours, minutes, seconds})
-            seconds = 60;
-        } else if (minutes === 0) {
-            io.emit('session-timer', {hours, minutes, seconds})
-            return;
+            io.emit('session-timer', { hours, minutes, seconds });
+            seconds--;
+        } else if (seconds === 0 && minutes > 0) {
+            minutes--;
+            seconds = 59;
+            io.emit('session-timer', { hours, minutes, seconds });
+        } else if (seconds === 0 && minutes === 0 && hours > 0) {
+            hours--;
+            minutes = 59;
+            seconds = 59;
+            io.emit('session-timer', { hours, minutes, seconds });
+        } else if (seconds === 0 && minutes === 0 && hours === 0) {
+            io.emit('session-timer', { hours, minutes, seconds });
+            clearInterval(sessionInterval);
+            io.emit('timer-finished'); // Notify that the timer has finished
         }
-        
+
+        // Notify when 1 minute is left
+        if (hours === 0 && minutes === 1 && seconds === 0) {
+            io.emit('one-minute-left', {sessionEnding:true});
+        }
     }, 1000);
-}
-module.exports = {sessionCountdownTimer}
+    
+    tempSessionInterval = sessionInterval;
+};
+
+const logoutStopTimer = () => {
+    clearInterval(tempSessionInterval);
+    tempSessionInterval = null;  // Clear the interval reference
+};
+
+module.exports = { sessionCountdownTimer, logoutStopTimer };

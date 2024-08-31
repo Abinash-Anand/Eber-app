@@ -6,6 +6,7 @@ import { BnNgIdleService } from 'bn-ng-idle';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { environment } from '../environment';
 import { SwPush, SwUpdate } from '@angular/service-worker';
+import { SocketService } from './services/sockets/socket.service';
 
 
 @Component({
@@ -16,6 +17,7 @@ import { SwPush, SwUpdate } from '@angular/service-worker';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'eber-app';
   isLoggedIn: boolean = false;
+  sessionTime:string =''
   readonly VAPID_PUBLIC_KEY = environment.vapidPublicKey;
 
   private loginStatusSubscription: Subscription;
@@ -27,7 +29,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private bnIdle: BnNgIdleService,
     private spinner: NgxSpinnerService,
     private swUpdate: SwUpdate,
-    private swPush:SwPush
+    private swPush: SwPush,
+    // private socketService:SocketService
   ) {this.swUpdate.checkForUpdate()}
 
   ngOnInit() {
@@ -78,4 +81,15 @@ export class AppComponent implements OnInit, OnDestroy {
   logout() {
     this.loginService.logoutUser();
   }
+  // sessionAutoLogout() {
+  //   this.socketService.sessionCountDownTimer().subscribe((timer) => {
+  //     if (timer) {
+  //          this.sessionTime = timer.minutes;
+  //     if (+this.sessionTime === 0) {
+  //       this.logout()
+  //     }
+  //     }
+   
+  //   })
+  // }
 }

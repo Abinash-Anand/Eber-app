@@ -129,6 +129,9 @@
             <div class="alert mt-2 alert-warning text-dark" *ngIf="logoutState" role="alert">
                 User Logged Out
             </div>
+            <div class="alert alert-warning" *ngIf="sessionEndingAlert" role="alert">
+              <strong>  This sessions Ends in 1 minute</strong>
+            </div>
             <router-outlet></router-outlet>
         </div>
         
