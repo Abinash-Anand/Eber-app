@@ -144,7 +144,7 @@ const TranscationInitiation = async (booking) => {
       description ))
       console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
       console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
-
+       console.log("Payment URL: ",paymentIntent.return_url) 
       // const paymentReceived = await createRazorpayTransfer(booking.driverObjectId, driverShare);
       return paymentIntent;
     } else {

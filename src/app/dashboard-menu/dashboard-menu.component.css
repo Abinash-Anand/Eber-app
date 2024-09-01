@@ -96,14 +96,16 @@ ul>li,
 .session-timer{
     /* background-color: white; */
     color: rgb(255, 255, 255);
-    padding: 1rem auto;
+    padding: 0.7rem 10px;
     border-radius: 15px;
     border: 1px solid red;
     letter-spacing: 5px;
+    text-align: center;
     /* box-shadow: 3px 8px 5px rgb(46, 46, 46); */
 }
 .bottom-container{
     position: relative;
     top: 15vw;
     letter-spacing: 3px;
+    
 }
