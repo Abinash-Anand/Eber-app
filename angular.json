@@ -35,7 +35,9 @@
               "src/assets",
               "src/manifest.webmanifest",
               "src/manifest.webmanifest",
-              "src/manifest.webmanifest"
+              "src/manifest.webmanifest",
+              "src/service-worker.js" 
+
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.css",

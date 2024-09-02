@@ -5,8 +5,9 @@ export const environment = {
   backendServerPORT: 'http://localhost:5000',
   stripePublishableKey:'pk_test_51PcXjn2LMAO7sEDS05CJUthyergofvkgCi7KJ71cN3w4EtVO8lkR90nPVf1Mq1eY6I0AlBOIccZhTDp2pCa8Fy7l00U210dBvj',
   socketUrl: 'http://localhost:5000',
-  vapidPublicKey: "BHxn_Fl7oy_DiwWGI789dE2_dwbSBLEIgVME--yDMkR_8t3ApN-OKFVELNSrDxqfBDK8UCZgGOLVUod28t9NTDM",
-  vapidPrivateKey: 'hDmEqUhxnvZF9iMqMNx1lZ8M8_HcJJzH8Hy-baWG8Sc'
-
+  // vapidPublicKey: "BHxn_Fl7oy_DiwWGI789dE2_dwbSBLEIgVME--yDMkR_8t3ApN-OKFVELNSrDxqfBDK8UCZgGOLVUod28t9NTDM",
+  // vapidPrivateKey: 'hDmEqUhxnvZF9iMqMNx1lZ8M8_HcJJzH8Hy-baWG8Sc'
+  webPushPublicKey: 'BCewtPamBMBtx-bgB51Rlzki9p75Rt1Gq6JQnrXq88i4hRSaNK2W7whTThB9iSsDaaQIHYba2xfJk2Moa7sGpC0',
+  webPushPrivateKey:'1aNsKfNx4eQHW3qDnLRD5v9QhXNieB6lrokZV0ldf_8'
 };
 

@@ -25,9 +25,9 @@ const sessionCountdownTimer = (io, initialHours = 0, initialMinutes = 19, initia
         }
 
         // Notify when 1 minute is left
-        if (hours === 0 && minutes === 1 && seconds === 0) {
-            io.emit('one-minute-left', {sessionEnding:true});
-        }
+        // if (hours === 0 && minutes === 1 && seconds === 0) {
+        //     io.emit('one-minute-left', {sessionEnding:true});
+        // }
     }, 1000);
     
     tempSessionInterval = sessionInterval;

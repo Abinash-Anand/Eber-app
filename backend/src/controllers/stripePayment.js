@@ -135,16 +135,16 @@ const TranscationInitiation = async (booking) => {
       description} = paymentIntent
     //   console.log("Pricing: ", pricing);
       const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100));
-      console.log(chalk.bgCyan.bold("Intent: ",  amount,
-      currency,
-      payment_method,
-      customer,// Correctly include the customer ID here
-      confirm,
-      return_url,
-      description ))
-      console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
-      console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
-       console.log("Payment URL: ",paymentIntent.return_url) 
+      // console.log(chalk.bgCyan.bold("Intent: ",  amount,
+      // currency,
+      // payment_method,
+      // customer,// Correctly include the customer ID here
+      // confirm,
+      // return_url,
+      // description ))
+      // console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
+      // console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
+      //  console.log("Payment URL: ",paymentIntent.return_url) 
       // const paymentReceived = await createRazorpayTransfer(booking.driverObjectId, driverShare);
       return paymentIntent;
     } else {
@@ -170,5 +170,70 @@ const fetchUserCardDetails = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+//===============================CREATING A CUSTOM ACCOUNT===================================
+const stripeCustomConnectedAccount = async (driver) => {
+  // updateAccountDetails()
+  accountStatus()
+const account = await stripe.accounts.create({
+  country: "IN",
+  type: 'express',
+  capabilities: {
+    card_payments: {
+      requested: true,
+    },
+    transfers: {
+      requested: true,
+    },
+  },
+  business_type: 'individual',
+  business_profile: {
+    url: 'https://www.bike-time.com/',
+  },
+  });
+//   const account = await stripe.accounts.create({
+//   country: 'IN',
+//   email: 'jenny.rosen@example.com',
+//   controller: {
+//     fees: {
+//       payer: 'application',
+//     },
+//     losses: {
+//       payments: 'application',
+//     },
+//     stripe_dashboard: {
+//       type: 'express',
+//     },
+//   },
+// });
+  return account;
+}
 
-module.exports = { createNewPayment, TranscationInitiation, fetchUserCardDetails };
+
+const updateAccountDetails = async function requestCapabilities() {
+  try {
+    const account = await stripe.accounts.update('acct_1PuZBDRoi6cFXEzP', { // Replace with your account ID
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true },
+      },
+    });
+
+    console.log('Capabilities requested:', account.capabilities);
+  } catch (error) {
+    console.error('Error requesting capabilities:', error);
+  }
+}
+const accountStatus =async function checkAccountStatus() {
+  try {
+    const account = await stripe.accounts.retrieve('acct_1PuZBDRoi6cFXEzP'); // Replace with your account ID
+
+    console.log('Account capabilities:', account.capabilities);
+    console.log('Charges enabled:', account.charges_enabled);
+    console.log('Payouts enabled:', account.payouts_enabled);
+  } catch (error) {
+    console.error('Error retrieving account status:', error);
+  }
+}
+
+
+module.exports = { createNewPayment, TranscationInitiation, fetchUserCardDetails,stripeCustomConnectedAccount };

@@ -32,7 +32,7 @@
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
     const { sendWelcomeEmail, sendInvoiceEmail } = require('../controllers/nodemailer');
     const {driverBankAccount} = require('../controllers/driverBankAccount')
-
+    const {handleSubscription} = require('../controllers/pushNotification')
     
     // Route to get the data from the vehicle type form
     
@@ -162,6 +162,8 @@ router.get('/history/search-history/:keyword', searchHistory)
 
 // // Route to send an invoice email
 // router.post('/send-invoice-email', sendInvoiceEmail);
-
+//==============================PUSH NOTIFICATIONS==============================
+// router.post('/subscribe', pushNotification)
+router.post('/subscribe', handleSubscription)
 
 module.exports = router;

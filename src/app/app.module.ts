@@ -54,8 +54,8 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerInterceptor } from './services/spinner.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { SwPush } from '@angular/service-worker';
+// import { ServiceWorkerModule } from '@angular/service-worker';
+// import { SwPush } from '@angular/service-worker';
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
 
 @NgModule({
@@ -104,10 +104,8 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     SocketIoModule.forRoot(config),
     BrowserAnimationsModule,
     NgxSpinnerModule,
-    ServiceWorkerModule.register('ngsw-worker.js', {
-      enabled: environment.production,
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
+
+   
    
 
   ],
@@ -138,7 +136,7 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
       multi: true
     },
     LoginService,
-     SwPush
+    //  SwPush
   ],
   bootstrap: [AppComponent]
 })

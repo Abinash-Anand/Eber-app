@@ -5,8 +5,8 @@ import { Router, ActivatedRoute, NavigationStart, NavigationEnd, NavigationCance
 import { BnNgIdleService } from 'bn-ng-idle';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { environment } from '../environment';
-import { SwPush, SwUpdate } from '@angular/service-worker';
-import { SocketService } from './services/sockets/socket.service';
+// import { SwPush, SwUpdate } from '@angular/service-worker';
+// import { SocketService } from './services/sockets/socket.service';
 
 
 @Component({
@@ -17,9 +17,9 @@ import { SocketService } from './services/sockets/socket.service';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'eber-app';
   isLoggedIn: boolean = false;
-  sessionTime:string =''
-  readonly VAPID_PUBLIC_KEY = environment.vapidPublicKey;
-
+  sessionTime: string = ''
+  // readonly VAPID_PUBLIC_KEY = environment.vapidPublicKey;
+  // private readonly notificationPublicKey = environment.webPushPublicKey
   private loginStatusSubscription: Subscription;
 
   constructor(
@@ -28,15 +28,13 @@ export class AppComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private bnIdle: BnNgIdleService,
     private spinner: NgxSpinnerService,
-    private swUpdate: SwUpdate,
-    private swPush: SwPush,
+    // private swUpdate: SwUpdate,
+    // private swPush: SwPush,
     // private socketService:SocketService
-  ) {this.swUpdate.checkForUpdate()}
+  ) {  }
 
   ngOnInit() {
-    this.swPush.messages.subscribe((message:any) => {
-      console.log("Message: ", message)
-    })
+ 
     this.checkAuth();
     this.bnIdle.startWatching(1200).subscribe((isTimedOut: boolean) => {
       if (isTimedOut) {
@@ -45,8 +43,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.bnIdle.stopTimer();
       }
     });
-     /** spinner starts on init */
-     this.router.events.subscribe(event => {
+    /** spinner starts on init */
+    this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         // Show the spinner when navigation starts
         this.spinner.show();
@@ -57,7 +55,7 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
   lottieOptions = {
-    path:  '../../assets/icons/appBackground.json'         // URL to your JSON file
+    path: '../../assets/icons/appBackground.json'         // URL to your JSON file
   };
   checkAuth() {
     this.loginStatusSubscription = this.loginService.loginStatus$.subscribe(status => {
@@ -81,15 +79,21 @@ export class AppComponent implements OnInit, OnDestroy {
   logout() {
     this.loginService.logoutUser();
   }
-  // sessionAutoLogout() {
-  //   this.socketService.sessionCountDownTimer().subscribe((timer) => {
-  //     if (timer) {
-  //          this.sessionTime = timer.minutes;
-  //     if (+this.sessionTime === 0) {
-  //       this.logout()
-  //     }
-  //     }
-   
+
+  checkUpdate() {
+    
+  }
+  // pushSubscription() {
+  //   if (!this.swPush.isEnabled) {
+  //     console.log("Notification is not enabled");
+      
+  //   }
+  //   this.swPush.requestSubscription({
+  //     serverPublicKey: this.notificationPublicKey,
+  //   }).then((sub)=> console.log("RequestSubscription: ", sub)
+  //   ).catch((err) => {
+  //     console.log(err);
+      
   //   })
   // }
 }

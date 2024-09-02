@@ -7,7 +7,7 @@
     const bcrypt = require('bcrypt');
     const {sessionCountdownTimer,logoutStopTimer} =  require('../services/sessionTimer')
     // const io = require('socket.io')
-
+// const webPush =  require('../services/webPushNotification')
     const user = async (req, res) => {
         try {
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -50,7 +50,9 @@
             });
             console.log('Cookie set with token');
             await sendWelcomeEmail(user);
-            res.status(200).send({ message: 'Login successful' ,token});
+            res.status(200).send({ message: 'Login successful', token });
+            //create web push creds
+            // webPush()
             const io = req.app.get('socketio');
             sessionCountdownTimer(io);
         } catch (error) {

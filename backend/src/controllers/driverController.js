@@ -1,7 +1,10 @@
 
 const Driver = require('../models/driverModel');
 const { createContact, deactivateContact } = require('./razorpayGateway')
-const {driverBankAccount} = require('./driverBankAccount')
+const { driverBankAccount } = require('./driverBankAccount')
+const {stripeCustomConnectedAccount} = require('./stripePayment')
+const CustomAccount = require('../models/stripeDriverAccount')
+
 // Create User Route - POST request
 const createNewDriver = async (req, res) => {
     try {
@@ -33,9 +36,14 @@ const createNewDriver = async (req, res) => {
         }
         const newUser = new Driver(driverObject);
         // Save the new user to the database
-        await newUser.save();
-        //----------CREATING FUND ACCOUNT RAZORPAY-------------------
-        
+        // await newUser.save();
+        //----------CREATING FUND ACCOUNT custom connected account-------------------
+        const driverStripeCustomAccount = await stripeCustomConnectedAccount(newUser);
+        console.log('Driver Account: ', driverStripeCustomAccount)
+        // const newDriverAccount = new CustomAccount({
+        //     driverStripeCustomAccount
+        // });
+        // console.log("newDriverAccount: ", newDriverAccount)
         res.status(201).send(newUser);
     } catch (error) {
         console.error('Error:', error.message);
