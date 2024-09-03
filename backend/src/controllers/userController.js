@@ -67,22 +67,31 @@ const createNewUser = async (req, res) => {
 
 const searchUser = async (req, res) => {
   try {
-    const { username, userProfile, email, phone } = req.query;
-    const searchCriteria = {};
+    const { filter, value } = req.query;
 
-    if (username) searchCriteria.username = username;
-    if (userProfile) searchCriteria.userProfile = userProfile;
-    if (email) searchCriteria.email = email;
-    if (phone) searchCriteria.phone = phone;
+    // Initialize an empty query object
+    let query = {};
 
+    if (['userProfile', 'username', 'email', 'phone'].includes(filter)) {
+      query[filter] = value;
+    } else {
+      return res.status(400).send({ message: 'Invalid search criteria.' });
+    }
 
-    const users = await User.find(searchCriteria); // Adjust this line to match your actual database query method
-    res.status(200).json(users);
+    const user = await User.findOne(query);
+
+    if (!user) {
+      return res.status(404).send("User Not Found.");
+    }
+
+    res.status(200).send(user);
+
   } catch (error) {
     console.error('Error fetching specific user:', error);
     res.status(500).send({ message: 'Server Error' });
   }
-}; 
+};
+
 
 module.exports = { searchUser };
 
@@ -154,24 +163,19 @@ const updateUser = async (req, res) => {
     console.log(req.body);
     const { userId, userProfile, username, email, phone, countryCode } = req.body;
     // console.log({userId, userProfile, username, email, phone, countryCode});
-    const user = await User.findByIdAndUpdate(
-      userId, 
-      {
-        userProfile,
-        username,
-        email,
-        phone,
-        countryCode
-      }, 
-      { new: true } // This option ensures the updated document is returned
-    );
-    console.log(user);
-
-    if (!user) {
-      return res.status(404).send("User not found");
+   const userToUpdate = await User.findOne({_id: userId} )
+    if (!userToUpdate) {
+      return res.status(404).send("user not found")
     }
-
-    res.status(200).send(user);
+    console.log('User: ', userToUpdate)
+    userToUpdate.userProfile  = userProfile
+    userToUpdate.username = username
+    userToUpdate.email = email
+    userToUpdate.phone = phone
+    userToUpdate.countryCode = countryCode
+    console.log(userToUpdate)
+    await userToUpdate.save()
+    res.status(202).send(userToUpdate);
   } catch (error) {
     res.status(500).send(error);
   }

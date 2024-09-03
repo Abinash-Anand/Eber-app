@@ -1,6 +1,6 @@
-<div class="alert alert-success" role="alert" *ngIf="userCreated">
+<!-- <div class="alert alert-success" role="alert" *ngIf="userCreated">
     User Successfully Deleted
-</div>
+</div> -->
 <div *ngIf="errorMessage" class="alert alert-danger">
     {{ errorMessage }}
 </div>
@@ -10,47 +10,71 @@
 <form class="m-3 bg-dark" (ngSubmit)="onCreateUser()" #form="ngForm">
     <h3 class="text-light ml-3 p-2">Create a New User</h3>
     <hr class="bg-light">
-    <div class="row  text-light px-4 pt-2 pb-3">
-        
+    <div class="row text-light px-4 pt-2 pb-3">
+
         <div class="col">
-            <label for="userProfile" name="userProfile">User Profile</label>
-            <input type="text" ngModel required name="userProfile" class="form-control" placeholder="User Profile">
+            <label for="userProfile">User Profile</label>
+            <input type="text" ngModel required name="userProfile" class="form-control" placeholder="User Profile"
+                #userProfile="ngModel">
+            <div *ngIf="userProfile.invalid && (userProfile.dirty || userProfile.touched)" class="text-danger">
+                <small *ngIf="userProfile.errors?.required">User Profile is required.</small>
+            </div>
         </div>
+
         <div class="col">
-            <label for="username" name="username">Username</label>
-            <input type="text" ngModel required name="username" class="form-control" placeholder="Username">
+            <label for="username">Username</label>
+            <input type="text" ngModel required name="username" class="form-control" placeholder="Username"
+                #username="ngModel">
+            <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-danger">
+                <small *ngIf="username.errors?.required">Username is required.</small>
+            </div>
         </div>
+
         <div class="col">
-            <label for="name" name="email">Email</label>
-            <input type="email" ngModel required name="email" class="form-control" placeholder="User Email">
+            <label for="email">Email</label>
+            <input type="email" ngModel required email name="email" class="form-control" placeholder="User Email"
+                #email="ngModel">
+            <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
+                <small *ngIf="email.errors?.required">Email is required.</small>
+                <small *ngIf="email.errors?.email">Please enter a valid email address.</small>
+            </div>
         </div>
+
         <div class="col">
-            <label for="name" name="phone">Phone Number</label>
-            <input type="number" ngModel required name="phone" class="form-control" placeholder="Phone">
+            <label for="phone">Phone Number</label>
+            <input type="number" ngModel required name="phone" class="form-control" placeholder="Phone" #phone="ngModel"
+                minlength="10" maxlength="15">
+            <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+                <small *ngIf="phone.errors?.required">Phone Number is required.</small>
+                <small *ngIf="phone.errors?.minlength">Phone Number must be at least 10 digits long.</small>
+                <small *ngIf="phone.errors?.maxlength">Phone Number cannot exceed 15 digits.</small>
+            </div>
         </div>
-        
-        <!-- Dropdown for selecting country -->
+
         <div class="mb-3">
             <label for="countrySelect" class="form-label">Select Country</label>
-            <select id="countrySelect" class="form-select form-control" ngModel required name="countryCode" (change)="onCountryChange($event)">
+            <select id="countrySelect" class="form-select form-control" ngModel required name="countryCode"
+                #countryCode="ngModel" (change)="onCountryChange($event)">
                 <option value="" disabled selected>Select Country</option>
-                <option *ngFor="let country of countries"  [value]="country.countryCode">{{country.name}}
-                </option>
+                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}</option>
             </select>
+            <div *ngIf="countryCode.invalid && (countryCode.dirty || countryCode.touched)" class="text-danger">
+                <small *ngIf="countryCode.errors?.required">Country selection is required.</small>
+            </div>
         </div>
-        <!-- <div class="col">
-            <label for="name" name="countryCode">Country Code</label>
-            <input type="text" ngModel required name="countryCode" class="form-control" placeholder="Country Code">
-        </div> -->
+
     </div>
-    <p class="ml-4"> <strong *ngIf="invalidEmail" class="text-danger">Please Provide Correct and Unique Credentials</strong></p>
-    <button class="btn btn-outline-light px-5  btn-lg m-4" [disabled]="!form.valid">Submit</button>
+    <p class="m-3"><strong *ngIf="invalidEmail" class="text-danger">Credentials not Available!
+            </strong></p>
+    <button class="btn btn-outline-light px-5 btn-lg m-4" [disabled]="!form.valid">Submit</button>
 </form>
+
 <hr>
-<div class="alert alert-success" role="alert" *ngIf="userDeleted">
+<!-- <div class="alert alert-success" role="alert" *ngIf="userDeleted">
     User Successfully Deleted
-</div>
-<div class="row">
+</div> -->
+<div class="container container-table">
+<div class="row ">
     <h3 class="ml-3">Sort Table: </h3>
     <div class="col-sm">
         <div class="dropdown">
@@ -110,7 +134,8 @@
                     </div>
                 </div> -->
                 <button type="button" class="btn btn-success" data-toggle="modal" 
-                data-target="#exampleModal" data-whatever="@mdo">
+                data-target="#updateUser" data-whatever="@mdo"
+                (click)="onEditUser(user)" >
                     Edit</button>
                 <button class="btn btn-info m-1" data-toggle="modal" data-target="#paymentModal" (click)="onAddPayment(user)">Stripe</button>
                 <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
@@ -118,6 +143,60 @@
         </tr>
     </tbody>
 </table>
+
+</div>
+<!--Modal for update-->
+<div class="modal " id="updateUser">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <div class=" position-relative">
+                    <div class="glass-form-container p-4  shadow-lg">
+                        <form class="glass-form text-dark" (ngSubmit)="onUpdateUser()" #updateForm="ngForm">
+                            <h3 class="form-title text-center mb-4">Update User</h3>
+                            <div class="row form-content">
+                                <div class="col-md-6 mb-3">
+                                    <label for="userProfile" class="form-label">User Profile</label>
+                                    <input type="text" ngModel required name="userProfile" class="form-control"
+                                        placeholder="User Profile">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" ngModel required name="username" class="form-control"
+                                        placeholder="Username">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" ngModel required name="email" class="form-control"
+                                        placeholder="Email">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">Phone No.</label>
+                                    <input type="text" ngModel required name="phone" class="form-control"
+                                        placeholder="Phone">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="countrySelect" class="form-label">Select Country</label>
+                                    <select id="countrySelect" class="form-control" ngModel required name="countryCode"
+                                        (change)="onCountryChange($event)">
+                                        <option value="" disabled selected>Select Country</option>
+                                        <option *ngFor="let country of countries" [value]="country.countryCode">
+                                            {{country.name}}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button class="btn-submit mt-4 w-100 rounded-pill py-2"
+                                [disabled]="!updateForm.valid">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--------------------------------------------------------------->
+
 <!-- Payment Modal -->
 
 <div class="modal fade stripe-payment-form" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
@@ -162,10 +241,11 @@
 
 
 <hr>
-<h3>Search User: </h3>
-<div class="alert alert-success" role="alert" *ngIf="searchUser">
+<!-- <div class="alert alert-success" role="alert" *ngIf="searchUser">
     One User Found With search Params: Filter:{{searchByFilter}} and Input:{{searchObject.searchInput}}
-</div>
+</div> -->
+<div class="container">
+    <h3>Search User: </h3>
 <div class="row">
     <nav class="navbar navbar-light bg-light">
         <div class="dropdown my-2">
@@ -195,53 +275,21 @@
  
     
 </div>
-<div class="col " *ngIf="searchUser">
-    <div class="card fs-3 " style="width: 30rem; height:20rem">
-        <div class="card-body ">
-            <img width="100" height="100" src="https://img.icons8.com/ios-filled/50/user-male-circle.png"
-                alt="user-male-circle" /><h4 class="card-title"> {{user.userProfile | uppercase}}</h4>
-            
-            <h4 class="card-subtitle mb-2 ">Username: {{user.username| uppercase}}</h4>
-            <h4 class="card-subtitle mb-2 ">Email: {{user.email}}</h4>
-            <h4 class="card-subtitle mb-2 ">Phone: {{user.phone}}</h4>
-            <h4 class="card-subtitle mb-2 ">Country: {{user.countryCode}}</h4>
-            <p class="card-text"></p>
+
+<div class="col" *ngIf="searchUser">
+    <div class="card user-card shadow-lg" style="width: 30rem; height: 20rem;">
+        <div class="card-body text-center d-flex flex-column align-items-center">
+            <img class="user-avatar mb-3" width="100" height="100"
+                src="https://img.icons8.com/ios-filled/50/user-male-circle.png" alt="user-male-circle" />
+            <h4 class="card-title">{{user.userProfile | uppercase}}</h4>
+            <h5 class="card-subtitle text-muted mb-2">Username: {{user.username | uppercase}}</h5>
+            <h5 class="card-subtitle text-muted mb-2">Email: {{user.email}}</h5>
+            <h5 class="card-subtitle text-muted mb-2">Phone: {{user.phone}}</h5>
+            <h5 class="card-subtitle text-muted mb-2">Country: {{user.countryCode}}</h5>
         </div>
     </div>
 </div>
+
 <hr>
+</div>
 
-
-<!--Modal for update-->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="exampleModalLabel">Update Form</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form (ngSubmit)="onUpdateUser()" #form="ngForm">
-                    <!-- Input field for vehicle name -->
-                    <div class="mb-3">
-                    <input ngModel required name="userProfile" class="px-2 m-1" type="text" placeholder="Change UserProfile">
-                    <input ngModel required name="username" class="px-2 m-1" type="text" placeholder="Change Username">
-                    <input ngModel required name="email" class="px-2 m-1" type="email" placeholder="Change Email">
-                    <input ngModel required name="phone" name="phone" required class="px-2 m-1" type="text" placeholder="Change Phone">
-                    <input ngModel required name="countryCode" class="px-2 m-1" type="text" placeholder="Country Code">
-                    </div>
-                   
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="button" type="submit" class="btn btn-primary"
-                           >Update</button>
-                    </div>
-                </form>
-
-            </div>
-        </div>
-    </div>
-<!--------------------------------------------------------------->

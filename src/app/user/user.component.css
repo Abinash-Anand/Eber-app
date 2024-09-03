@@ -1,11 +1,4 @@
-.card-body{
-   /* border: 2px solid black; */
-   /* box-shadow: 2px 5px 10px black; */
-background-image: linear-gradient(to right top, #bdb6ff, #f1b0e7, #ffb2c7, #ffbeac, #fccfa1);
-box-shadow: 3px 5px 10px #a0bde9;
-font-family: 'fantasy';
 
-}
 .stripe-payment-form {
    background-image: linear-gradient(to bottom, #7340e9, #563db5, #413682, #302c4f, #202020);
 }
@@ -39,4 +32,99 @@ background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, 
 .card{
    z-index: 1000;
    text-align: center;
+}
+
+.background {
+   background: url('/path/to/background-image.jpg') no-repeat center center/cover;
+   position: relative;
+   min-height: 100vh;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+}
+
+.glass-form-container {
+   /* background: rgba(143, 143, 143, 0.253); */
+   backdrop-filter: blur(15px);
+   border-radius: 30px ;
+   padding: 2rem;
+   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+   border: 1px solid rgba(255, 255, 255, 0.18);
+   
+}
+/* .glass-form{
+borderra: 25px;
+} */
+.form-title {
+   font-family: 'Roboto', sans-serif;
+   font-weight: 500;
+   color: #000000;
+}
+
+#updateUser >.form-label {
+   color: #000000;
+   font-weight: 600;
+}
+
+#updateUser >.form-control {
+   background: rgba(255, 255, 255, 0.15);
+   border: none;
+   color: #0a0a0a;
+   padding: 0.15rem;
+   border-radius: 10px;
+   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#updateUser >.form-control::placeholder {
+padding: 10px;}
+
+.btn-submit {
+   background-color: #ff7e67;
+   color: #ffffff;
+   font-weight: bold;
+   font-size: 1rem;
+   transition: background-color 0.3s ease;
+   border: none;
+}
+
+.btn-submit:hover {
+   background-color: #ff3c2f;
+}
+.user-card {
+   background: rgba(255, 255, 255, 0.9);
+   border-radius: 15px;
+   padding: 1.5rem;
+   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+   border: none;
+}
+
+.user-card:hover {
+   transform: translateY(-5px);
+   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.user-avatar {
+   border-radius: 50%;
+   border: 2px solid #007bff;
+   padding: 5px;
+   background-color: #ffffff;
+}
+
+.card-title {
+   font-family: 'Poppins', sans-serif;
+   font-weight: 700;
+   color: #333333;
+   margin-bottom: 0.5rem;
+}
+
+.card-subtitle {
+   font-family: 'Poppins', sans-serif;
+   font-weight: 500;
+   color: #555555;
+   margin-bottom: 0.3rem;
+}
+
+.text-muted {
+   color: #6c757d !important;
 }

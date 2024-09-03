@@ -8,6 +8,8 @@ import { CountryApiService } from '../services/countryApi.service.ts/country-api
 import { Country } from '../shared/country';
 import { CityService } from '../services/city/city.service';
 import { PaymentService } from '../services/payment/payment.service';
+// Import SweetAlert2
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-user',
@@ -43,6 +45,15 @@ export class UserComponent implements OnInit {
   cardValidity: boolean = false
   cardSaved: boolean = false
   userObjectId: string = '';
+  userId: string = '';
+  countryCode: string = '';
+  Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+  });
+  
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -57,7 +68,7 @@ export class UserComponent implements OnInit {
 
   @ViewChild('searchForm') searchFormData!: NgForm;
   @ViewChild('form') userForm!: NgForm;
-  @ViewChild('form') form!: NgForm;
+  @ViewChild('updateForm') form!: NgForm;
 
   constructor(
     private signupService: SignupService,
@@ -123,22 +134,36 @@ export class UserComponent implements OnInit {
     this.userService.createNewUser(this.userObject).subscribe(
       (response) => {
         if (response.status === 201) {
+            Swal.fire({
+        title: 'Success!',
+        text: 'New User Account Created Successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
           this.getAllUsers(); // Fetch the updated user list
-          this.userCreated = true;
+          this.invalidEmail = false;
         }
-        setTimeout(() => {
-          this.userCreated = false;
-        }, 2500);
+        // setTimeout(() => {
+        //   this.userCreated = false;
+        // }, 2500);
         console.log(response);
       },
       (error) => {
+        
+      
         if (error.status === 400) {
           this.invalidEmail = true;
+          
           // setTimeout(() => {
           //   this.invalidEmail = false;
           // }, 2500);
+        } else {
+            this.Toast.fire({
+             icon: 'error',  
+          title: 'Something went wrong.'
+        })
         }
-        console.error('Error creating user:', error);
+        // console.error('Error creating user:', error);
       }
     );
   }
@@ -186,29 +211,57 @@ export class UserComponent implements OnInit {
       this.getAllUsers();
     }
   }
-
+  onEditUser(user) {
+    this.userId = user._id
+    this.countryCode =  user.countryCode
+  }
   onUpdateUser() {
     console.log(this.form);
-    // this.updateUserData = this.updateFormData.value
+    this.updateUserData = this.form.value
+    this.updateUserData.userId = this.userId
+    this.updateUserData.countryCode = this.countryCode
+    this.userService.updateUser(this.updateUserData).subscribe((response) => {
+      console.log(response);
+      if (response.status === 202) {
+        // Example of showing an alert
+        Swal.fire({
+        title: 'Success!',
+        text: 'User Credentials Updated Successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
 
-    // this.updateUserData.userId = user
-    // console.log(this.updateUserData);
-  
-    
-    // this.userService.updateUser(this.updateUserData).subscribe((response) => {
-    //   console.log(response);
-      
-    // })
+      } else {
+        Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong.',
+        icon: 'error',
+      confirmButtonText: 'Retry'
+});
+      }
+    })
   }
 
   onDeleteUser(id: string) {
     console.log(id);
-    this.userService.deleteUser(id).subscribe(() => {
+    this.userService.deleteUser(id).subscribe((response) => {
+      if (response.status === 200) {
+         this.Toast.fire({
+          icon: 'success',  
+          title: 'User Deleted!'
+        });
       this.getAllUsers();
-      this.userDeleted = true;
-      setTimeout(() => {
-        this.userDeleted = false;
-      }, 2500);
+      // this.userDeleted = true;
+      // setTimeout(() => {
+      //   this.userDeleted = false;
+      // }, 2500);
+      } else {
+        this.Toast.fire({
+          icon: 'error',  
+          title: 'Something went wrong!'
+        });
+      }
+     
     });
   }
 
@@ -223,17 +276,29 @@ export class UserComponent implements OnInit {
 
     this.userService.getSpecificUser(this.searchObject).subscribe(
       (response) => {
-        console.log('Search Response:', response.length);
-        if (response.length !== 0) {
-          
-          this.user = response[0];
-          console.log("USer: ", this.user);
+        console.log('Search Response:', response);
+        if (response.status === 200) {
+          this.user = response.body;
+          console.log("user ", this.user)
+          // console.log("USer: ", this.user);
           this.searchUser = true;
-        } else {
-          this.searchUser = false;
-        }
+        // Example of showing an alert
+        this.Toast.fire({
+          icon: 'success',  
+          title: 'User Found!'
+        });
+        } 
+        else  { 
+          console.log("error")
+        this.searchUser = false;
+       
+      }
       },
       (error) => {
+         this.Toast.fire({
+          icon: 'error',
+          title: 'User Not Found'
+});
         console.error('Error fetching specific user:', error);
       }
     );
@@ -249,16 +314,24 @@ export class UserComponent implements OnInit {
 
     this.paymentService.sendPaymentMethodToServer(result.paymentMethod).subscribe({
       next: (response: any) => {
-        if (response.status === 500) {
+               Swal.fire({
+        title: 'Success!',
+        text: "User's Card Details Added Successfully! ",
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
+        if (!response ) {
+           this.Toast.fire({
+          icon: 'error',  
+          title: 'Something went wrong!'
+        });
           this.cardValidity = true;
-        } else if (response.status === "succeeded") {
-          this.cardSaved = true;
-        }
+        } 
         this.errorMessage = '';
-        setTimeout(() => {
-          this.cardSaved = false;
-          this.cardValidity = false;
-        }, 3000);
+        // setTimeout(() => {
+        //   this.cardSaved = false;
+        //   this.cardValidity = false;
+        // }, 3000);
       },
       error: (error) => {
         console.error('Server error:', error);

@@ -31,19 +31,19 @@
     //   return this.http.get<User>(`${environment.backendServerPORT}/user/all-users`)
     // }
     //get specific user
-  getSpecificUser(searchObject: any): Observable<User[]> {
-    const params = new HttpParams()
-      .set('username', searchObject.searchBy === 'username' ? searchObject.searchInput : '')
-      .set('userProfile', searchObject.searchBy === 'userProfile' ? searchObject.searchInput : '')
-      .set('email', searchObject.searchBy === 'email' ? searchObject.searchInput : '')
-      .set('phone', searchObject.searchBy === 'phone' ? searchObject.searchInput : null);
+  getSpecificUser(searchObject:any): Observable<any> {
+    // Construct HttpParams with search criteria
+    let params = new HttpParams()
+      .set('filter', searchObject.searchBy)
+      .set('value', searchObject.searchInput);
 
-    return this.http.get<User[]>(`${environment.backendServerPORT}/user/specific-user`, { params });
+    return this.http.get<User>(`${environment.backendServerPORT}/user/specific-user`, { params, observe: 'response' });
+  
   }
-    updateUser(userData) {
+    updateUser(userData):Observable<HttpResponse<any>> {
       return this.http.patch<any>(`${environment.backendServerPORT}/user/update-user`, userData,{observe:'response'})
     } 
     deleteUser(id:string) {
-      return this.http.delete(`${environment.backendServerPORT}/user/delete-user/${id}`, )
+      return this.http.delete(`${environment.backendServerPORT}/user/delete-user/${id}`,{observe:'response'} )
     }
   }

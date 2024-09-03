@@ -1,6 +1,6 @@
 let tempSessionInterval;
 
-const sessionCountdownTimer = (io, initialHours = 0, initialMinutes = 19, initialSeconds = 60) => {
+const sessionCountdownTimer = (io, initialHours = 0, initialMinutes = 59, initialSeconds = 60) => {
     let hours = initialHours;
     let minutes = initialMinutes;
     let seconds = initialSeconds;

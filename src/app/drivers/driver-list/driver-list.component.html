@@ -254,50 +254,52 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <form class="m-3 bg-dark" (ngSubmit)="onUpdateDriver()" #updateForm="ngForm">
-                    <h3 class="text-light ml-3 p-2">Update Driver</h3>
-                    <div class="row text-light px-4 pt-2 pb-3">
-                        <div class="col-md-6 mb-3">
-                            <label for="driverProfile" name="driverProfile">Driver Profile</label>
-                            <input type="text" ngModel required name="driverProfile" class="form-control"
-                                placeholder="Driver Profile">
+            <!-- app.component.html -->
+            <div class="background">
+                <div class="glass-form-container">
+                    <form class="glass-form" (ngSubmit)="onUpdateDriver()" #updateForm="ngForm">
+                        <h3 class="form-title">Update Driver</h3>
+                        <div class="row form-content">
+                            <div class="col-md-6 mb-3">
+                                <label for="driverProfile">Driver Profile</label>
+                                <input type="text" ngModel required name="driverProfile" class="form-control"
+                                    placeholder="Driver Profile">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="driverName">Name</label>
+                                <input type="text" ngModel required name="driverName" class="form-control" placeholder="Name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="driverEmail">Email</label>
+                                <input type="email" ngModel required name="driverEmail" class="form-control" placeholder="Email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="driverPhone">Phone No.</label>
+                                <input type="text" ngModel required name="driverPhone" class="form-control" placeholder="Phone">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="countrySelect" class="form-label">Select Country</label>
+                                <select id="countrySelect" class="form-control" ngModel required name="countryCode"
+                                    (change)="onCountryChange($event)">
+                                    <option value="" disabled selected>Select Country</option>
+                                    <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="citySelect" class="form-label">Select City/Zone</label>
+                                <select ngModel required name="city" id="citySelect" class="form-control"
+                                    (change)="onCityChange($event)">
+                                    <option value="" disabled selected>Select City/Zone</option>
+                                    <option *ngFor="let city of filteredCityArray" [value]="city.city">{{city.city}}</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="driverName" name="driverName">Name</label>
-                            <input type="text" ngModel required name="driverName" class="form-control"
-                                placeholder="Name">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="driverEmail" name="driverEmail">Email</label>
-                            <input type="email" ngModel required name="driverEmail" class="form-control"
-                                placeholder="Email">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="driverPhone" name="driverPhone">Phone No.</label>
-                            <input type="text" ngModel required name="driverPhone" class="form-control"
-                                placeholder="Phone">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="countrySelect" class="form-label">Select Country</label>
-                            <select id="countrySelect" class="form-select form-control" ngModel required
-                                name="countryCode" (change)="onCountryChange($event)">
-                                <option value="" disabled selected>Select Country</option>
-                                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
-                                </option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="citySelect" class="form-label">Select City/Zone</label>
-                            <select ngModel required name="city" id="citySelect" class="form-select form-control"
-                                (change)="onCityChange($event)">
-                                <option value="" disabled selected>Select City/Zone</option>
-                                <option *ngFor="let city of filteredCityArray" [value]="city.city">{{city.city}}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <button class="btn btn-success btn-lg m-4" [disabled]="!updateForm.valid">Update</button>
-                </form>
+                        <button class="btn-submit" [disabled]="!updateForm.valid">Update</button>
+                    </form>
+                </div>
+            </div>
+
             </div>
 
         </div>

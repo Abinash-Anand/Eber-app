@@ -16,6 +16,7 @@ import { CreateRideForm } from '../../shared/create-ride-form';
 import { PaymentService } from '../../services/payment/payment.service';
 import { response } from 'express';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-create-ride',
@@ -77,7 +78,13 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     scheduleDateTime: '',
     
   }
-  
+  Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+  });
+    
   //----------Pricing Values---------------
   drvierProfit: number = null;
   time: number = null;
@@ -182,17 +189,20 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
     const searchObject: { searchBy: string, searchInput: any } = { searchBy: 'phone', searchInput: phoneNumber };
     this.userService.getSpecificUser(searchObject).subscribe(
      ( user:any) => {
-        if (user.length !== 0) {
+        if (user.status === 200) {
           console.log(user);
-          this.userId = user[0]._id
+          this.userId = user.body._id
           console.log(this.userId);
-          this.user = user[0].userProfile;
+          this.user = user.body.userProfile;
           this.isFormEnabled = true;
-          this.userFoundAlert = true;
-         
-          setTimeout(() => {
-            this.userFoundAlert = false;
-          }, 2000);
+          // this.userFoundAlert = true;
+        this.Toast.fire({
+          icon: 'success',  
+          title: 'User Account Exist'
+        });
+          // setTimeout(() => {
+          //   this.userFoundAlert = false;
+          // }, 2000);
           
           this.requestForm.get('paymentOption').enable();
           this.requestForm.get('pickupLocation').enable();
@@ -204,12 +214,22 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
           this.loadInitialData();
             console.log( this.cityMap);
         } else {
-          this.userError = 'User does not exist';
+          // this.userError = 'User does not exist';
           this.isFormEnabled = false;
+
         }
       },
       error => {
-        this.userError = 'Error fetching user details';
+          this.requestForm.get('paymentOption').disable();
+          this.requestForm.get('pickupLocation').disable();
+          this.requestForm.get('dropOffLocation').disable();
+          this.requestForm.get('serviceType').disable();
+          this.requestForm.get('scheduleDateTime').disable(); 
+         this.Toast.fire({
+          icon: 'error',  
+          title: 'User Account does not Exist!'
+        });
+        // this.userError = 'Error fetching user details';
         this.isFormEnabled = false;
       }
     );
@@ -576,16 +596,31 @@ export class CreateRideComponent implements OnInit, AfterViewInit {
      ( response:any) => {
         console.log('Ride created successfully:', response);
         if (response) {
+             Swal.fire({
+        title: 'Success!',
+        text: "Your Ride Request Has Been Created. You'll be redirected to Confirmed Rides ",
+        icon: 'success',
+        confirmButtonText: 'OK'
+               });
           this.formSubmitted = true;
           this.loading = true
           setTimeout(() => {
             this.formSubmitted = false
             this.router.navigate(['/rides/confirm-ride'])
-        }, 2000);
+        }, 3000);
+        } else {
+            this.Toast.fire({
+          icon: 'error',  
+          title: 'User Account does not Exist'
+        });
         }
        
       },
       error => {
+          this.Toast.fire({
+          icon: 'error',  
+          title: 'Error occured while Creating a Ride Request'
+        });
         console.error('Error creating ride:', error);
       }
     );

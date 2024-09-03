@@ -4,6 +4,8 @@ const Booking = require('./bookedRidesController');
 const Pricing = require('../models/pricingModel');
 const { createRazorpayTransfer } = require('./razorpayGateway');
 const chalk = require('chalk')
+
+
 const createNewPayment = async (req, res) => {
   const { paymentMethod } = req.body; // Payment method data from request body
 
@@ -66,7 +68,7 @@ const createNewPayment = async (req, res) => {
 
         console.log("New Payment Method: ", newPaymentMethod);
         await newPaymentMethod.save();
-        return res.status(200).send(newPaymentMethod);
+        return res.status(201).send(newPaymentMethod);
       }
 
       return res.status(200).send(existingPaymentMethod);
@@ -83,6 +85,7 @@ const createNewPayment = async (req, res) => {
 
       return res.status(200).send(existingPaymentMethod);
     }
+    
   } catch (error) {
     console.error('Error saving payment method:', error.message);
     return res.status(500).send({ error: error.message });

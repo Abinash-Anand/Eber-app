@@ -1,6 +1,6 @@
-<div class="user-found-alert" *ngIf="userFoundAlert">
+<!-- <div class="user-found-alert" *ngIf="userFoundAlert">
     <h1>User Found!</h1>
-</div>
+</div> -->
 
 
     <div class="row px-3 my-4">
@@ -11,8 +11,8 @@
                     <label for="phone" class="form-label font-weight-bold">Phone Number</label>
                     <input type="number" id="phone" formControlName="phone" class="form-control"
                         (keydown.enter)="fetchUserDetails()">
-                    <div *ngIf="userError" class="text-danger">{{ userError }}</div>
-                    <p class="p-2 user my-2" *ngIf="user !== ''"><strong>User: {{user | uppercase}}</strong></p>
+                    <!-- <div *ngIf="!userError" class="text-danger">{{ userError }}</div> -->
+                    <p class="p-2 user my-2" *ngIf="isFormEnabled"><strong>User: {{user | uppercase}}</strong></p>
                 </div>
 
                 <!-- Payment Options -->
