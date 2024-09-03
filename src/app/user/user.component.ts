@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { SignupService } from '../services/authentication/signup.service';
 import { Signup } from '../shared/signup';
 import { NgForm } from '@angular/forms';
@@ -14,7 +14,9 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css'] // Note the plural form 'styleUrls'
+  styleUrls: ['./user.component.css'], // Note the plural form 'styleUrls'
+    encapsulation: ViewEncapsulation.Emulated // This will apply the styles globally
+
 })
 export class UserComponent implements OnInit {
   users: Signup[] = [];

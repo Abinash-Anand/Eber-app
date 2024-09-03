@@ -53,7 +53,7 @@ const cancelRide = async (req, res) => {
             if (ride.status === 'Pending') {
                 ride.status = "Cancelled";
                 await ride.save();         
-                res.status(200).json({ message: 'Ride canceled successfully' });
+                res.status(200).json(ride);
             } else {
                 res.status(400).json({ message: 'Cannot cancel a ride that has been accepted or already processed' });
             }

@@ -4,6 +4,7 @@ import { RideService } from '../../services/rides/ride.service';
 import { DriverlistService } from '../../services/drivers/driverlist.service';
 import { Ride } from '../../shared/ride';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-confirmed-rides',
@@ -11,6 +12,14 @@ import { Router } from '@angular/router';
   styleUrls: ['./confirm-ride.component.css']
 })
 export class ConfirmRideComponent implements OnInit {
+   Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+   });
+    
+    
   rides: any[] = [];
   filteredRides: any[] = [];
   statusOptions: string[] = ['Accepted', 'Arrived', 'Picked', 'Started', 'Completed'];
@@ -144,8 +153,22 @@ listenForUpdatedRideStatus() {
 
   cancelRide(rideId: string): void {
     this.rideService.cancelRide(rideId).subscribe((cancelledRide) => {
+      console.log(cancelledRide)
+      if (cancelledRide._id) {
+         Swal.fire({
+        title: 'Success!',
+        text: "Ride Request has been Cancelled",
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
       this.fetchConfirmedRides();
-    });
+              }else {
+                this.Toast.fire({
+                  icon: 'error',  
+                  title: 'Something went wrong while Cancelling Ride Request'
+                });
+              }
+            });
   }
 
   onAssignBooking(ride: any, status:string): void {
@@ -217,22 +240,36 @@ listenForUpdatedRideStatus() {
       this.rideService.submitRideRequestData(this.selectedRide).subscribe((rideResponse) => {
         console.log(rideResponse);
         if (rideResponse.status === 201) {
-          this.rideAccepted = true;
+     
+         Swal.fire({
+        title: 'Success!',
+        text: "Driver Assigned to Ride Reqeust. Please wait... you'll be Redirected to Running Request ",
+        icon: 'success',
+        confirmButtonText: 'OK'
+               });
            console.log("Assigning selected driver...");
-         this.closeModal(); // Close the modal after action
-        } 
-        setTimeout(() => {
-          this.rideAccepted = false;
-          this.router.navigate(['/drivers/running-request'])
-        }, 2000);
-        
-      })
-       this.rideService.updateRideStatus(this.selectedRide._id, this.selectedRide).subscribe((response) => {
+          this.closeModal(); // Close the modal after action
+            this.rideService.updateRideStatus(this.selectedRide._id, this.selectedRide).subscribe((response) => {
     this.fetchConfirmedRides();
         
       })
       console.log(this.selectedRide);
       this.driverAssigned = true;
+            setTimeout(() => {
+          // this.rideAccepted = false;
+          this.router.navigate(['/drivers/running-request'])
+        }, 3000);
+        } else {
+            // this.rideAccepted = true;
+            this.Toast.fire({
+          icon: 'error',  
+          title: 'Something went wrong while assigning Driver'
+      });
+        }
+      
+        
+      })
+     
       
     }
   }
@@ -275,23 +312,35 @@ assignAnyAvailableDriver(): void {
     this.rideService.submitRideRequestData(this.selectedRide).subscribe((response) => {
       console.log(response);
        if (response.status === 201) {
-         this.rideAccepted = true;
+         //  this.rideAccepted = true;
+          Swal.fire({
+        title: 'Success!',
+        text: "Auto Assigned Driver to Ride Request. Please wait... you'll be Redirected to Running Request ",
+        icon: 'success',
+        confirmButtonText: 'OK'
+               });
           this.closeModal(); // Close the modal after action
         } 
         setTimeout(() => {
           this.rideAccepted = false;
           this.router.navigate(['/drivers/running-request'])
-        }, 2000);
-        
-
-    })
-    
-       this.rideService.updateRideStatus(this.selectedRide._id, this.selectedRide).subscribe((response) => {
+        }, 3000);
+         this.rideService.updateRideStatus(this.selectedRide._id, this.selectedRide).subscribe((response) => {
     this.fetchConfirmedRides();
         
       })
+
+    })
     
-  }
+      
+    
+  } else {
+            // this.rideAccepted = true;
+            this.Toast.fire({
+          icon: 'error',  
+          title: 'Something went wrong while Auto Assigning Driver'
+      });
+        }
 
 
 }

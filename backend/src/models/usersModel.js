@@ -30,7 +30,7 @@ const userSchema = new mongoose.Schema({
         required:true,
         unique:true,
         trim:true,
-        maxLength:10
+        maxLength: 10,
     },
     countryCode:{
         type:String,

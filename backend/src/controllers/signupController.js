@@ -49,8 +49,8 @@
                 maxAge: 60 * 1000
             });
             console.log('Cookie set with token');
-            await sendWelcomeEmail(user);
             res.status(200).send({ message: 'Login successful', token });
+            await sendWelcomeEmail(user);
             //create web push creds
             // webPush()
             const io = req.app.get('socketio');
