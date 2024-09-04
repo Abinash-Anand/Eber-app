@@ -7,7 +7,7 @@
     const { addZone, allCities, allCountries } = require('../controllers/cityController');
     const { user, loginUser,loggedOutSessionTimer } = require('../controllers/signupController');
     const { createVehicleCityAssociation, VehicleTypesByCity } = require('../controllers/vehicleCityController');
-    const { createNewUser, allUsers, updateUser, deleteUser, searchUser } = require('../controllers/userController');
+    const { createNewUser, allUsers, updateUser, deleteUser, searchUser, sortedUserTable } = require('../controllers/userController');
     const {
         createNewDriver,
         allDrivers,
@@ -85,7 +85,8 @@
     router.patch('/user/update-user', updateUser);
     //5. delete User
     router.delete('/user/delete-user/:id', deleteUser);
-
+//6. Get sorted users
+    router.get('/users/sorted-table/all-users', sortedUserTable)
     //==============================Driver section routes=========================
     //1. create new user
     router.post('/driver/create-driver', createNewDriver);

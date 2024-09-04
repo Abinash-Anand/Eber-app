@@ -31,7 +31,7 @@ export class UserComponent implements OnInit {
   userList: any[] = [];
   sortType: string = 'Sort By';
   currentPage: number = 1;
-  pageSize: number = 5;
+  pageSize: number = 10;
   totalPages: number = 0;
   userDeleted: boolean = false;
   userUpdated: boolean = false;
@@ -55,7 +55,9 @@ export class UserComponent implements OnInit {
   showConfirmButton: false,
   timer: 3000
   });
-  
+  //===================
+  sortBy: string = '';
+  orderBy: string = '';
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -113,7 +115,6 @@ export class UserComponent implements OnInit {
     const selectElement = event.target as HTMLSelectElement;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     this.selectedCountryId = selectedOption.value;
-
     this.filterCitiesByCountry();
   }
 
@@ -207,6 +208,23 @@ export class UserComponent implements OnInit {
     this.userList.sort((a, b) => b.username.localeCompare(a.username));
   }
 
+
+  //==========================================Server Sorting the table======================
+  orderTableBy(orderBy: string) {
+    this.sortBy =  orderBy
+    
+  }
+  serverHandledSorting(sortParam: string) {
+    this.userService.sortAllUsers(this.currentPage, this.pageSize, sortParam, this.sortBy)
+      .subscribe((response) => {
+        if (response.status === 200) {
+          console.log('Sorted table: ', response)
+          // this.userList = null;
+          this.userList = response.body.users
+        }
+      })
+  }
+
   changePage(newPage: number) {
     if (newPage > 0 && newPage <= this.totalPages) {
       this.currentPage = newPage;
@@ -284,6 +302,9 @@ export class UserComponent implements OnInit {
           console.log("user ", this.user)
           // console.log("USer: ", this.user);
           this.searchUser = true;
+          this.userList = this.userList.filter((user) => {
+            return user._id === response.body._id
+          })
         // Example of showing an alert
         this.Toast.fire({
           icon: 'success',  

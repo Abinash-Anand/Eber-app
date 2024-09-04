@@ -1,5 +1,3 @@
-const express = require("express")
-
 const User = require('../models/usersModel')
 // const router = new express.Router();
 
@@ -93,7 +91,7 @@ const searchUser = async (req, res) => {
 };
 
 
-module.exports = { searchUser };
+// module.exports = { searchUser };
 
 
 
@@ -102,7 +100,7 @@ const allUsers = async (req, res, next) => {
   try {
     let { page, size } = req.query;
     page = parseInt(page) || 1;
-    size = parseInt(size) || 5;
+    size = parseInt(size) || 10;
 
     const limit = size;
     const skip = (page - 1) * size;
@@ -192,4 +190,44 @@ const deleteUser =  async(req,res)=>{
     }
 }
 
-module.exports= {createNewUser, allUsers, updateUser, deleteUser, searchUser}
+
+//==================sortedUserTable=============
+const sortedUserTable = async(req, res) => {
+  try {
+    // Extract query parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const size = parseInt(req.query.size) || 10; // Default to 10 items per page
+    const sortBy = req.query.sortBy || 'username'; // Default sorting by username
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending
+    console.log("SortBy: ", sortBy)
+      if (!['userProfile','username', 'email', 'phone', 'countryCode'].includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort column' });
+      }
+    // const limit = size;
+    const skip = (page - 1) * size;
+     // Query database with sorting and pagination
+    const users = await User.find()
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(size);
+        // Count total users for pagination
+    const totalUsers = await User.countDocuments();
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalUsers / size);
+
+    // Send response
+    res.status(200).json({
+      users,
+      page,
+      size,
+      totalPages
+    });
+  } catch (error) {
+      console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  
+  }
+}
+
+module.exports= {createNewUser, allUsers, updateUser, deleteUser, searchUser, sortedUserTable}

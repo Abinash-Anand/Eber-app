@@ -25,7 +25,18 @@
     return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
       `${environment.backendServerPORT}/all-users?page=${page}&size=${size}`
     );
-  }
+   }
+    
+    //=========sorting using server===========
+
+   sortAllUsers(page: number, size: number, sortBy: string, sortOrder:string): Observable<any> {
+  return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
+    `${environment.backendServerPORT}/users/sorted-table/all-users?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+    {observe:'response'}
+  );
+}
+
+    
     //get users
     // getAllUsers() {
     //   return this.http.get<User>(`${environment.backendServerPORT}/user/all-users`)

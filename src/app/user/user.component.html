@@ -73,24 +73,66 @@
 <!-- <div class="alert alert-success" role="alert" *ngIf="userDeleted">
     User Successfully Deleted
 </div> -->
-<div class="container container-table">
-<div class="row ">
-    <h3 class="ml-3">Sort Table: </h3>
-    <div class="col-sm">
-        <div class="dropdown">
+<div class="container container-table ">
+    <h3>Users Table</h3>
+    <hr>
+<div class="row bg-dark py-3">    
+    <div class="col-1 ">
+        <div class="dropdown ">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 {{sortType}}
             </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" (click)="onSortTable('date')">Date/Time</a>
                 <a class="dropdown-item" (click)="onSortTable('ascending')">Ascending</a>
                 <a class="dropdown-item" (click)="onSortTable('descending')">Descending</a>
+                <a class="dropdown-item" (click)="serverHandledSorting('userProfile')">User Profile</a>
+                <a class="dropdown-item" (click)="serverHandledSorting('username')">Username</a>
+                <a class="dropdown-item" (click)="serverHandledSorting('email')">Email</a>
+                <a class="dropdown-item" (click)="serverHandledSorting('phone')">Phone</a>
+                <a class="dropdown-item" (click)="serverHandledSorting('countryCode')">Country Code</a>
+                
+            </div>
+        </div>
+       
+    </div>
+    <div class="col-2 mx-4">
+        <div class="dropdown "> 
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Order By
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a class="dropdown-item" (click)="orderTableBy('asc')">Ascending</a>
+                <a class="dropdown-item" (click)="orderTableBy('desc')">Descending</a>
             </div>
         </div>
     </div>
-</div>
+    <div class="col-1">
+                    <div class="dropdown ">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            {{searchByFilter}}
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <button class="dropdown-item" (click)="onSelectSearchFilter('userProfile')">User Profile</button>
+                            <button class="dropdown-item" (click)="onSelectSearchFilter('username')">Username</button>
+                            <button class="dropdown-item" (click)="onSelectSearchFilter('email')">Email</button>
+                            <button class="dropdown-item" (click)="onSelectSearchFilter('phone')">Phone</button>
+                        </div>
+                    </div>
+     </div>
+     <div class="col-4">
+    <form class="form-inline d-flex mx-3" (ngSubmit)="onSearchUser()" #searchForm="ngForm">
+        <input ngModel required name="searchInput" class="form-control mr-sm-2" type="search" placeholder="Search"
+            aria-label="Search">
+        <button [disabled]="!searchForm.valid" class="btn btn-outline-light my-2 my-sm-0 ml-auto"
+            type="submit">Search</button>
+    </form>
 
+     </div>
+<hr class="my-3">
 <table class="table table-striped">
     <thead>
         <tr>
@@ -224,7 +266,8 @@
         </div>
     </div>
 </div>
-<nav aria-label="Page navigation example">
+
+<nav aria-label="Page navigation example" class="my-4">
     <ul class="pagination justify-content-center">
         <li class="page-item" [class.disabled]="currentPage === 1">
             <a class="page-link" (click)="changePage(currentPage - 1)">Previous</a>
@@ -240,43 +283,12 @@
 </nav>
 
 
-<hr>
 <!-- <div class="alert alert-success" role="alert" *ngIf="searchUser">
     One User Found With search Params: Filter:{{searchByFilter}} and Input:{{searchObject.searchInput}}
 </div> -->
-<div class="container">
-    <h3>Search User: </h3>
-<div class="row">
-    <nav class="navbar navbar-light bg-light">
-        <div class="dropdown my-2">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                {{searchByFilter}}
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <button class="dropdown-item" (click)="onSelectSearchFilter('userProfile')">User Profile</button>
-                <button class="dropdown-item" (click)="onSelectSearchFilter('username')">Username</button>
-                <button class="dropdown-item" (click)="onSelectSearchFilter('email')">Email</button>
-                <button class="dropdown-item" (click)="onSelectSearchFilter('phone')">Phone</button>
 
-            </div>
-        </div>
-        <form class="form-inline mx-3 "  
-              (ngSubmit)="onSearchUser()"
-              #searchForm="ngForm">
-            <input ngModel required name="searchInput"
-                   class="form-control  mr-sm-2" type="search"
-                   placeholder="Search"
-                   aria-label="Search">
-            <button [disabled]="!searchForm.valid" class="btn btn-outline-success 
-                    my-2 my-sm-0" type="submit" >Search</button>
-        </form>
-    </nav>
- 
-    
-</div>
 
-<div class="col" *ngIf="searchUser">
+<!-- <div class="col" *ngIf="searchUser">
     <div class="card user-card shadow-lg" style="width: 30rem; height: 20rem;">
         <div class="card-body text-center d-flex flex-column align-items-center">
             <img class="user-avatar mb-3" width="100" height="100"
@@ -291,5 +303,5 @@
 </div>
 
 <hr>
-</div>
+</div> -->
 
