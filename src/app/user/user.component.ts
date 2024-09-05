@@ -59,8 +59,9 @@ export class UserComponent implements OnInit {
   });
   
   //===================
+
   sortBy: string = '';
-  orderBy: string = '';
+  orderBy: string = 'Order By';
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
   } = {
@@ -214,10 +215,12 @@ export class UserComponent implements OnInit {
 
   //==========================================Server Sorting the table======================
   orderTableBy(orderBy: string) {
-    this.sortBy =  orderBy
+    this.sortBy = orderBy
+    this.orderBy = orderBy
     
   }
   serverHandledSorting(sortParam: string) {
+    this.sortType = sortParam
     this.userService.sortAllUsers(this.currentPage, this.pageSize, sortParam, this.sortBy)
       .subscribe((response) => {
         if (response.status === 200) {
