@@ -65,5 +65,13 @@ export class DriverlistService {
     return this.http.get(`${environment.backendServerPORT}/get/drivers`, {observe:'response'})
   }
 
+     //=========sorting using server===========
 
+  sortAllUsers(page: number, size: number, sortBy: string, sortOrder: string): Observable<any> {
+     console.log(page, size, sortBy, sortOrder)
+  return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
+    `${environment.backendServerPORT}/drivers/sorted-table/all-drivers?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
+    {observe:'response'}
+  );
+}
 }

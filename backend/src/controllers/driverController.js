@@ -60,9 +60,9 @@ const searchDriver = async (req, res) => {
         if (username) searchCriteria.username = username;
         if (userProfile) searchCriteria.userProfile = userProfile;
         if (email) searchCriteria.email = email;
-
-        const users = await Driver.find(searchCriteria);
-        res.status(200).json(users);
+        console.log(searchCriteria)
+        const driver = await Driver.find(searchCriteria);
+        res.status(200).send(driver);
     } catch (error) {
         console.error('Error fetching specific user:', error);
         res.status(500).send({ message: 'Server Error' });
@@ -195,6 +195,47 @@ const allDriversStatus = async (req, res) => {
 }
 
 
+const sortedDriverTable = async (req, res) => {
+    console.log(req.body)
+  try {
+    // Extract query parameters
+    const page = parseInt(req.query.page) || 1; // Default to page 1
+    const size = parseInt(req.query.size) || 10; // Default to 10 items per page
+    const sortBy = req.query.sortBy || 'username'; // Default sorting by username
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending
+      console.log("SortBy: ", sortBy)
+      
+      if (!['userProfile', 'username', 'email', 'phone', 'countryCode', 'city'].includes(sortBy)) {
+        return res.status(400).json({ error: 'Invalid sort column' });
+      }
+    // const limit = size;
+    const skip = (page - 1) * size;
+     // Query database with sorting and pagination
+    const drivers = await Driver.find()
+      .sort({ [sortBy]: sortOrder })
+      .skip(skip)
+      .limit(size);
+        // Count total users for pagination
+    const totalDrivers = await Driver.countDocuments();
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalDrivers / size);
+
+    // Send response
+    res.status(200).json({
+      drivers,
+      page,
+      size,
+      totalPages
+    });
+  } catch (error) {
+      console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  
+  }
+}
+
+
 
 
 
@@ -206,5 +247,6 @@ module.exports = {
     searchDriver,
     updateDriverServiceType,
   toggleDriverStatus,
-    allDriversStatus
+    allDriversStatus,
+    sortedDriverTable
 };

@@ -27,6 +27,7 @@ export class DriverListComponent implements OnInit {
   @ViewChild('form') formData: NgForm;
   @ViewChild('updateForm') updateForm: NgForm;
   users: Signup[] = [];
+  sortBy: string = '';
   userObject: any = {
     userProfile: '',
     username: '',
@@ -47,7 +48,7 @@ export class DriverListComponent implements OnInit {
   vehicleDataArray: Vehicle[] = [];
   combinedPricingAndVehicleObject: any[]=[]
   currentPage: number = 1;
-  pageSize: number = 5;
+  pageSize: number = 10;
   totalPages: number = 0;
   userDeleted: boolean = false;
   userUpdated: boolean = false;
@@ -208,6 +209,21 @@ export class DriverListComponent implements OnInit {
   sortUsersByUsernameDescending() {
     this.userList.sort((a, b) => b.username.localeCompare(a.username));
   }
+  //==========================================Server Sorting the table======================
+  orderTableBy(orderBy: string) {
+    this.sortBy =  orderBy
+  }
+  serverHandledSorting(sortParam: string) {
+    console.log(sortParam)
+    this.driverListService.sortAllUsers(this.currentPage, this.pageSize, sortParam, this.sortBy)
+      .subscribe((response) => {
+        if (response.status === 200) {
+          console.log('Sorted table: ', response)
+          // this.userList = null;
+          this.userList = response.body.drivers
+        }
+      })
+  }
 
   changePage(newPage: number) {
     if (newPage > 0 && newPage <= this.totalPages) {
@@ -246,14 +262,15 @@ export class DriverListComponent implements OnInit {
 
     this.driverListService.getSpecificUser(this.searchObject).subscribe(
       (response) => {
-        console.log('Search Response:', response.length);
-        this.user.userProfile = response[0].userProfile
-        this.user.username = response[0].username
-        this.user.email = response[0].email
-        this.user.phone = response[0].phone
-        this.user.countryCode = response[0].countryCode
+        console.log('Search Response:', response);
+        // this.user.userProfile = response[0].userProfile
+        // this.user.username = response[0].username
+        // this.user.email = response[0].email
+        // this.user.phone = response[0].phone
+        // this.user.countryCode = response[0].countryCode
         if (response.length !== 0) {
-          this.searchUser = true;
+          this.userList = null
+          this.userList =  response
         } else {
           this.searchUser = false;
         }
