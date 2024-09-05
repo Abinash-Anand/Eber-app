@@ -1,7 +1,7 @@
     // routers/routers.js
     const express = require('express');
     const router = express.Router();
-    const { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity } = require('../controllers/vehicleTypeController');
+    const { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity, vehicleTypechecking } = require('../controllers/vehicleTypeController');
     const upload = require('../config/multerConfig');
     const { addCountry, getCountries, singleCountry } = require('../controllers/countryController');
     const { addZone, allCities, allCountries } = require('../controllers/cityController');
@@ -40,7 +40,8 @@
     router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
     // Route to get the vehicle data from server
     router.get('/req-vehicle-data', vehicleData);
-
+    //Checking if the vehicle type already exists or not
+    router.get('/pricing/vehicles-type/check/:id', vehicleTypechecking)
     // Route to update the vehicle data
     router.patch('/update-vehicle-data/:id', updateVehicleData);
 

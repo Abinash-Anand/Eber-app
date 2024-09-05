@@ -14,13 +14,15 @@
                     <h2>Vehicle Form</h2>
                     <label for="vehicleName" class="form-label">Vehicle Name</label>
                     <input type="text" class="form-control" id="vehicleName" placeholder="Enter vehicle name" required
-                        name="vehicleName" ngModel #vehicleName="ngModel" />
+                        name="vehicleName" ngModel #vehicleName="ngModel"  
+                        (input)="onInputVehicleType()" />
                     <p class="warning" *ngIf="vehicleName.invalid && vehicleName.touched">
                         Vehicle name is required.
                     </p>
+                    <p class="text-danger" *ngIf="vehicleTypeAlreadyExist">Vehicle Type Already Exist</p>
                 </div>
                 <!-- Dropdown for selecting car type -->
-                <div class="mb-3">
+                <!-- <div class="mb-3">
                     <label for="carType" class="form-label">Vehicle Type</label>
                     <div class="dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
@@ -38,7 +40,7 @@
                             Note: Vehicle Type Required
                         </p>
                     </div>
-                </div>
+                </div> -->
                 <!-- Hidden input to bind car type to form -->
                 <input type="hidden" name="carType" [ngModel]="carType" />
                 <!-- Input field for vehicle icon -->
@@ -50,6 +52,7 @@
                     <p class="warning" *ngIf="vehicleIcon.invalid && vehicleIcon.touched">
                         Please upload an image file.
                     </p>
+                    <p class="warning" *ngIf="imageSize > 1" > Uplaod an Image below 1Mb</p>
                 </div>
                 <!-- Button to add/edit vehicle type -->
                 <button type="submit" class="btn btn-primary" [disabled]="!f.valid">Add Vehicle</button>

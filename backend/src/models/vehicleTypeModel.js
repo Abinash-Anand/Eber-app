@@ -1,14 +1,15 @@
 const mongoose = require('mongoose');
 
 const vehicleTypeSchema = new mongoose.Schema({
-    vehicleName: {
-        type: String,
-        required: true,
-        trim: true
-    },
+    // vehicleName: {
+    //     type: String,
+    //     required: true,
+    //     trim: true
+    // },
     vehicleType: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     vehicleImage: {
         fileName: {
@@ -26,7 +27,8 @@ const vehicleTypeSchema = new mongoose.Schema({
         fileType: {
             type: String,
             required: true
-        }
+        },
+
     },
     // city: {
     //     type: mongoose.Schema.Types.ObjectId,

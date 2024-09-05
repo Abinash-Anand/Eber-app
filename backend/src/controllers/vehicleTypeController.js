@@ -4,8 +4,8 @@ const vehicleTypeController = async (req, res) => {
   
     try {
         const vehicleType = new vehicleTypeModel({
-            vehicleName: req.body.vehicleName,
-            vehicleType: req.body.vehicleType,
+            vehicleType: req.body.vehicleName,
+            // vehicleType: req.body.vehicleType,
             vehicleImage: {
                 fileName: req.file.filename, // Changed 'fileName' to 'filename'
                 filePath: req.file.path,
@@ -94,6 +94,18 @@ const getVehicleTypesByCity = async (req, res) => {
         res.status(500).json({ message: "Error retrieving vehicle types: ", error });
     }
 };
+const vehicleTypechecking = async (req, res) => {
+  try {
+    const searchValue = req.params.id
+    const firstLetterUpperCase =  searchValue.charAt(0).toUpperCase() + searchValue.slice(1)  
+    const vehicleType = await vehicleTypeModel.findOne({ vehicleType: firstLetterUpperCase })
+    if (!vehicleType) {
+      return res.status(404).send("Vehicle Type Not found")
+    }
+    res.status(200).send(vehicleType)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
 
-
-module.exports = { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity };
+module.exports = {vehicleTypechecking, vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity };

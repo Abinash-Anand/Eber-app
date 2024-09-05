@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { VehicleTypeService } from '../../services/vehicleType.service.ts/vehicle-type.service';
@@ -17,7 +17,9 @@ export class VehicleTypeComponent implements OnInit {
   warningText: string = "";
   formSubmit: boolean = true;
   vehicleTypeArray: { vehicleType: string }[] = []
-  cars: Vehicle[] =[]
+  cars: Vehicle[] = []
+  vehicleTypeAlreadyExist: boolean = false
+  @ViewChild('vehicleName') vehicleType: NgForm
   constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
 ngOnInit(): void {
    
@@ -25,20 +27,49 @@ ngOnInit(): void {
   onSelectVehicleImg(files: FileList | null) {
     if (files && files.length > 0) {
       const file = files[0];
-      this.mediaFile = file;
-      if ((this.mediaFile.size / 1024) > 1024) {
-        this.imageSize = (this.mediaFile.size / 1024) / 1024;
+      console.log(file.size);
+      // console.log(this.mediaFile);
+      
+      if ((file.size / 1024)/1024 <= 1) {//check in terms of kb
+        this.imageSize = (file.size / 1024) / 1024;
+        this.mediaFile = file;
+        console.log(this.imageSize)
       } else {
-        this.imageSize = 0;
+       return this.imageSize = (file.size / 1024) / 1024;
+        console.log(this.imageSize)
+
       }
     }
   }
+
+ onInputVehicleType() {
+  this.vehicleTypeService.checkSpecificVehicleType(this.vehicleType.value).subscribe({
+    next: (response) => {
+      console.log(response);
+      if (response.status === 200 &&
+        response.body.vehicleType.toLowerCase() === this.vehicleType.value.toLowerCase() &&
+        this.vehicleType.value !== '') {
+        this.vehicleTypeAlreadyExist = true;
+      } else {
+        this.vehicleTypeAlreadyExist = false;
+      }
+    },
+    error: (error) => {
+        this.vehicleTypeAlreadyExist = false;
+      console.error('Error occurred during vehicle type check:', error);
+      // Handle error state here
+      this.vehicleTypeAlreadyExist = false;
+      // Optionally display a user-friendly message
+    }
+  });
+}
+
 
   onSubmitVehicleType() {
     if (this.mediaFile) {
       const formData = new FormData();
       formData.append('vehicleName', this.formElement.controls.vehicleName.value);
-      formData.append('vehicleType', this.formElement.controls.carType.value);
+      // formData.append('vehicleType', this.formElement.controls.carType.value);
       formData.append('vehicleImage', this.mediaFile);
       this.vehicleTypeService.submitVehicleType(formData)
         .then(response => {
@@ -48,7 +79,7 @@ ngOnInit(): void {
             this.formSubmit = true;
           }, 3000);
           this.formElement.resetForm();
-          this.carType = 'Select Type';
+          // this.carType = 'Select Type';
           this.mediaFile = null;
           this.imageSize = 0;
           this.warningText = "";
@@ -83,7 +114,7 @@ ngOnInit(): void {
     );
   }
   
-  onSelectCarType(carType: string) {
-    this.carType = carType;
-  }
+  // onSelectCarType(carType: string) {
+  //   this.carType = carType;
+  // }
 }
