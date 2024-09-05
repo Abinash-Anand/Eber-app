@@ -13,7 +13,7 @@ const pricingSchema = mongoose.Schema({
     vehicleType: {
         type: String,
         required: true,
-        // unique: true,
+        unique: true,
         
     },
     driverProfit: {

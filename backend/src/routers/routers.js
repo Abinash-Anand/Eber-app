@@ -20,7 +20,7 @@
         sortedDriverTable
     } = require('../controllers/driverController');
     const auth = require('../middlewares/authMiddleware');
-    const { setPricing, getAllPricing , fetchAllPricingData} = require('../controllers/pricingController')
+    const { setPricing, getAllPricing , fetchAllPricingData, } = require('../controllers/pricingController')
     const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
     const { createNewPayment,fetchUserCardDetails, userStripeCards , deleteStripeCard, setCardToDefault} = require('../controllers/stripePayment');
     const { createNewRide, deleteRideFromRides } = require('../controllers/createRideController')
@@ -47,7 +47,7 @@
 
     // Route to get vehicle types by city
     router.get('/vehicle-types/:cityId', getVehicleTypesByCity);
-
+    
     //======================Country routes================================
     //post route to submit data 
     router.post('/add-country', addCountry);

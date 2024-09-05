@@ -33,10 +33,9 @@
                 <div class="mb-3 row">
                     <label for="vehicleTypeSelect" class="form-label col-sm-4">Select Vehicle Type</label>
                     <div class="col-sm-8">
-                        <select id="vehicleTypeSelect" class="form-select form-control" formControlName="vehicleType"
-                            (change)="getSelectedVehicleType($event)">
+                        <select id="vehicleTypeSelect" class="form-select form-control" formControlName="vehicleType">
                             <option value="" disabled selected>Select Vehicle Type</option>
-                            <option *ngFor="let vehicle of vehicleTypeArray" [value]="vehicle">{{vehicle}}</option>
+                            <option *ngFor="let vehicle of vehiclesArray" [value]="vehicle.vehicleType">{{vehicle.vehicleType}}</option>
                         </select>
                     </div>
                 </div>

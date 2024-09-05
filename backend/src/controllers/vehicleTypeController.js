@@ -2,9 +2,12 @@ const { vehicleTypeModel } = require('../models/modelPackage'); // Ensure this p
 
 const vehicleTypeController = async (req, res) => {
   
-    try {
+  try {
+    const lowercaseVehicleName = req.body.vehicleName
+    const firstLetterUpperCaseVehicleName = lowercaseVehicleName.charAt(0).toUpperCase()
+      + lowercaseVehicleName.slice(1)
         const vehicleType = new vehicleTypeModel({
-            vehicleType: req.body.vehicleName,
+            vehicleType: firstLetterUpperCaseVehicleName,
             // vehicleType: req.body.vehicleType,
             vehicleImage: {
                 fileName: req.file.filename, // Changed 'fileName' to 'filename'

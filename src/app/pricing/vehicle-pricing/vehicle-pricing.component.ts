@@ -22,7 +22,8 @@ export class VehiclePricingComponent implements OnInit {
   selectedCountryId: string | null = null;
   selectedCityId: string | null = null; // To store the selected city's ID
   vehicleTypes: Vehicle[] = []; // To store the available vehicle types
-  vehicleTypeArray: { vehicleType: string }[] = []
+  vehicleTypeArray: any[] = []
+  vehiclesArray: any = []
   vehicleId: string = ''; 
   maxCapacity: number = null;
   pricingObject: Pricing;
@@ -52,17 +53,18 @@ export class VehiclePricingComponent implements OnInit {
 
   ngOnInit(): void {
     this.getCountries();
+
     this.pricingForm = this.fb.group({
       country: ['', Validators.required],
       city: ['', Validators.required],
       vehicleType: ['', Validators.required],
       driverProfit: [{value: 80, disabled:true}, [Validators.required, Validators.min(0)]],
       minFare: [{value: 25, disabled:true}, [Validators.required, Validators.min(0)]],
-      distanceForBasePrice: [{value: 1, disabled:true}, [Validators.required, Validators.min(0)]],
+      distanceForBasePrice: [{value: 1, disabled:false}, [Validators.required, Validators.min(0)]],
       basePrice: [{value: 20, disabled:true}, [Validators.required, Validators.min(0)]],
       pricePerUnitDistance: [{value: 10, disabled:true}, [Validators.required, Validators.min(0)]],
       pricePerUnitTime: [{value: 1, disabled:true}, [Validators.required, Validators.min(0)]],
-      maxSpace: [{value:this.maxCapacity|| 0, disabled:true}, [Validators.required, Validators.min(0)]],
+      maxSpace: [{value:this.maxCapacity|| 0, disabled:false}, [Validators.required, Validators.min(0)]],
     });
     
   }
@@ -109,48 +111,53 @@ export class VehiclePricingComponent implements OnInit {
   onCityChange(event: Event) {
     const selectElement = (event.target as HTMLSelectElement);
     this.selectedCityId = selectElement.value;
-
     this.getVehicleTypesByCity();
+
   }
 
   getVehicleTypesByCity() {  
-    this.vehicleTypeArray = this.vehicleTypeService.vehicleTypeArray
-    this.getVehicleData() 
-    this.cd.detectChanges();
-    
-    
+    this.vehicleTypeService.onGetVehicle().subscribe((vehicles:any) => {
+      console.log(vehicles)
+      if (vehicles.vehicles.length !== 0) {
+        this.vehiclesArray = vehicles.vehicles
+      }
+    })
+    // this.getVehicleData() 
+    this.cd.detectChanges();  
+    // console.log(this.vehicleTypeArray)
     
   }
   
-    getVehicleData() {
-    this.vehicleTypeService.onGetVehicle().subscribe(
-      (response: any) => {
-        // console.log(response.vehicles);
-        this.vehicleTypeService.vehicleDataArray = response.vehicles
-        console.log(response.vehicles);
+  //   getVehicleData() {
+  //   this.vehicleTypeService.onGetVehicle().subscribe(
+  //     (response: any) => {
+  //       // console.log(response.vehicles);
+  //       this.vehicleTypeService.vehicleDataArray = response.vehicles
+  //       console.log(response.vehicles);
         
-        const vehicleType  = []
+  //       const vehicleType  = []
         
-        for (const vehicle of response.vehicles) {
+  //       for (const vehicle of response.vehicles) {
 
-          vehicleType.push(vehicle.vehicleType)
-        }
+  //         vehicleType.push(vehicle.vehicleType)
+  //       }
         
-        this.vehicleTypeArray = [...new Set(vehicleType)]
-        console.log(this.vehicleTypeArray);
+  //       this.vehicleTypeArray = [...new Set(vehicleType)]
+  //       console.log(this.vehicleTypeArray);
         
-      },
-      (error: any) => {
-        console.error('Error fetching vehicles:', error);
-      }
-    );
-  }
+  //     },
+  //     (error: any) => {
+  //       console.error('Error fetching vehicles:', error);
+  //     }
+  //   );
+  // }
 
    onSubmit() {
      if (this.pricingForm.valid) {
       this.pricingForm.enable()
        this.pricingObject = this.pricingForm.value
        this.pricingObject.country = this.countryObjectId
+      
       console.log('Form Submitted!', this.pricingObject);
        this.vehiclePricingService.postPricingData(this.pricingObject).subscribe((pricingResponse) => {
          console.log(pricingResponse);
@@ -171,36 +178,36 @@ export class VehiclePricingComponent implements OnInit {
      this.pricingForm.disable()
   }
     
-  getSelectedVehicleType(event: Event) {
-    const vehicleType = (event.target as HTMLSelectElement).value;
-    this.vehicleId = vehicleType;
-      console.log(this.vehicleId);
-      if ((this.vehicleId) === 'HatchBack') {
-        this.maxCapacity = 3;
-        console.log("inside hatchback");
-      }
-      if (this.vehicleId === 'Sedan') {
-        this.maxCapacity = 4;
-        console.log("inside sedan");
-      }
-      if (this.vehicleId === 'Electric') {
-        this.maxCapacity = 4;
-        console.log("inside Electric Car");
-      }
-      if (this.vehicleId === 'Rikshaw') {
-        this.maxCapacity = 3;
-        console.log("inside Rikshaw");
+  // getSelectedVehicleType(event: Event) {
+  //   const vehicleType = (event.target as HTMLSelectElement).value;
+  //   this.vehicleId = vehicleType;
+  //     console.log(this.vehicleId);
+    //   if ((this.vehicleId) === 'HatchBack') {
+    //     this.maxCapacity = 3;
+    //     console.log("inside hatchback");
+    //   }
+    //   if (this.vehicleId === 'Sedan') {
+    //     this.maxCapacity = 4;
+    //     console.log("inside sedan");
+    //   }
+    //   if (this.vehicleId === 'Electric') {
+    //     this.maxCapacity = 4;
+    //     console.log("inside Electric Car");
+    //   }
+    //   if (this.vehicleId === 'Rikshaw') {
+    //     this.maxCapacity = 3;
+    //     console.log("inside Rikshaw");
         
-    }
-       if (this.vehicleId === 'SUV') {
-        this.maxCapacity = 6;
-        console.log("inside SUV");
+    // }
+    //    if (this.vehicleId === 'SUV') {
+    //     this.maxCapacity = 6;
+    //     console.log("inside SUV");
         
-      }
-      // Update the maxSpace form control value and enable it
-    this.pricingForm.get('maxSpace').setValue(this.maxCapacity);
-      this.pricingForm.get('maxSpace').disable();
+    //   }
+    //   // Update the maxSpace form control value and enable it
+    // this.pricingForm.get('maxSpace').setValue(this.maxCapacity);
+      // this.pricingForm.get('maxSpace').disable();
     
-  }
+  // }
   }
 

@@ -50,4 +50,7 @@ checkSpecificVehicleType(vehicleType: string): Observable<HttpResponse<any>> {
       })
     );
 }
+  getAllVehicles(): Observable<HttpResponse<any>>{
+    return this.http.get(`${environment.backendServerPORT}/pricing/vehicles/vehiles-list`, {observe:'response'})
+  }
 }
