@@ -237,6 +237,54 @@ const accountStatus =async function checkAccountStatus() {
     console.error('Error retrieving account status:', error);
   }
 }
+const userStripeCards = async (req, res) => {
+  console.log(req.params.id)
+  try {
+    const _id = req.params.id
+  const cardList = await PaymentMethod.find({userId:_id})
+  if (!cardList) {
+    return res.status(404).send("Cards not Found")
+  }
+  res.status(200).send(cardList)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
+const deleteStripeCard = async (req, res) => {
+  console.log(req.params.id)
+  try {
+    const _id = req.params.id
+    const deleteCard = await PaymentMethod.deleteOne({ _id:_id })
+    res.status(200).send(deleteCard)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+}
 
-
-module.exports = { createNewPayment, TranscationInitiation, fetchUserCardDetails,stripeCustomConnectedAccount };
+const setCardToDefault = async (req, res) => {
+  console.log(req.body)
+  try {
+    const _id = req.body.cardPayload._id
+    const userId = req.body.cardPayload.userId
+    const cardList = await PaymentMethod.find({ userId})
+    console.log(cardList)
+  await Promise.all(
+      cardList.map(card => {
+        card.defaultCard = false;
+        return card.save(); // Save each card individually
+      })
+    );
+    const card = await PaymentMethod.findOne({_id})
+    if (!card) {
+      return res.status(404).send("Card not found")
+    };
+    card.defaultCard = req.body.cardPayload.defaultCard
+    await card.save()
+    console.log(card)
+    res.status(201).send(card)
+    
+  } catch (error) {
+    res.status(500).send(error.message)
+  }
+}
+module.exports = { createNewPayment,setCardToDefault,deleteStripeCard, TranscationInitiation,userStripeCards, fetchUserCardDetails,stripeCustomConnectedAccount };

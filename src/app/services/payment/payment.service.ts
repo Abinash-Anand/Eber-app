@@ -56,4 +56,14 @@ export class PaymentService {
   fetchUserCards(id: string) {
     return this.http.get<any>(`${environment.backendServerPORT}/fetch-all-cards/${id}`, { observe: 'response' });
   }
+
+  fetchUserSpecificCards(userId):Observable<HttpResponse<any>> {
+    return this.http.get<any[]>(`${environment.backendServerPORT}/stripe/cards/user-cards/${userId}`, {observe:"response"})
+  }
+  deleteCard(cardId): Observable<HttpResponse<any>>{
+    return this.http.delete<any[]>(`${environment.backendServerPORT}/stripe/cards/delete-one/${cardId}`, {observe:"response"})
+  }
+  updateDefaultCardStatus(cardPayload):Observable<HttpResponse<any>> {
+    return this.http.patch<any>(`${environment.backendServerPORT}/stripe/cards/update/make-default`,{cardPayload}, {observe:'response'})
+  }
 }

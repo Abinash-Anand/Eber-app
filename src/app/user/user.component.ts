@@ -19,6 +19,7 @@ import Swal from 'sweetalert2';
 
 })
 export class UserComponent implements OnInit {
+  autoFillUser: any = {};
   users: Signup[] = [];
   userObject: User = {
     userProfile: '',
@@ -28,6 +29,7 @@ export class UserComponent implements OnInit {
     countryCode: '',
     countryCallingCode:''
   };
+  cardList:any[] = []
   userList: any[] = [];
   sortType: string = 'Sort By';
   currentPage: number = 1;
@@ -55,6 +57,7 @@ export class UserComponent implements OnInit {
   showConfirmButton: false,
   timer: 3000
   });
+  
   //===================
   sortBy: string = '';
   orderBy: string = '';
@@ -64,7 +67,7 @@ export class UserComponent implements OnInit {
       userProfile: '', username: '', email: '', phone: null, userId: '', countryCode: ''
     }
 
-  user:User= {
+  user : User = {
     userProfile: '', username: '', email: '', phone: null, countryCode: '', countryCallingCode:''
   }
 
@@ -233,10 +236,12 @@ export class UserComponent implements OnInit {
   }
   onEditUser(user) {
     this.userId = user._id
-    this.countryCode =  user.countryCode
+    this.countryCode = user.countryCode
+    this.autoFillUser = user
   }
   onUpdateUser() {
     console.log(this.form);
+
     this.updateUserData = this.form.value
     this.updateUserData.userId = this.userId
     this.updateUserData.countryCode = this.countryCode
@@ -328,21 +333,100 @@ export class UserComponent implements OnInit {
   }
 
   //-------------stripe payment gateway-----------------------
- 
+  
+  onMakeDefaultCard(card, defaultCard: boolean, index) {
+  console.log(card);
+  const cardPayload = { ...card, defaultCard }; // Create a new payload with updated defaultCard status
+
+  // Show the loading spinner
+  Swal.fire({
+    title: 'Please wait...',
+    text: 'Updating your card to default',
+    allowOutsideClick: false,
+    showConfirmButton: false,
+    didOpen: () => {
+      Swal.showLoading();
+    }
+  });
+
+  // Update the default card status
+  this.paymentService.updateDefaultCardStatus(cardPayload).subscribe((response) => {
+    if (response.status === 201) {
+      // Fetch updated cards after updating
+      this.paymentService.fetchUserSpecificCards(card.userId).subscribe((response) => {
+        Swal.close(); // Close the spinner
+
+        if (response.status === 200) {
+          this.cardList = response.body;
+          this.Toast.fire({
+            icon: 'success',
+            title: 'Card set to Default!'
+          });
+        } else {
+          this.Toast.fire({
+            icon: 'error',
+            title: 'Failed to fetch updated card list!'
+          });
+        }
+      }, error => {
+        Swal.close(); // Close the spinner on error
+        this.Toast.fire({
+          icon: 'error',
+          title: 'Failed to fetch updated card list!'
+        });
+        console.error('Error fetching updated card list:', error);
+      });
+    } else {
+      Swal.close(); // Close the spinner on error
+      this.Toast.fire({
+        icon: 'error',
+        title: 'Failed to set Default Card!'
+      });
+    }
+  }, error => {
+    Swal.close(); // Close the spinner on error
+    this.Toast.fire({
+      icon: 'error',
+      title: 'Failed to set Default Card!'
+    });
+    console.error('Error updating default card status:', error);
+  });
+}
+
+
+  onDeleteCard(card, index) {
+    console.log(card._id)
+    this.paymentService.deleteCard(card._id).subscribe((card) => {
+      if (card.status === 200) {
+        this.cardList.splice(index, 1);
+      }
+    })
+}
+
+
  async handlePayment() {
-  try {
+   try {
+
+    
     const result = await this.paymentService.handlePayment();
     (result.paymentMethod as any).userId = this.userObjectId; // Cast to any to add userId
     console.log(result); // Output the result from handlePayment
 
     this.paymentService.sendPaymentMethodToServer(result.paymentMethod).subscribe({
       next: (response: any) => {
+        
                Swal.fire({
         title: 'Success!',
         text: "User's Card Details Added Successfully! ",
         icon: 'success',
         confirmButtonText: 'OK'
-});
+               });
+        this.paymentService.fetchUserSpecificCards(this.userObjectId).subscribe((cards) => {
+          if (cards.status == 200) {
+            this.cardList = null;
+            this.cardList = cards.body 
+          }
+        })
         if (!response ) {
            this.Toast.fire({
           icon: 'error',  
@@ -373,7 +457,12 @@ export class UserComponent implements OnInit {
 
   onAddPayment(user:any) {
     console.log(user._id);
+    
     this.userObjectId = user._id
+    this.paymentService.fetchUserSpecificCards(user._id).subscribe((cards) => {
+      console.log(cards);
+      this.cardList = cards.body
+    })
   }
 
   

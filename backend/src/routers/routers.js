@@ -22,7 +22,7 @@
     const auth = require('../middlewares/authMiddleware');
     const { setPricing, getAllPricing , fetchAllPricingData} = require('../controllers/pricingController')
     const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
-    const { createNewPayment,fetchUserCardDetails } = require('../controllers/stripePayment');
+    const { createNewPayment,fetchUserCardDetails, userStripeCards , deleteStripeCard, setCardToDefault} = require('../controllers/stripePayment');
     const { createNewRide, deleteRideFromRides } = require('../controllers/createRideController')
     const { ensureAuthenticated } = require('../middlewares/authMiddleware');
     const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
@@ -129,6 +129,9 @@
     //------------------------------Stripe payment gateway------------------------------
     router.post('/create-payment-intent', createNewPayment);
     router.get('/fetch-all-cards/:id', fetchUserCardDetails);
+    router.get('/stripe/cards/user-cards/:id', userStripeCards);
+    router.delete('/stripe/cards/delete-one/:id', deleteStripeCard)
+    router.patch('/stripe/cards/update/make-default',setCardToDefault)
     //------------------------------Create Rides Section--------------------------------
     router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 

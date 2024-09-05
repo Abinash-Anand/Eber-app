@@ -10,7 +10,8 @@ const paymentMethodSchema = new mongoose.Schema({
   client_ip: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, required: true }, // MongoDB ObjectId for user reference
   stripeCustomerId: { type: String, required: true }, // Add this field to store Stripe customer ID
-});
+  defaultCard:{type:Boolean, default:false}
+}, {timestamps:true});
 
 const PaymentMethod = mongoose.model('PaymentMethod', paymentMethodSchema);
 

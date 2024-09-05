@@ -175,12 +175,12 @@
                         </form>
                     </div>
                 </div> -->
-                <button type="button" class="btn btn-success" data-toggle="modal" 
+                <button type="button" class="btn btn-outline-success m-1" data-toggle="modal" 
                 data-target="#updateUser" data-whatever="@mdo"
                 (click)="onEditUser(user)" >
                     Edit</button>
-                <button class="btn btn-info m-1" data-toggle="modal" data-target="#paymentModal" (click)="onAddPayment(user)">Stripe</button>
-                <button class="btn btn-danger m-1" (click)="onDeleteUser(user._id)">Delete</button>
+                <button class="btn btn-outline-primary  m-1" data-toggle="modal" data-target="#paymentModal" (click)="onAddPayment(user)">Stripe</button>
+                <button class="btn btn-outline-danger  m-1" (click)="onDeleteUser(user._id)">Delete</button>
             </td>
         </tr>
     </tbody>
@@ -188,42 +188,57 @@
 
 </div>
 <!--Modal for update-->
-<div class="modal " id="updateUser">
+<div class="modal" id="updateUser">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-body p-0">
-                <div class=" position-relative">
-                    <div class="glass-form-container p-4  shadow-lg">
+                <div class="position-relative">
+                    <div class="glass-form-container p-4 shadow-lg">
                         <form class="glass-form text-dark" (ngSubmit)="onUpdateUser()" #updateForm="ngForm">
                             <h3 class="form-title text-center mb-4">Update User</h3>
                             <div class="row form-content">
                                 <div class="col-md-6 mb-3">
                                     <label for="userProfile" class="form-label">User Profile</label>
-                                    <input type="text" ngModel required name="userProfile" class="form-control"
-                                        placeholder="User Profile">
+                                    <input type="text" [(ngModel)]="autoFillUser.userProfile" [ngClass]="{
+                           'input-valid': updateForm.controls.userProfile?.touched && updateForm.controls.userProfile?.valid,
+                           'input-invalid': updateForm.controls.userProfile?.touched && updateForm.controls.userProfile?.invalid,
+                           'input-default': !updateForm.controls.userProfile?.touched
+                         }" required name="userProfile" class="form-control" placeholder="User Profile">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="username" class="form-label">Username</label>
-                                    <input type="text" ngModel required name="username" class="form-control"
-                                        placeholder="Username">
+                                    <input type="text" [(ngModel)]="autoFillUser.username" [ngClass]="{
+                           'input-valid': updateForm.controls.username?.touched && updateForm.controls.username?.valid,
+                           'input-invalid': updateForm.controls.username?.touched && updateForm.controls.username?.invalid,
+                           'input-default': !updateForm.controls.username?.touched
+                         }" required name="username" class="form-control" placeholder="Username">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" ngModel required name="email" class="form-control"
-                                        placeholder="Email">
+                                    <input type="email" [(ngModel)]="autoFillUser.email" [ngClass]="{
+                           'input-valid': updateForm.controls.email?.touched && updateForm.controls.email?.valid,
+                           'input-invalid': updateForm.controls.email?.touched && updateForm.controls.email?.invalid,
+                           'input-default': !updateForm.controls.email?.touched
+                         }" required name="email" class="form-control" placeholder="Email">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="phone" class="form-label">Phone No.</label>
-                                    <input type="text" ngModel required name="phone" class="form-control"
-                                        placeholder="Phone">
+                                    <input type="text" [(ngModel)]="autoFillUser.phone" [ngClass]="{
+                           'input-valid': updateForm.controls.phone?.touched && updateForm.controls.phone?.valid,
+                           'input-invalid': updateForm.controls.phone?.touched && updateForm.controls.phone?.invalid,
+                           'input-default': !updateForm.controls.phone?.touched
+                         }" required name="phone" class="form-control" placeholder="Phone">
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="countrySelect" class="form-label">Select Country</label>
-                                    <select id="countrySelect" class="form-control" ngModel required name="countryCode"
-                                        (change)="onCountryChange($event)">
-                                        <option value="" disabled selected>Select Country</option>
+                                    <select id="countrySelect" [(ngModel)]="autoFillUser.countryCode" [ngClass]="{
+                            'input-valid': updateForm.controls.countryCode?.touched && updateForm.controls.countryCode?.valid,
+                            'input-invalid': updateForm.controls.countryCode?.touched && updateForm.controls.countryCode?.invalid,
+                            'input-default': !updateForm.controls.countryCode?.touched
+                          }" class="form-control" required name="countryCode" (change)="onCountryChange($event)">
+                                        <option value="" disabled>Select Country</option>
                                         <option *ngFor="let country of countries" [value]="country.countryCode">
-                                            {{country.name}}
+                                            {{ country.name }}
                                         </option>
                                     </select>
                                 </div>
@@ -237,35 +252,69 @@
         </div>
     </div>
 </div>
+
 <!--------------------------------------------------------------->
 
 <!-- Payment Modal -->
-
-<div class="modal fade stripe-payment-form" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
 <div class="card bg-success text-light" *ngIf="cardSaved">
     <h1>New Card Added</h1>
 </div>
 <div class="card bg-danger text-light" *ngIf="cardValidity">
     <h1>Try Different Card</h1>
 </div>
-    <div class="modal-dialog">
+<div class="modal fade stripe-payment-form " id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content  stripe-payment">
             <div class="modal-header ">
-                <h3 class="heading-text text-light" >Stripe Payment</h3>
+                <h3 class="heading-text text-dark" >Stripe Console</h3>
                 
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <form (submit)="handlePayment(); $event.preventDefault()">
+            <div class="modal-body ">
+                    <h5>Your Saved Cards</h5>
+                    <hr class="mx-3">
+                    <div class="row card-row  py-3" *ngFor="let card of cardList; let i = index">
+                        <div class="col-5">
+                            Card: {{card.card_last4}}
+                        </div>
+                        <div class="col-2">
+                            Exp: {{card.card_exp_month}} / {{card.card_exp_year}}
+                        </div>
+                        <div class="col-3" *ngIf="!card.defaultCard">
+                            <button class=" btn btn-outline-light   btn-sm"
+                            (click)="onMakeDefaultCard(card, true, i)">
+                               Make Default
+                            </button>
+                        </div>
+                        <div class="col-3" *ngIf="card.defaultCard">
+                            <button class=" btn btn-outline-light  btn-sm" disabled (click)="onMakeDefaultCard(card, true, i)">
+                                Default
+                            </button>
+                        </div>
+                        <div class="col-2">
+                            <button class="btn btn-outline-light btn-sm" 
+                            (click)="onDeleteCard(card,i)">
+                                <img width="35" height="25" src="https://img.icons8.com/color/48/delete-forever.png" alt="delete-forever" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                
+
+                <h4 class="mx-4">Add a new card</h4>
+                
+                <form class="mx-3" (submit)="handlePayment(); $event.preventDefault()">
                     <div id="card-element" class="form-control py-4  col-12" ></div>
-                    <button type="submit" class="btn btn-outline-light  mt-5 px-5 py-2">Pay with Card</button>
+                    <button type="submit" class="btn btn-outline-light  my-3 px-5 py-2">Pay with Card</button>
                 </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
 
 <nav aria-label="Page navigation example" class="my-4">
     <ul class="pagination justify-content-center">

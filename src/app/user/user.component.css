@@ -12,6 +12,9 @@
 
 
 }
+#paymentModal{
+   color: white;
+}
 #card-element{
    font-size: 2rem !important;
    height: 100%;
@@ -113,7 +116,7 @@ padding: 10px;}
 
 .card-title {
    font-family: 'Poppins', sans-serif;
-   font-weight: 700;
+   font-weight: 700; 
    color: #333333;
    margin-bottom: 0.5rem;
 }
@@ -127,4 +130,26 @@ padding: 10px;}
 
 .text-muted {
    color: #6c757d !important;
+}
+.card-row{
+   border: 1px solid rgb(190, 190, 190);
+   margin:5px;
+
+}
+.card-row:hover{
+background-image: linear-gradient(to right, #340e63, #412170, #4e327d, #5b4289, #685396);
+transition: 0.5s ease-in-out;
+cursor: pointer;
+}
+.input-valid {
+   border: 2px solid green;
+}
+
+.input-invalid {
+   border: 2px solid red;
+}
+
+.input-default {
+   border: 2px solid #ced4da;
+   /* Default border */
 }
