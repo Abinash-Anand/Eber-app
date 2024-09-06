@@ -4,7 +4,7 @@
     const { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity, vehicleTypechecking } = require('../controllers/vehicleTypeController');
     const upload = require('../config/multerConfig');
     const { addCountry, getCountries, singleCountry } = require('../controllers/countryController');
-    const { addZone, allCities, allCountries } = require('../controllers/cityController');
+    const { addZone, allCities, allCountries, updateZoneCoords } = require('../controllers/cityController');
     const { user, loginUser,loggedOutSessionTimer } = require('../controllers/signupController');
     const { createVehicleCityAssociation, VehicleTypesByCity } = require('../controllers/vehicleCityController');
     const { createNewUser, allUsers, updateUser, deleteUser, searchUser, sortedUserTable } = require('../controllers/userController');
@@ -63,6 +63,8 @@
     router.get('/cities/by-country/:id', allCities);
     //get all cities
     router.get('/get-countriesList', allCountries);
+     //update zone data
+    router.patch('/city/update/zone',  updateZoneCoords)
     //=================City vehicle type association============================
     // Route to create a vehicle-city association
     router.post('/associate-vehicle-city', createVehicleCityAssociation);
@@ -70,6 +72,7 @@
     // Route to get vehicle types by city
     router.get('/vehicle-types/:cityId', VehicleTypesByCity);
 
+   
     //=============================authentication routes===========================
     //sign up routes
     router.post('/signup', user);

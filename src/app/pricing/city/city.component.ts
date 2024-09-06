@@ -1,13 +1,14 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CountryApiService } from '../../services/countryApi.service.ts/country-api.service';
 import { Country } from '../../shared/country';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, NgForm, Validators } from '@angular/forms';
 import { MapService } from '../../services/maps/mapsApi.service';
 import { ZonesService } from '../../services/maps/zones.service';
 import { Coordinateslatlng } from '../../shared/coordinateslatlng';
 import { Zone } from '../../shared/zone';
 import { CityService } from '../../services/city/city.service';
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-city',
@@ -15,6 +16,7 @@ import { Subscription } from 'rxjs';
   styleUrl: './city.component.css',
 })
 export class CityComponent implements AfterViewInit, OnDestroy {
+  selectedCity: any;
   cityForm: FormGroup;
   countries: Country[] = [];
   selectedCountry: string = '';
@@ -46,9 +48,18 @@ export class CityComponent implements AfterViewInit, OnDestroy {
   } = { id: '', country: '', city: '', latLngCoords: '' };
   toggleZoneComponent: boolean = false;
   successMsg: boolean = false;
-
+  cityList: any = [];
+  @ViewChild('zoneUpdateForm') zoneUpdateForm:NgForm
   private subscriptions: Subscription[] = []; // Track subscriptions
-
+  @ViewChild('cityChange') cityChange: ElementRef
+    updatedPolygonCoords: google.maps.LatLngLiteral[] = []; // Store updated polygon coordinates
+   
+Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+  });
   constructor(
     private fb: FormBuilder,
     private countryApiService: CountryApiService,
@@ -65,6 +76,11 @@ export class CityComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.getCountries();
+     this.zonesService.polygonCoordinatesChanged.subscribe((updatedCoords: google.maps.LatLngLiteral[]) => {
+      console.log("Captured updated coordinates in CityComponent: ", updatedCoords);
+      this.updatedPolygonCoords = updatedCoords; // Store the updated polygon coordinates
+      this.updateZoneObject(); // Optionally update zone object with new coordinates
+    });
   }
 
   ngOnDestroy(): void {
@@ -128,20 +144,42 @@ export class CityComponent implements AfterViewInit, OnDestroy {
 
         this.zonesService.zoneCoordinates = this.zoneCoordinates; // Ensure coordinates are set
         this.mapService.googleMapsApi(this.mapElement.nativeElement, this.searchLocation, this.onMarkerDragEnd.bind(this));
-        this.zonesService.polygonCoordinatesChanged.subscribe((updatedCoords: google.maps.LatLngLiteral[]) => {
-          const coordsStringify = JSON.stringify(updatedCoords);
-          this.zoneObject = {
-            id: this.selectedCountryId,
-            country: this.selectedCountry,
-            city: zoneSelected,
-            latLngCoords: coordsStringify
-          };
-          console.log(this.zoneObject);
-          console.log('Updated Polygon Coordinates:', coordsStringify);
-        });
+        // this.zonesService.polygonCoordinatesChanged.subscribe((updatedCoords: google.maps.LatLngLiteral[]) => {
+        //   const coordsStringify = JSON.stringify(updatedCoords);
+        //   this.zoneObject = {
+        //     id: this.selectedCountryId,
+        //     country: this.selectedCountry,
+        //     city: zoneSelected,
+        //     latLngCoords: coordsStringify
+        //   };
+        //   console.log(this.zoneObject);
+        //   console.log('Updated Polygon Coordinates:', coordsStringify);
+          
+        // });
+        this.handlePolygonCoordinatesChange(zoneSelected)
       });
     });
   }
+
+  handlePolygonCoordinatesChange(zoneSelected: string) {
+  console.log("ZONE SELECTED: ", zoneSelected)
+  this.zonesService.polygonCoordinatesChanged.subscribe((updatedCoords: google.maps.LatLngLiteral[]) => {
+    const coordsStringify = JSON.stringify(updatedCoords);
+    this.zoneObject = {
+      id: this.selectedCountryId,
+      country: this.selectedCountry,
+      city: zoneSelected,
+      latLngCoords: coordsStringify
+    };
+    console.log(this.zoneObject);
+    console.log('Updated Polygon Coordinates:', coordsStringify);
+
+    // You can also update the zone data by calling the update function here if needed
+    // this.updateZoneData(this.zoneObject);
+  });
+}
+
+
 
   onAddCity() {
     if (this.cityForm.valid) {
@@ -165,6 +203,22 @@ export class CityComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+   // Update zone object with the updated polygon coordinates
+  updateZoneObject() {
+    if (this.selectedCity) {
+      this.zoneObject = {
+        id: this.selectedCountryId,
+        country: this.selectedCountry,
+        city: this.selectedCity.city,
+        latLngCoords: JSON.stringify(this.updatedPolygonCoords)
+      };
+      console.log("UpdatedZoneObject: ", this.zoneObject);
+    }
+  }
+
+ 
+
+
   resetForm() {
     this.cityForm.reset();
     this.cityForm.get('country')?.enable();
@@ -181,6 +235,7 @@ export class CityComponent implements AfterViewInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions = [];
   }
+  
 
   onMarkerDragEnd(location: { lat: number, lng: number }) {
     if (typeof window !== 'undefined') {
@@ -201,4 +256,89 @@ export class CityComponent implements AfterViewInit, OnDestroy {
     });
     this.subscriptions.push(zonesSub);
   }
+
+   onUpdateCountryChange(event: Event) {
+    this.selectedCountry = (event.target as HTMLSelectElement).value;
+    const selectElement = (event.target as HTMLSelectElement);
+    const selectedOption = selectElement.options[selectElement.selectedIndex];
+    this.selectedCountryId = selectedOption.getAttribute('data-country-id');
+    // console.log(this.selectedCountryId);
+
+    if (this.selectedCountryId) {
+      this.getCityListByCountry(this.selectedCountryId);
+    }
+   }
+    getCityListByCountry(countryId: string) {
+    this.cityService.getCitiesByCountry(countryId).subscribe(cityList => {
+      this.cityList = cityList; // Assuming cityList.body contains the list of cities
+      console.log("Selected City :",this.cityList);
+      this.cd.detectChanges();
+    });
+  }
+onSelectCity(city: Zone | null) {
+  if (city) {
+    // Parse the latLngCoords JSON string
+    const coords: { lat: number, lng: number }[] = JSON.parse(city.latLngCoords);
+    
+    console.log("Parsed Coordinates: ", coords);
+
+    // Ensure you use the map element from @ViewChild('mapRef')
+    if (this.mapElement && this.mapElement.nativeElement) {
+      this.mapService.googleMapsApi(this.mapElement.nativeElement, { lat: coords[0].lat, lng: coords[0].lng }, () => {})
+        .then(map => {
+          // Add the polygon to the map after initializing it
+       this.mapService.addPolygon(map, coords);
+          
+        })
+        .catch(error => {
+          console.error("Error loading Google Maps: ", error);
+        });
+    } else {
+      console.error("Map element is not available.");
+    }
+  } else {
+    console.error("City object is null.");
+  }
+}
+
+
+  onUpdateData() { 
+    // console.log("Update Zone: ", this.zoneUpdateForm.value)
+    const updatedZone = this.zoneUpdateForm.value
+    updatedZone.city = this.zoneObject
+    updatedZone.cityId = this.selectedCity._id
+    console.log("new Zone Obj: ", updatedZone)
+    this.cityService.updateZoneData(updatedZone).subscribe((response) => {
+      console.log(response.body.city)
+      if (response.status === 200) {
+        // this.selectedCity(response.body.city);
+          Swal.fire({
+        title: 'Success!',
+        text: 'Zone Area Update Successful.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
+      } else {
+        this.Toast.fire({
+             icon: 'error',  
+          title: 'Something went wrong.'
+            })
+      } 
+
+    })
+  }
+  
+onUpdateCityChange(event: Event) {
+  console.log("Selected City: ", this.selectedCity);
+  
+  if (this.selectedCity) {
+    console.log("this.selectCity: ", this.selectedCity)
+    // Call onSelectCity with the selected city to display the map
+    this.onSelectCity(this.selectedCity);
+  } else {
+    console.error("City selection failed or no city selected.");
+  }
+}
+
+
 }

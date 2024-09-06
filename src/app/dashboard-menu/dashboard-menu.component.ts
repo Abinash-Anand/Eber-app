@@ -43,7 +43,7 @@ export class DashboardMenuComponent implements OnInit {
       this.minutes = timer.minutes ? timer.minutes : '0';
       this.seconds = timer.seconds ? timer.seconds : '0';
 
-      console.log(this.minutes, this.seconds);
+      // console.log(this.minutes, this.seconds);
 
       // Prevent immediate logout by checking for non-zero minutes initially
       if (+this.minutes === 0 && +this.seconds === 0 && +this.hours === 0) {
@@ -51,11 +51,11 @@ export class DashboardMenuComponent implements OnInit {
       }
     });
 
-    this.socketService.sessionEnding().subscribe((response) => {
-      console.log(response);
-      if (response.sessionEnding === true) {
-        this.sessionEndingAlert = true;
-      }
-    });
+    // this.socketService.sessionEnding().subscribe((response) => {
+    //   console.log(response);
+    //   if (response.sessionEnding === true) {
+    //     this.sessionEndingAlert = true;
+    //   }
+    // });
   }
 }

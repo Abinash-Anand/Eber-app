@@ -23,6 +23,9 @@ getCitiesData(): Observable<HttpResponse<any>>{
     getCitiesByCountry(countryId: string): Observable<any> {
     return this.http.get(`${environment.backendServerPORT}/cities/by-country/${countryId}`);
     }
+  updateZoneData(zoneData): Observable<HttpResponse<any>>{
+    return this.http.patch<any>(`${environment.backendServerPORT}/city/update/zone`,zoneData, {observe:'response'})
+  }
   
 }
 

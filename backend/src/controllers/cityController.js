@@ -49,4 +49,24 @@ const allCountries = async (req, res) => {
     }
     
 }
-module.exports = {addZone, allCities, allCountries};
+const updateZoneCoords = async (req, res) => {
+    try {
+        const zoneData = req.body
+        console.log("zoneData: ", zoneData)
+        const id = zoneData.cityId
+
+    const city = await zoneModel.findByIdAndUpdate({_id: id})
+        // console.log("database city: ", city)
+
+        if (!city) {
+        return res.status(404).send("City not found!")
+        }
+        // console.log('latlngcoords: ',city.latLngCoords)
+    city.latLngCoords = zoneData.city.latLngCoords
+    await city.save()
+    res.status(200).send(city)
+} catch (error) {
+    res.status(500).send(error)
+}
+ }
+module.exports = {addZone, allCities, allCountries, updateZoneCoords};

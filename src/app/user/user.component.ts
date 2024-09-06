@@ -168,7 +168,8 @@ export class UserComponent implements OnInit {
             this.Toast.fire({
              icon: 'error',  
           title: 'Something went wrong.'
-        })
+            })
+          
         }
         // console.error('Error creating user:', error);
       }

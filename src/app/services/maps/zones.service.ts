@@ -57,6 +57,7 @@ export class ZonesService {
     // Listener for edit event (vertex added or moved)
     google.maps.event.addListener(polygon.getPath(), 'set_at', () => {
       this.handlePolygonChange(polygon);
+      
     });
   }
 
@@ -64,9 +65,9 @@ export class ZonesService {
     const updatedCoords: google.maps.LatLngLiteral[] = polygon.getPath().getArray().map(latLng => {
       return { lat: latLng.lat(), lng: latLng.lng() };
     });
-    // console.log(updatedCoords);
     
     // Emit the updated coordinates
+    console.log("updatedCoords: ", updatedCoords);
     this.polygonCoordinatesChanged.emit(updatedCoords);
   }
 }

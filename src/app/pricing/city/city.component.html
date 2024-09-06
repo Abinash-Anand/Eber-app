@@ -37,5 +37,32 @@
         </div>
    
 </div>
-    <router-outlet></router-outlet>
-
+<!-- Navbar Form -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container">
+        <form class="d-flex align-items-center w-100" (ngSubmit)="onUpdateData()" #zoneUpdateForm="ngForm">
+            <div class="input-group me-2">
+                <label for="countrySelect" class="visually-hidden">Country</label>
+                <select id="countrySelect" class="form-select" [(ngModel)]="selectedCountry"
+                    (change)="onUpdateCountryChange($event)" name="country" required>
+                    <option value="" disabled selected>Select Country</option>
+                    <option *ngFor="let country of countries" [value]="country.countryCode"
+                        [attr.data-country-id]="country._id">
+                        {{ country.name }}
+                    </option>
+                </select>
+            </div>
+            <div class="input-group me-2">
+                <label for="citySelect" class="visually-hidden">City</label>
+                <select id="citySelect" class="form-select" [(ngModel)]="selectedCity" (change)="onUpdateCityChange($event)" #cityChange
+                    name="city" required>
+                    <option value="" disabled selected>Select City</option>
+                    <option *ngFor="let city of cityList" [ngValue]="city" [attr.data-city-id]="city._id">
+                        {{ city.city }}
+                    </option>
+                </select>
+            </div>
+            <button class="btn btn-primary" type="submit" [disabled]="!zoneUpdateForm.form.valid">Update</button>
+        </form>
+    </div>
+</nav>

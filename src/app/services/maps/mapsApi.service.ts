@@ -190,17 +190,54 @@ export class MapService {
     this.markers = [];
   }
 
-  addPolygon(map: google.maps.Map, coords: { lat: number, lng: number }[]): google.maps.Polygon {
-    const polygon = new google.maps.Polygon({
-      paths: coords,
-      strokeColor: '#00FF00',
-      strokeOpacity: 0.8,
-      strokeWeight: 2,
-      fillColor: '#FF0000',
-      fillOpacity: 0.35,
-      editable: true
-    });
-    polygon.setMap(map);
-    return polygon;
-  }
+addPolygon(map: google.maps.Map, coords: { lat: number, lng: number }[]): google.maps.Polygon {
+  const polygon = new google.maps.Polygon({
+    paths: coords,
+    strokeColor: '#00FF00',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#FF0000',
+    fillOpacity: 0.35,
+    editable: true, // Make polygon editable
+    draggable: true // Optionally, make the polygon draggable
+  });
+
+  polygon.setMap(map);
+  console.log("MAP SERVICE POLYGON: ", polygon);
+
+  // Add event listeners for changes to the polygon
+  this.addPolygonListeners(polygon);
+
+  return polygon;
+}
+
+// Add event listeners to the polygon for drag and edit events
+addPolygonListeners(polygon: google.maps.Polygon) {
+  // Listen for when a vertex is moved
+  google.maps.event.addListener(polygon.getPath(), 'set_at', () => {
+    this.handlePolygonChange(polygon);
+  });
+
+  // Listen for when a new vertex is added or a vertex is deleted
+  google.maps.event.addListener(polygon.getPath(), 'insert_at', () => {
+    this.handlePolygonChange(polygon);
+  });
+  
+  // Listen for when the polygon is dragged
+  google.maps.event.addListener(polygon, 'dragend', () => {
+    this.handlePolygonChange(polygon);
+  });
+}
+
+// Handle changes to the polygon and emit the updated coordinates
+handlePolygonChange(polygon: google.maps.Polygon) {
+  const updatedCoords: google.maps.LatLngLiteral[] = polygon.getPath().getArray().map(latLng => {
+    return { lat: latLng.lat(), lng: latLng.lng() };
+  });
+  // return updatedCoords
+  // Emit the updated coordinates via ZonesService or other mechanisms
+  this.zonesService.polygonCoordinatesChanged.emit(updatedCoords);
+  console.log("Polygon updated, new coordinates: ", updatedCoords);
+}
+
 }
