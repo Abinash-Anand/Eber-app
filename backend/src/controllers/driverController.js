@@ -36,7 +36,6 @@ const createNewDriver = async (req, res) => {
             // [email, phone, country, city, serviceType,status,contactId]
         }
         const newUser = new Driver(driverObject);
-        // Save the new user to the database
         //----------CREATING FUND ACCOUNT custom connected account-------------------
         const driverStripeCustomAccount = await stripeCustomConnectedAccount(newUser);
         console.log('Driver Account: ', driverStripeCustomAccount)
