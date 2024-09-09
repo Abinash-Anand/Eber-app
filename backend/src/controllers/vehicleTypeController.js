@@ -1,4 +1,5 @@
 const { vehicleTypeModel } = require('../models/modelPackage'); // Ensure this path is correct
+const fs = require('fs'); // Import the File System module for file operations
 
 const vehicleTypeController = async (req, res) => {
   
@@ -46,41 +47,63 @@ const vehicleData = async (req, res) => {
 // Update vehicle data by ID
 // Update vehicle data by ID
 const updateVehicleData = async (req, res) => {
-  try {
-    const vehicleId = req.params.id;
-    const updateData = req.body;
-    let updateFields = {};
+  console.log("updateVehicleData: ", req.body); // Log incoming request data
 
-    if (updateData.name) {
-      updateFields.vehicleName = updateData.name;
+  try {
+    const vehicleId = req.params.id; // Get the vehicle ID from the request parameters
+    let updateFields = {}; // Initialize an object to hold update fields
+
+    // Fetch the current vehicle data to retrieve the old image path
+    const vehicle = await vehicleTypeModel.findById(vehicleId);
+    if (!vehicle) {
+      return res.status(404).send('Vehicle not found'); // Check if the vehicle exists
     }
-    if (updateData.type) {
-      updateFields.vehicleType = updateData.type;
+
+    // Update the vehicle type if provided in the request body
+    if (req.body.type) {
+      updateFields.vehicleType = req.body.type; // Set the new vehicle type
     }
-    console.log('Received file:', req.file);
+
+    // Handle the vehicle image upload, if provided
     if (req.file) {
-      // Log file information
-     
+      console.log('Received file:', req.file); // Log file information
+
+      // Delete the old image if it exists
+      if (vehicle.vehicleImage && vehicle.vehicleImage.filePath) {
+        fs.unlink(vehicle.vehicleImage.filePath, (err) => {
+          if (err) {
+            console.error('Error deleting old image:', err); // Log any errors during deletion
+          } else {
+            console.log('Old image deleted successfully'); // Log success message
+          }
+        });
+      }
+
+      // Set the new image details
       updateFields.vehicleImage = {
-        fileName: req.file.filename,
+        fileName: req.file.filename, // Use 'filename' as set by multer
         filePath: req.file.path,
         fileSize: req.file.size,
         fileType: req.file.mimetype
       };
     }
-    
-    const vehicle = await vehicleTypeModel.findByIdAndUpdate(vehicleId, updateFields, { new: true });
 
-    if (!vehicle) {
-      return res.status(404).send('Vehicle not found');
+    // Update the vehicle document in the database
+    const updatedVehicle = await vehicleTypeModel.findByIdAndUpdate(vehicleId, updateFields, { new: true });
+
+    if (!updatedVehicle) {
+      return res.status(404).send('Vehicle not found'); // Handle case where vehicle update fails
     }
 
-    res.status(200).send(vehicle);
+    // Return the updated vehicle data with a success message
+    res.status(200).json({ message: 'Vehicle updated successfully', vehicle: updatedVehicle });
+
   } catch (error) {
-    console.error('Error updating vehicle data:', error); // Log the error to the console
-    res.status(500).send('Error updating vehicle data: ' + error.message);
-  } 
+    console.error('Error updating vehicle data:', error); // Log any errors
+    res.status(500).json({ message: 'Error updating vehicle data: ' + error.message }); // Send error response
+  }
 };
+
  
 // Controller method to get vehicle types by city
 const getVehicleTypesByCity = async (req, res) => {

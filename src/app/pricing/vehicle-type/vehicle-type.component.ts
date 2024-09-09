@@ -20,6 +20,11 @@ export class VehicleTypeComponent implements OnInit {
   cars: Vehicle[] = []
   vehicleTypeAlreadyExist: boolean = false
   @ViewChild('vehicleName') vehicleType: NgForm
+   @ViewChild('form') formData: NgForm;
+  vehicleId: string = ''
+  vehicleName: string;
+  vehicleTypeId: string = ''
+  formOject: { name: string, type: string }  // Initialize formOject
   constructor(private http: HttpClient, private vehicleTypeService: VehicleTypeService) {}
 ngOnInit(): void {
    
@@ -114,7 +119,46 @@ ngOnInit(): void {
     );
   }
   
-  // onSelectCarType(carType: string) {
-  //   this.carType = carType;
-  // }
+
+  onSelectVehicle(vehicle:any) {
+    this.vehicleTypeId = vehicle._id;
+  }
+  
+onUpdate(form: NgForm) {
+  if (form.valid) {
+    // Ensure formObject is initialized with the vehicle name (type) and image
+    const formObject = {
+      type: form.value.vehicleName,  // Use the vehicle name as the type
+      image: this.mediaFile           // The image selected by the user (could be a File or base64 string)
+    };
+
+    console.log('Form obj:', formObject)
+    // Perform the API call to update the vehicle details
+    this.vehicleTypeService.updateVehicleDetails(this.vehicleTypeId, formObject).subscribe((response) => {
+      console.log("Server Response: ", response);
+
+      // Handle successful form submission
+      setTimeout(() => {
+        this.formSubmit = true;
+      }, 3000);
+
+      // Reset the form fields
+      form.resetForm();
+      this.carType = 'Select Type';  // Reset car type to default
+      this.mediaFile = null;         // Reset file input
+      this.imageSize = 0;            // Reset image size validation
+      this.warningText = "";         // Clear any warning text
+
+      // Refresh the vehicle data if necessary
+      this.getVehicleData();
+    }, (error) => {
+      // Handle any errors from the server
+      console.error('Error updating vehicle details:', error);
+    });
+  } else {
+    // Log or display form validation errors
+    console.error('Form is invalid');
+  }
+}
+
 }

@@ -1,4 +1,4 @@
-    // routers/routers.js
+// routers/routers.js
     const express = require('express');
     const router = express.Router();
     const { vehicleTypeController, vehicleData, updateVehicleData, getVehicleTypesByCity, vehicleTypechecking } = require('../controllers/vehicleTypeController');
@@ -43,7 +43,7 @@
     //Checking if the vehicle type already exists or not
     router.get('/pricing/vehicles-type/check/:id', vehicleTypechecking)
     // Route to update the vehicle data
-    router.patch('/update-vehicle-data/:id', updateVehicleData);
+    router.patch('/update-vehicle-data/:id',upload.single('image'), updateVehicleData);
 
     // Route to get vehicle types by city
     router.get('/vehicle-types/:cityId', getVehicleTypesByCity);

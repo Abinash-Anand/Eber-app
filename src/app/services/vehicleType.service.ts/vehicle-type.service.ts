@@ -31,9 +31,20 @@ export class VehicleTypeService {
   }
 
   //update data request to server
-  updateVehicleDetails(index: string, updateData: {name:string, type:string}) {
-  const url = `http://localhost:5000/update-vehicle-data/${index}`;
-  return this.http.patch<any[]>(url, updateData);
+updateVehicleDetails(vehicleId: string, updateData: { type: string, image: File | string }): Observable<any> {
+  const url = `http://localhost:5000/update-vehicle-data/${vehicleId}`;
+  
+  const formData = new FormData();
+  formData.append('type', updateData.type);
+  
+  // If image is a File, append it, otherwise append base64 image directly
+  if (updateData.image instanceof File) {
+    formData.append('image', updateData.image);
+  } else {
+    formData.append('image', updateData.image);
+  }
+
+  return this.http.patch<any>(url, formData); // Use POST to send the updated vehicle details
 }
 
     getVehicleTypesByCity(cityId: string): Observable<Vehicle[]> {

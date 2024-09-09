@@ -21,27 +21,7 @@
                     </p>
                     <p class="text-danger" *ngIf="vehicleTypeAlreadyExist">Vehicle Type Already Exist</p>
                 </div>
-                <!-- Dropdown for selecting car type -->
-                <!-- <div class="mb-3">
-                    <label for="carType" class="form-label">Vehicle Type</label>
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                            [innerText]="carType || 'Select Car Type'"></button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                            <a class="dropdown-item" (click)="onSelectCarType('Sedan')">Sedan</a>
-                            <a class="dropdown-item" (click)="onSelectCarType('SUV')">SUV</a>
-                            <a class="dropdown-item" (click)="onSelectCarType('HatchBack')">HatchBack</a>
-                            <a class="dropdown-item" (click)="onSelectCarType('Electric')">Electric</a>
-                            <a class="dropdown-item" (click)="onSelectCarType('Rikshaw')">Rikshaw</a>
-
-                        </div>
-                        <p *ngIf="carType === 'Select Type'" class="text-warning">
-                            Note: Vehicle Type Required
-                        </p>
-                    </div>
-                </div> -->
-                <!-- Hidden input to bind car type to form -->
+               
                 <input type="hidden" name="carType" [ngModel]="carType" />
                 <!-- Input field for vehicle icon -->
                 <div class="mb-3">
@@ -56,13 +36,14 @@
                 </div>
                 <!-- Button to add/edit vehicle type -->
                 <button type="submit" class="btn btn-primary" [disabled]="!f.valid">Add Vehicle</button>
+                <button class="btn btn-outline-secondary mx-5" (click)="getVehicleData()"
+                 [routerLink]="['/pricing/vehicle-type/vehicle-list']">Vehicle List</button>
             </form>
         </div>
         <div class="col-6 p-3">
             
         </div>
     </div>
-    
 </div>
 <hr>
 <div class="row mt-3">
@@ -70,11 +51,59 @@
         <div class="card-car p-3">
             <img [src]="car.vehicleImageURL"  alt="">
             <hr>
-            <h5><strong>Car:</strong> {{car.vehicleName}}</h5>
-            <h5><strong>Car Type:</strong> {{car.vehicleType}}</h5>
+            <!-- <h5><strong>Car:</strong> {{car.vehicleName}}</h5> -->
+            <h5><strong>Vehicle Type:</strong> {{car.vehicleType}}</h5>
+            
+        </div>
+        <button type="button" class="btn btn-outline-success btn-lg mx-3 px-5" data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo"
+            (click)="onSelectVehicle(car)">
+            Edit</button>
+
+    </div>
+    
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Update Form</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="onUpdate(form)" #form="ngForm">
+                    <!-- Input field for vehicle name (vehicle type) -->
+                    <div class="mb-3">
+                        <h2>Vehicle Form</h2>
+                        <label for="vehicleName" class="form-label">Vehicle Name</label>
+                        <input type="text" class="form-control" id="vehicleName" placeholder="Enter vehicle 'Type'"
+                            required name="vehicleName" ngModel #vehicleName="ngModel" />
+                        <p class="warning" *ngIf="vehicleName.invalid && vehicleName.touched">
+                            Vehicle name is required.
+                        </p>
+                    </div>
+
+                    <!-- Dropdown for selecting vehicle icon -->
+                    <div class="mb-3">
+                        <label for="vehicleIcon" class="form-label">Vehicle Icon</label>
+                        <input type="file" class="form-control" id="vehicleIcon" accept="image/*" required
+                            (change)="onSelectVehicleImg($event.target.files)" />
+                        <p class="warning" *ngIf="vehicleIcon.invalid && vehicleIcon.touched">
+                            Please upload an image file.
+                        </p>
+                        <p class="warning" *ngIf="imageSize > 1">Upload an image below 1MB</p>
+                    </div>
+
+                    <!-- Modal footer with buttons -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!form.valid">Update</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-<div class=" bg-light mt-2">
-    <router-outlet></router-outlet>
 </div>
