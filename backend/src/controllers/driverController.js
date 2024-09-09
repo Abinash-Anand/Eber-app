@@ -7,7 +7,7 @@ const CustomAccount = require('../models/stripeDriverAccount')
 
 // Create User Route - POST request
 const createNewDriver = async (req, res) => {
-    console.log(req.body)
+    console.log("Driver Payload", req.body)
     try {
 
             //-------- creating razorpay contact{Driver}--------------
@@ -35,10 +35,11 @@ const createNewDriver = async (req, res) => {
             // contactId:fundAccountContact.id
             // [email, phone, country, city, serviceType,status,contactId]
         }
+        console.log("new Driver: ", driverObject)
         const newUser = new Driver(driverObject);
         //----------CREATING FUND ACCOUNT custom connected account-------------------
-        const driverStripeCustomAccount = await stripeCustomConnectedAccount(newUser);
-        console.log('Driver Account: ', driverStripeCustomAccount)
+        // const driverStripeCustomAccount = await stripeCustomConnectedAccount(newUser);
+        //  console.log('Driver Account: ', driverStripeCustomAccount)
         // const newDriverAccount = new CustomAccount({
             //     driverStripeCustomAccount
             // });

@@ -1,5 +1,4 @@
 const DriverVehicleModel = require('../models/driverVehiclePricingModel');
-
 // 1. Driver Assigned to vehicle
 const driverAssignedToVehicle = async (req, res) => {
     try {
@@ -23,11 +22,13 @@ const driverAssignedToVehicle = async (req, res) => {
             pricePerUnitDistance,
             pricePerUnitTime,
             vehicleImageURL,
-            vehicleName,
+            // vehicleName,
             vehicleType
         })
         console.log("Driver<=>Vehicle: ", newDriverVehicle)
         await newDriverVehicle.save();
+        //===========creating driver's connected custom account
+     
     res.status(201).send({ message: "Driver assigned to vehicle!", newDriverVehicle });
     
   } catch (error) {
