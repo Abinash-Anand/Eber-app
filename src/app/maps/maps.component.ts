@@ -108,11 +108,13 @@ export class MapsComponent implements OnInit, AfterViewInit {
           // Remove the previous polygon if it exists
           if (this.currentPolygon) {
             this.currentPolygon.setMap(null);  // Removes the polygon from the map
+         this.checkIfMarkerInsideZone(this.markerPosition)
 
           }
           
           // Add the new polygon to the map using MapService
           this.currentPolygon = this.mapService.addPolygon(this.map, this.coords);
+         this.checkIfMarkerInsideZone(this.markerPosition)
 
         } else {
           console.error("Map is not initialized yet!");
