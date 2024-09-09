@@ -1,5 +1,8 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MapService } from '../services/maps/mapsApi.service';
+import { CityService } from '../services/city/city.service';
+import { ZonesService } from '../services/maps/zones.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-maps',
@@ -16,7 +19,14 @@ export class MapsComponent implements OnInit, AfterViewInit {
   fromLocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
   toLocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
   searchLocation: { lat: number, lng: number } = { lat: 0, lng: 0 };
-
+ private currentPolygon: any;  // Add this to track the current polygon
+  Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000
+  });
+  markerPosition: any;
   map: google.maps.Map;
   google: any;
   activeInput: 'from' | 'to' | 'search' = 'from'; // Updated activeInput type
@@ -24,11 +34,19 @@ export class MapsComponent implements OnInit, AfterViewInit {
   totalDistance: string = '';
   EstimatedTime: string = '';
 
-  constructor(private mapService: MapService) {}
+  //zone variables
+  resultMessage: string = '';  // Result message for displaying inside/outside polygon check
+  resultColor: string = '';    // Color of the result message (red/green)
+  coords: { lat: number, lng: number }[]
+  constructor(private mapService: MapService,
+    private cityService: CityService,
+    private zoneService: ZonesService
+  ) {}
 
   ngOnInit(): void {
     // Fetch the user's current geolocation when the component initializes
     // console.log(this.activeInput);
+
     
   this.getUserLocation();
     }
@@ -59,11 +77,14 @@ export class MapsComponent implements OnInit, AfterViewInit {
   }
   
   initializeMap() {
+
     if (this.mapElement && this.mapElement.nativeElement && this.userGeolocation.lat !== 0 && this.userGeolocation.lng !== 0) {
       if (typeof window !== 'undefined') {
         // Initialize the Google Map with the user's geolocation
         this.mapService.googleMapsApi(this.mapElement.nativeElement, this.userGeolocation, this.onMarkerDragEnd.bind(this)).then(map => {
           this.map = map;
+            // Create a polygon (zone) for checking
+       
         }).catch(error => {
           console.error('Error initializing map:', error);
         });
@@ -71,9 +92,75 @@ export class MapsComponent implements OnInit, AfterViewInit {
     }
   }
 
+
+
+  drawPolygon() {
+    console.log("From Address: ", this.fromAddress);
+    
+    // Fetch zone data from cityService
+    this.cityService.getSpecificZoneData(this.fromAddress).subscribe((response) => {
+      if (response.length === 1) {
+        this.coords = JSON.parse(response[0].latLngCoords);  // Ensure response[0].latLngCoords is the correct format: [{ lat, lng }]
+        console.log("Coords: ", this.coords); // Log the coordinates for debugging
+        
+        // Check if the map is initialized
+        if (this.map) {
+          // Remove the previous polygon if it exists
+          if (this.currentPolygon) {
+            this.currentPolygon.setMap(null);  // Removes the polygon from the map
+
+          }
+          
+          // Add the new polygon to the map using MapService
+          this.currentPolygon = this.mapService.addPolygon(this.map, this.coords);
+
+        } else {
+          console.error("Map is not initialized yet!");
+         
+        }
+      } else {
+        console.error("No valid zone data found.");
+      }
+    }, (error) => {
+      console.error("Error fetching zone data: ", error);
+    });
+
+  }
+// Add this check in your component
+
+checkIfMarkerInsideZone(markerPosition: google.maps.LatLng): boolean {
+  if (this.currentPolygon) {
+    // Check if the marker position is inside the polygon
+    const isInside = google.maps.geometry.poly.containsLocation(markerPosition, this.currentPolygon);
+
+    if (isInside) {
+      console.log("The marker is inside the zone.");
+        this.Toast.fire({
+             icon: 'success',  
+          title: 'The marker is inside the zone!'
+            })
+    } else {
+        this.Toast.fire({
+             icon: 'error',  
+          title: 'The marker is outside the zone.'
+            })
+      console.log("The marker is outside the zone.");
+    }
+    
+    return isInside;
+  } else {
+      this.Toast.fire({
+             icon: 'error',  
+             title: 'No polygon is currently drawn on the map.'
+            })
+    console.error("No polygon is currently drawn on the map.");
+    return false;
+  }
+}
+
   onSearchChange(search: string, type: 'from' | 'to' | 'search') { // Updated function signature
     this.activeInput = type;
-    console.log(this.activeInput);
+    // console.log(this.activeInput);
     
     if (search === '') {
       
@@ -98,6 +185,7 @@ export class MapsComponent implements OnInit, AfterViewInit {
     this.mapService.clearMarkers()
     if (type === 'search') {
       this.fromAddress = suggestion.description
+      
       if (typeof window !== 'undefined') {
         this.mapService.geocodeAddress(this.searchAddress).then(results => {
         this.searchLocation = { lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() };
@@ -118,6 +206,12 @@ export class MapsComponent implements OnInit, AfterViewInit {
         this.mapService.geocodeAddress(this.fromAddress).then(results => {
           this.fromLocation = { lat: results[0].geometry.location.lat(), lng: results[0].geometry.location.lng() };
           this.mapService.addMarker(this.map, this.fromLocation, 'Start', 'red');
+          console.log("From add: ", this.fromAddress);
+          this.markerPosition = new google.maps.LatLng(this.fromLocation.lat, this.fromLocation.lng);
+         this.drawPolygon();
+         
+         this.checkIfMarkerInsideZone(this.markerPosition)
+
           if (this.fromLocation && this.toLocation) {
             // Calculate the route if both from and to locations are set
             this.calculateRoute();
@@ -155,6 +249,11 @@ export class MapsComponent implements OnInit, AfterViewInit {
         const address = results[0].formatted_address;
         this.fromAddress = address;
         this.fromLocation = location;
+         // Set the markerPosition
+      this.markerPosition = new google.maps.LatLng(location.lat, location.lng);
+
+      // Call the checkIfMarkerInsideZone function after the marker is dragged
+      this.checkIfMarkerInsideZone(this.markerPosition);
       }).catch(error => {
         console.error('Error reverse geocoding:', error);
       });

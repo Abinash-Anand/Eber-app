@@ -26,6 +26,12 @@ getCitiesData(): Observable<HttpResponse<any>>{
   updateZoneData(zoneData): Observable<HttpResponse<any>>{
     return this.http.patch<any>(`${environment.backendServerPORT}/city/update/zone`,zoneData, {observe:'response'})
   }
-  
+getSpecificZoneData(fromAddress: string): Observable<any> {
+    // Pass the fromAddress as a query parameter
+    return this.http.get<any>(`${environment.backendServerPORT}/cities/specific-zone`, { 
+        params: { cityName: fromAddress } 
+    });
+}
+
 }
 

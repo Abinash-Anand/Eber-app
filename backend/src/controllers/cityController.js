@@ -68,5 +68,23 @@ const updateZoneCoords = async (req, res) => {
 } catch (error) {
     res.status(500).send(error)
 }
- }
-module.exports = {addZone, allCities, allCountries, updateZoneCoords};
+
+}
+const zoneByCity = async (req, res) => {
+    console.log(req.query);  // Use req.query for query parameters
+
+    try {
+        const cityName = req.query.cityName;  // Extract city name from query
+
+        const cities = await zoneModel.find();
+        const zone = cities.filter((city) => {
+            return cityName.includes(city.city);  // Adjust logic as needed
+        });
+
+        console.log("Zone: ", zone);
+        res.status(200).send(zone);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+};
+module.exports = {addZone, allCities, allCountries, updateZoneCoords, zoneByCity};

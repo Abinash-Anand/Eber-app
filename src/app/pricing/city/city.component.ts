@@ -144,18 +144,7 @@ Toast = Swal.mixin({
 
         this.zonesService.zoneCoordinates = this.zoneCoordinates; // Ensure coordinates are set
         this.mapService.googleMapsApi(this.mapElement.nativeElement, this.searchLocation, this.onMarkerDragEnd.bind(this));
-        // this.zonesService.polygonCoordinatesChanged.subscribe((updatedCoords: google.maps.LatLngLiteral[]) => {
-        //   const coordsStringify = JSON.stringify(updatedCoords);
-        //   this.zoneObject = {
-        //     id: this.selectedCountryId,
-        //     country: this.selectedCountry,
-        //     city: zoneSelected,
-        //     latLngCoords: coordsStringify
-        //   };
-        //   console.log(this.zoneObject);
-        //   console.log('Updated Polygon Coordinates:', coordsStringify);
-          
-        // });
+    
         this.handlePolygonCoordinatesChange(zoneSelected)
       });
     });
