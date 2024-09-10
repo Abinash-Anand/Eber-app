@@ -28,6 +28,7 @@ export class RunningRequestComponent implements OnInit {
   countdownTimer: number = null;
   cronDataBooking: any
   booking_id: string =''
+  //constructor
   constructor(
     private requestService: DriverRunningRequestService,
     private socketService: SocketService,
