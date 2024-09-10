@@ -240,4 +240,7 @@ handlePolygonChange(polygon: google.maps.Polygon) {
   console.log("Polygon updated, new coordinates: ", updatedCoords);
 }
 
+  
+  
+  
 }
