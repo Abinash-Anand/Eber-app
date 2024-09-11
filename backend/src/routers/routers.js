@@ -154,7 +154,7 @@ router.get('/cities/specific-zone', zoneByCity);
     //-------------------------------Confirm Ride Booking-----------------------------------
     router.post('/create/new/ride-booking', (req, res) => rideBooked(req, res, req.app.get('socketio')));
     router.get('/ride-bookings/accepted-rides', getAllAcceptedRides)
-    router.patch('/api/accept-request/:id',assignDriver)
+    router.patch('/api/accept-request/:id',(req,res)=> assignDriver (req,res,req.app.get('socketio')))
     router.post('/api/reassign-request/', reassignRequest);
     //-----------------------------Trip Progress API's--------------------------------------
     // Route to update booking status

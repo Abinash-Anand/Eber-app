@@ -43,12 +43,12 @@ const driverSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    serviceType: {
-        type: String,
-        required: false, // This can be optional initially
-        trim: true,
-        default:''
-    },
+    // serviceType: {
+    //     type: String,
+    //     required: false, // This can be optional initially
+    //     trim: true,
+    //     default:''
+    // },
     status: {
         type: String,
         required: true,

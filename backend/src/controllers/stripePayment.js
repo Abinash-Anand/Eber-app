@@ -180,7 +180,7 @@ const stripeCustomConnectedAccount = async (req, res) => {
 console.log("driver account: ", req.body)
     const account = await stripe.accounts.create({
       country: 'DE',  // Germany country code
-      type: 'express', // Express account type
+      type: 'custom', // Express account type
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
@@ -245,25 +245,26 @@ const updateStripeAccount = async (req, res) => {
     // Do not include BIC; Stripe derives it from the IBAN
   }
 });
-    
+
     console.log('Step 2: External account (Bank Account) added', extBankAcc);
       
-    // 3. Accept the Terms of Service
-//  const termsOfService =   await stripe.accounts.update(accountId, {
-//       tos_acceptance: {
-//         date: Math.floor(Date.now() / 1000),  // Current timestamp
-//         ip: req.ip || '192.168.1.1'  // Replace with the actual IP address or fallback to a dummy value
-//       }
-//     });
-//     console.log('Step 3: Terms of Service accepted', termsOfService);
-
+    
     // 4. Request Card Payment Capabilities
    const cardCapabilities =  await stripe.accounts.update(accountId, {
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true }
       }
+   });
+    // 3. Accept the Terms of Service
+  const termsOfService =   await stripe.accounts.update(accountId, {
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),  // Current timestamp
+        ip: req.ip || '192.168.1.1'  // Replace with the actual IP address or fallback to a dummy value
+      }
     });
+    console.log('Step 3: Terms of Service accepted', termsOfService);
+
     console.log('Step 4: Card Payment and Transfer capabilities requested', cardCapabilities);
 
     // 5. Check for any remaining requirements

@@ -13,7 +13,6 @@ const pricingSchema = mongoose.Schema({
     vehicleType: {
         type: String,
         required: true,
-        unique: true,
         
     },
     driverProfit: {
@@ -49,6 +48,7 @@ const pricingSchema = mongoose.Schema({
         
     },
 });
+pricingSchema.index({ country: 1, city: 1, vehicleType: 1 }, { unique: true });
 
 const Pricing = mongoose.model('Pricing', pricingSchema);
 // module.exports = Pricing

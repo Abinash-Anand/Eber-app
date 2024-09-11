@@ -356,8 +356,11 @@ export class DriverListComponent implements OnInit {
   });
   console.log("Filtered Pricing Array: ", filteredPricingArray);
   // Filtering vehicleDataArray with parameter vehicleType
-  const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
-    return filteredPricingArray.some((dataObject) => {
+    const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
+    // console.log(vehicle)
+
+      return filteredPricingArray.some((dataObject) => {
+    // console.log(dataObject)
       return vehicle.vehicleType === dataObject.vehicleType;
     });
   });

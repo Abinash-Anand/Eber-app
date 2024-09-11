@@ -9,7 +9,7 @@ const driverAssignedToVehicle = async (req, res) => {
         */
         const {city, country, driverObjectId, basePrice, distanceForBasePrice,
     driverProfit, maxSpace, minFare, pricePerUnitDistance, pricePerUnitTime, vehicleImageURL,
-    vehicleName, vehicleType} = req.body
+     vehicleType} = req.body
         const newDriverVehicle = new DriverVehicleModel({
             city:city._id,
             country:country._id,

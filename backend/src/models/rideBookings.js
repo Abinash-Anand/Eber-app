@@ -78,10 +78,10 @@ const rideBookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  vehicleName: {
-    type: String,
-    required: true,
-  },
+  // vehicleName: {
+  //   type: String,
+  //   required: true,
+  // },
   vehicleType: {
     type: String,
     required: true,

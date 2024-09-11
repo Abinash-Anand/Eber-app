@@ -10,6 +10,7 @@ const {cronSchedularExecuter, countdownIntervalId, cronScheduler, stopCountdown}
 //========================================================================================
 // Function to handle ride booking
 const rideBooked = async (req, res, io) => {
+  console.log(req.body)
   try {
     const {
       EstimatedTime, bookingOption, driver, dropOffLocation, fromLocation,
@@ -46,7 +47,7 @@ const rideBooked = async (req, res, io) => {
       requestTimer,
       bookingId,
       vehicleImageURL: driver.vehicleImageURL,
-      vehicleName: driver.vehicleName,
+      // vehicleName: driver.vehicleName,
       vehicleType: driver.vehicleType
     });
 
@@ -124,8 +125,9 @@ const getAllAcceptedRides = async (req, res) => {
   }
 };
 
-const assignDriver = async (req, res) => {
+const assignDriver = async (req, res, io) => {
   try {
+    console.log('accept ride has been hit<=====================>')
     const requestId = req.params.id;
     console.log('requestId:', requestId);
 
@@ -149,13 +151,13 @@ const assignDriver = async (req, res) => {
     // Save both objects
     await booking.save();
     await originalBookingObject.save(); // Ensure you save the updated originalBookingObject
-    console.log('BEFORE EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
+    // console.log('BEFORE EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
     
     // console.log('Original Booking after update:', originalBookingObject);
     // console.log('----------------Ride Request Accepted by driver---------------------');
-    // stopCountdown()
-    req.app.get('socketio').emit('assignedRequest', originalBookingObject);
-    console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
+    stopCountdown()
+    io.emit('assignedRequest', originalBookingObject);
+    // console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
 
     res.status(200).send({ message: 'Driver Accepted the request', booking });
   } catch (error) {

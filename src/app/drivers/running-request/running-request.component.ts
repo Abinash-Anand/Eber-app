@@ -89,7 +89,9 @@ export class RunningRequestComponent implements OnInit {
     this.socketService.requestCountdownTimer().subscribe((countdown) => {
       this.booking_id = countdown.booking._id
       console.log("countdown: ", countdown.booking._id)
+      
       this.countdownTimer = countdown.timeRemaining
+      console.log(this.countdownTimer);
     })
   }
 
@@ -125,9 +127,9 @@ export class RunningRequestComponent implements OnInit {
       if (response) {
         this.loadAssignedRequests();
         this.cdr.detectChanges(); // Manually trigger change detection
-  //          this.socketService.emitDriverResponse(response).subscribe((response) => {
-  //   console.log(response)
-  // })
+        this.socketService.emitDriverResponse(response).subscribe((response) => {
+             console.log(response)
+  })
     }
     
   });
