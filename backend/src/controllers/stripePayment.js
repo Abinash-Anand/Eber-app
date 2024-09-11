@@ -174,69 +174,123 @@ const fetchUserCardDetails = async (req, res) => {
   }
 };
 //===============================CREATING A CUSTOM ACCOUNT===================================
-const stripeCustomConnectedAccount = async (driver) => {
-  // updateAccountDetails()
-  accountStatus()
-const account = await stripe.accounts.create({
-  country: "IN",
-  type: 'express',
-  capabilities: {
-    card_payments: {
-      requested: true,
-    },
-    transfers: {
-      requested: true,
-    },
-  },
-  business_type: 'individual',
-  business_profile: {
-    url: 'https://www.bike-time.com/',
-  },
-  });
-//   const account = await stripe.accounts.create({
-//   country: 'IN',
-//   email: 'jenny.rosen@example.com',
-//   controller: {
-//     fees: {
-//       payer: 'application',
-//     },
-//     losses: {
-//       payments: 'application',
-//     },
-//     stripe_dashboard: {
-//       type: 'express',
-//     },
-//   },
-// });
-  return account;
-}
-
-
-const updateAccountDetails = async function requestCapabilities() {
+const stripeCustomConnectedAccount = async (req, res) => {
   try {
-    const account = await stripe.accounts.update('acct_1PuZBDRoi6cFXEzP', { // Replace with your account ID
+    const driver = req.body;  // Extract driver data from request body
+console.log("driver account: ", req.body)
+    const account = await stripe.accounts.create({
+      country: 'DE',  // Germany country code
+      type: 'express', // Express account type
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
+      business_type: 'individual',  // Driver is an individual
+      individual: {
+        first_name: driver.firstName,
+        last_name: driver.lastName,
+        email: driver.email,
+        phone: driver.phoneNumber,
+        dob: {
+          day: driver.dob.day,
+          month: driver.dob.month,
+          year: driver.dob.year,
+        },
+        address: {
+          line1: driver.address.line1,
+          city: driver.address.city,
+          postal_code: driver.address.postal_code,
+          state: driver.address.state,
+          country: 'DE',  // Germany country code
+        },
+      },
+      business_profile: {
+        url: 'https://your-platform-url.com',  // Replace with your platform URL
+      }
     });
 
-    console.log('Capabilities requested:', account.capabilities);
-  } catch (error) {
-    console.error('Error requesting capabilities:', error);
-  }
-}
-const accountStatus =async function checkAccountStatus() {
-  try {
-    const account = await stripe.accounts.retrieve('acct_1PuZBDRoi6cFXEzP'); // Replace with your account ID
+    // Create the Account Link for onboarding (see Step 2)
+    // const accountLink = await createAccountLink(account.id);
 
-    console.log('Account capabilities:', account.capabilities);
-    console.log('Charges enabled:', account.charges_enabled);
-    console.log('Payouts enabled:', account.payouts_enabled);
+    res.status(201).send({ account });  // Return the created account and the onboarding link
   } catch (error) {
-    console.error('Error retrieving account status:', error);
+    console.error('Error creating driver Stripe account:', error.message);
+    res.status(500).send({ error: error.message });
   }
-}
+};
+
+
+// Define the sequential function to handle all steps
+const updateStripeAccount = async (req, res) => {
+  try {
+    const { accountId } = req.body;  // Extract the account ID from the request body
+
+    // 1. Add Business Profile MCC
+   const businessProfile = await stripe.accounts.update(accountId, {
+      business_profile: {
+        mcc: '4789'  // Example MCC for transportation services
+      }
+    });
+    // console.log('Step 1: Business Profile MCC updated', businessProfile);
+
+    // 2. Add an External Account (Bank Account)
+  const extBankAcc =  await stripe.accounts.createExternalAccount(accountId, {
+  external_account: {
+    object: 'bank_account',
+    country: 'DE',  // Germany
+    currency: 'eur',  // EUR is the currency in Germany
+    account_holder_name: 'John Doe',  // The name of the driver
+    account_holder_type: 'individual',  // Type of account holder
+    account_number: 'DE89370400440532013000'  // Replace with a valid IBAN
+    // Do not include BIC; Stripe derives it from the IBAN
+  }
+});
+    
+    console.log('Step 2: External account (Bank Account) added', extBankAcc);
+      
+    // 3. Accept the Terms of Service
+//  const termsOfService =   await stripe.accounts.update(accountId, {
+//       tos_acceptance: {
+//         date: Math.floor(Date.now() / 1000),  // Current timestamp
+//         ip: req.ip || '192.168.1.1'  // Replace with the actual IP address or fallback to a dummy value
+//       }
+//     });
+//     console.log('Step 3: Terms of Service accepted', termsOfService);
+
+    // 4. Request Card Payment Capabilities
+   const cardCapabilities =  await stripe.accounts.update(accountId, {
+      capabilities: {
+        card_payments: { requested: true },
+        transfers: { requested: true }
+      }
+    });
+    console.log('Step 4: Card Payment and Transfer capabilities requested', cardCapabilities);
+
+    // 5. Check for any remaining requirements
+    const account = await stripe.accounts.retrieve(accountId);
+    const remainingRequirements = account.requirements.currently_due;
+    console.log('Step 5: Remaining requirements checked');
+
+    // Send back the remaining requirements or success message
+    if (remainingRequirements.length > 0) {
+      res.status(200).json({
+        message: 'Account updated but has remaining requirements',
+        remaining_requirements: remainingRequirements
+      });
+    } else {
+      res.status(200).json({
+        message: 'Account updated successfully and card capabilities activated'
+      });
+    }
+  } catch (error) {
+    console.error('Error updating Stripe account:', error.message);
+    res.status(500).send({ error: error.message });
+  }
+};
+
+
+
+
 const userStripeCards = async (req, res) => {
   console.log(req.params.id)
   try {
@@ -287,4 +341,4 @@ const setCardToDefault = async (req, res) => {
     res.status(500).send(error.message)
   }
 }
-module.exports = { createNewPayment,setCardToDefault,deleteStripeCard, TranscationInitiation,userStripeCards, fetchUserCardDetails,stripeCustomConnectedAccount };
+module.exports = { createNewPayment,updateStripeAccount,setCardToDefault,deleteStripeCard, TranscationInitiation,userStripeCards, fetchUserCardDetails,stripeCustomConnectedAccount };
