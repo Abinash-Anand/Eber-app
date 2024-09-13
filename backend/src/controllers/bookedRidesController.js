@@ -155,7 +155,7 @@ const assignDriver = async (req, res, io) => {
     
     console.log('Original Booking after update:', originalBookingObject);
     // console.log('----------------Ride Request Accepted by driver---------------------');
-    // stopCountdown()
+    stopCountdown()
     console.log()
     io.emit('assignedRequest', originalBookingObject);
     // console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)

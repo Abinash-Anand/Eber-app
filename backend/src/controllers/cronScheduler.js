@@ -119,12 +119,12 @@ const filteredDriverList = availableDriverList.filter(driver => {
 
     // Listen for client response on driver acceptance or rejection
      // Listen for driver response from any client
- io.on('connection', (socket) => {
+ io.on('driver-response-to-cron', (socket) => {
   console.log('Client connected with id:', socket.id);
 
   // Listen for driver response from any client
-  socket.on('driver-response-to-cron', (response, ack) => {
-    console.log("RESPONSE FROM DRIVER: ", response);
+  // socket.on('driver-response-to-cron', (response, ack) => {
+  //   console.log("RESPONSE FROM DRIVER: ", response);
     clearTimeout(timeoutId); // Clear the timeout if driver responds
 
     if (response.booking.status === 'Accepted') {
@@ -147,10 +147,10 @@ const filteredDriverList = availableDriverList.filter(driver => {
   });
 
   // Handle disconnections
-  socket.on('disconnect', () => {
-    console.log('Client disconnected with id:', socket.id);
-  });
-});
+  // socket.on('disconnect', () => {
+  //   console.log('Client disconnected with id:', socket.id);
+  // });
+// });
     
   } catch (error) {
     console.error('Error in scheduledReassignDriver:', error);
