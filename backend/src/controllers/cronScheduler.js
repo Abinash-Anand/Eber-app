@@ -129,7 +129,7 @@ const filteredDriverList = availableDriverList.filter(driver => {
 
     if (response.booking.status === 'Accepted') {
       console.log(`Driver ${currentDriver.driverObjectId._id} accepted for booking ${booking._id}`);
-      stopCountdown(); // Stop the countdown timer
+      // stopCountdown(); // Stop the countdown timer
 
       // Send acknowledgment back to the client
       if (ack) {
