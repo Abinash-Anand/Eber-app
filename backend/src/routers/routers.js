@@ -10,14 +10,13 @@
     const { createNewUser, allUsers, updateUser, deleteUser, searchUser, sortedUserTable } = require('../controllers/userController');
     const {
         createNewDriver,
-        allDrivers,
+        allDriverIfSortedInclude,
         updateDriver,
         deleteDriver,
         searchDriver,
         updateDriverServiceType,
         toggleDriverStatus,
         allDriversStatus,
-        sortedDriverTable
     } = require('../controllers/driverController');
     const auth = require('../middlewares/authMiddleware');
     const { setPricing, getAllPricing , fetchAllPricingData, } = require('../controllers/pricingController')
@@ -101,13 +100,13 @@ router.get('/cities/specific-zone', zoneByCity);
     //2. get User
     router.get('/driver/specific-driver', searchDriver);
     //3. Get all users
-    router.get('/all-drivers', allDrivers);
+    router.get('/all-drivers', allDriverIfSortedInclude);
     //4. Update User
     router.patch('/driver/update-driver', updateDriver);
     //5. delete User
     router.delete('/driver/delete-driver/:id', deleteDriver);
     //6. sorting table
-    router.get('/drivers/sorted-table/all-drivers', sortedDriverTable)
+    router.get('/drivers/sorted-table/all-drivers', allDriverIfSortedInclude)
     // New routes for updating service type and toggling status
     router.patch('/driver/update-service-type', updateDriverServiceType);
     router.patch('/driver/toggle-status', toggleDriverStatus);

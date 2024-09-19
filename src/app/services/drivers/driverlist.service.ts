@@ -14,9 +14,9 @@ export class DriverlistService {
     createNewUser(userObject): Observable<HttpResponse<User[]>> {
       return this.http.post<User[]>(`${environment.backendServerPORT}/driver/create-driver`, userObject, {observe: 'response'})
     }
-   getAllUsers(page: number, size: number): Observable<any> {
+   getAllUsers(page: number, size: number, sortBy, sortOrder): Observable<any> {
     return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
-      `${environment.backendServerPORT}/all-drivers?page=${page}&size=${size}`
+      `${environment.backendServerPORT}/all-drivers?page=${page}&size=${size}&sortBy=${sortBy}&sortOder=${sortOrder}`
     );
   }
     //get users

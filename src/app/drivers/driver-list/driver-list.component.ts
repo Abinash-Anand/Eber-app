@@ -48,7 +48,7 @@ export class DriverListComponent implements OnInit {
   vehicleDataArray: Vehicle[] = [];
   combinedPricingAndVehicleObject: any[]=[]
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalPages: number = 0;
   userDeleted: boolean = false;
   userUpdated: boolean = false;
@@ -67,6 +67,8 @@ export class DriverListComponent implements OnInit {
   driverIndex: string = null;
   filteredCityArray = []; // Array to hold filtered cities
   driverObjectIncludeVehicle: any[] = [];
+  // sortParams: {sortBy, sortOrder} = {sortBy:'', sortOrder:''};
+  sortOder: string = '';
   descriptions: any[] = ['Earnings Deposit Account',
     'Fuel Reimbursement Account', 'Maintenance Cost Payout',
     'Incentives and Bonuses Account', 'Ride Cancellations Refund']
@@ -174,9 +176,9 @@ export class DriverListComponent implements OnInit {
   }
 
   getAllUsers() {
-    this.driverListService.getAllUsers(this.currentPage, this.pageSize).subscribe((response) => {
+    this.driverListService.getAllUsers(this.currentPage, this.pageSize, this.sortBy, this.sortOder).subscribe((response) => {
       this.totalPages = response.totalPages;
-      this.userList = response.users;
+      this.userList = response.drivers;
       console.log(response);
     });
   }
@@ -211,10 +213,13 @@ export class DriverListComponent implements OnInit {
   }
   //==========================================Server Sorting the table======================
   orderTableBy(orderBy: string) {
-    this.sortBy =  orderBy
+    this.sortBy = orderBy
+    // this.sortParams.sortOrder = orderBy
+    this.sortOder = orderBy
   }
   serverHandledSorting(sortParam: string) {
     console.log(sortParam)
+    this.sortBy =  sortParam
     this.driverListService.sortAllUsers(this.currentPage, this.pageSize, sortParam, this.sortBy)
       .subscribe((response) => {
         if (response.status === 200) {
@@ -239,7 +244,7 @@ export class DriverListComponent implements OnInit {
   onDeleteUser(id: string) {
     console.log(id);
     this.driverListService.deleteUser(id).subscribe();
-    this.driverListService.getAllUsers(this.currentPage, this.pageSize).subscribe((response) => {
+    this.driverListService.getAllUsers(this.currentPage, this.pageSize, this.sortBy, this.sortOder).subscribe((response) => {
       console.log(response);
       if (response) {
         this.userList = response.users;

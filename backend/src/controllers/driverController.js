@@ -70,29 +70,72 @@ const searchDriver = async (req, res) => {
     }
 };
 
-// Read All USERS Route- GET request
-const allDrivers = async (req, res, next) => {
+// Read All Drivers Route - GET request with Optional Sorting and Pagination
+const allDriverIfSortedInclude = async (req, res) => {
+    console.log("Testing pagination: ", req.query); // Enhanced logging for debugging
     try {
-        let { page, size } = req.query;
-        page = parseInt(page) || 1;
-        size = parseInt(size) || 5;
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const size = parseInt(req.query.size) || 5; // Default to 5 items per page
+        const sortBy = req.query.sortBy || 'username'; // Default sorting by 'username'
+        const sortOrder = req.query.sortOrder || 'asc'; // Default to ascending
+        const sortDirection = sortOrder === 'desc' ? -1 : 1;
 
-        const limit = size;
+        console.log("Received Request Query:", req.query);
+        console.log("Sort By:", sortBy, "Sort Order:", sortOrder);
+
+        // Validate sort field
+        const validSortFields = ['username', 'email', 'phone', 'userProfile', 'countryCode', 'city'];
+        if (sortBy && !validSortFields.includes(sortBy)) {
+            return res.status(400).json({ 
+                error: 'Invalid sort column', 
+                validFields: validSortFields // Provide a list of valid fields for better client-side handling
+            });
+        }
+
+        // Calculate the number of documents to skip
         const skip = (page - 1) * size;
-        const totalUsersCount = await Driver.countDocuments();
-        const totalPages = Math.ceil(totalUsersCount / limit);
-        const users = await Driver.find().limit(limit).skip(skip);
 
+        // Dynamic query construction based on filters (if any)
+        let query = {};
+        if (req.query.isActive) { // Assuming you want to filter by 'isActive'
+            query.isActive = req.query.isActive === 'true';
+        }
+
+        // Prepare sorting options
+        let sortOptions = {};
+        if (sortBy) {
+            sortOptions[sortBy] = sortDirection;
+        }
+
+        // Query the database
+        const totalDriversCount = await Driver.countDocuments(query);
+        const drivers = await Driver.find(query)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(size)
+            .lean(); // Improves performance by returning plain JS objects
+
+        // Handle edge case where page is out of range
+        const totalPages = Math.ceil(totalDriversCount / size);
+        if (page > totalPages && totalPages > 0) {
+            return res.status(404).json({ message: "Page not found" });
+        }
+
+        // Construct and send the response
         res.status(200).json({
-            users,
+            drivers,
             page,
             size,
             totalPages,
+            totalDrivers: totalDriversCount
         });
+
     } catch (error) {
-        res.status500.json({ error: error.message });
+        console.error('Error fetching drivers:', error);
+        res.status(500).json({ error: error.message });
     }
 };
+
 
 // Update DRIVER Route- PATCH request
 const updateDriver = async (req, res) => {
@@ -197,44 +240,56 @@ const allDriversStatus = async (req, res) => {
 
 
 const sortedDriverTable = async (req, res) => {
-    console.log(req.body)
   try {
-    // Extract query parameters
-    const page = parseInt(req.query.page) || 1; // Default to page 1
-    const size = parseInt(req.query.size) || 10; // Default to 10 items per page
+    // Extract and validate query parameters
+    const page = Math.max(parseInt(req.query.page) || 1, 1); // Ensure page is at least 1
+    const size = Math.max(parseInt(req.query.size) || 10, 1); // Ensure size is at least 1
     const sortBy = req.query.sortBy || 'username'; // Default sorting by username
     const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending
-      console.log("SortBy: ", sortBy)
-      
-      if (!['userProfile', 'username', 'email', 'phone', 'countryCode', 'city'].includes(sortBy)) {
-        return res.status(400).json({ error: 'Invalid sort column' });
-      }
-    // const limit = size;
+
+    console.log("Received Request Body:", req.body);
+    console.log("Sort By:", sortBy, "Sort Order:", sortOrder === 1 ? "Ascending" : "Descending");
+
+    // Validate sortBy field
+    const validSortFields = ['userProfile', 'username', 'email', 'phone', 'countryCode', 'city'];
+    if (!validSortFields.includes(sortBy)) {
+      return res.status(400).json({ error: 'Invalid sort column' });
+    }
+
+    // Calculate pagination parameters
     const skip = (page - 1) * size;
-     // Query database with sorting and pagination
+
+    // Query database with sorting and pagination
     const drivers = await Driver.find()
       .sort({ [sortBy]: sortOrder })
       .skip(skip)
-      .limit(size);
-        // Count total users for pagination
+      .limit(size)
+      .lean(); // Use .lean() for better performance if you don't need Mongoose documents
+
+    // Count total drivers for pagination
     const totalDrivers = await Driver.countDocuments();
 
     // Calculate total pages
     const totalPages = Math.ceil(totalDrivers / size);
+
+    // Ensure the requested page does not exceed total pages
+    if (page > totalPages && totalPages !== 0) {
+      return res.status(400).json({ error: 'Page number exceeds total pages' });
+    }
 
     // Send response
     res.status(200).json({
       drivers,
       page,
       size,
-      totalPages
+      totalPages,
+      totalDrivers, // Optional: Include total count if needed on the client side
     });
   } catch (error) {
-      console.error('Error fetching users:', error);
+    console.error('Error fetching drivers:', error);
     res.status(500).json({ error: 'Internal server error' });
-  
   }
-}
+};
 
 
 
@@ -242,12 +297,12 @@ const sortedDriverTable = async (req, res) => {
 
 module.exports = { 
     createNewDriver, 
-    allDrivers, 
+    allDriverIfSortedInclude, 
     updateDriver, 
     deleteDriver, 
     searchDriver,
     updateDriverServiceType,
   toggleDriverStatus,
     allDriversStatus,
-    sortedDriverTable
+ 
 };
