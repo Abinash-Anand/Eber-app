@@ -1,6 +1,7 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { HistoryService } from '../../services/ride-history/history.service';
+// import { HistoryService } from '../../services/ride-history/history.service';
 import { MapService } from '../../services/maps/mapsApi.service';
+import { HistoryService } from '../../services/ride-history/history.service';
 
 @Component({
   selector: 'app-ride-history',

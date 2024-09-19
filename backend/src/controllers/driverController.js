@@ -72,6 +72,7 @@ const searchDriver = async (req, res) => {
 
 // Read All Drivers Route - GET request with Optional Sorting and Pagination
 const allDriverIfSortedInclude = async (req, res) => {
+    console.log("testing pagination: ", req.query)
     console.log("Testing pagination: ", req.query); // Enhanced logging for debugging
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1

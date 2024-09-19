@@ -21,11 +21,12 @@
     return throwError(() => error); // Propagate the error
   }
     
-   getAllUsers(page: number, size: number): Observable<any> {
+ getAllUsers(page: number, size: number, sortBy: string, sortOrder: string): Observable<any> {
     return this.http.get<{ users: User[], page: number, size: number, totalPages: number }>(
-      `${environment.backendServerPORT}/all-users?page=${page}&size=${size}`
+      `${environment.backendServerPORT}/all-users?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`
     );
-   }
+}
+
     
     //=========sorting using server===========
 

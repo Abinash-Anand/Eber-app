@@ -33,7 +33,7 @@ export class UserComponent implements OnInit {
   userList: any[] = [];
   sortType: string = 'Sort By';
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalPages: number = 0;
   userDeleted: boolean = false;
   userUpdated: boolean = false;
@@ -61,6 +61,7 @@ export class UserComponent implements OnInit {
   //===================
 
   sortBy: string = '';
+  sortUsingParam: string = '';
   orderBy: string = 'Order By';
   updateUserData: {
     userProfile: string, username: string, email: string, phone: string | null, userId: string, countryCode: string
@@ -177,7 +178,7 @@ export class UserComponent implements OnInit {
   }
 
   getAllUsers() {
-    this.userService.getAllUsers(this.currentPage, this.pageSize).subscribe((response) => {
+    this.userService.getAllUsers(this.currentPage, this.pageSize, this.sortUsingParam, this.sortBy).subscribe((response) => {
       this.totalPages = response.totalPages;
       this.userList = response.users;
       console.log(response);
@@ -222,7 +223,8 @@ export class UserComponent implements OnInit {
   }
   serverHandledSorting(sortParam: string) {
     this.sortType = sortParam
-    this.userService.sortAllUsers(this.currentPage, this.pageSize, sortParam, this.sortBy)
+    this.sortUsingParam = sortParam
+    this.userService.sortAllUsers(this.currentPage, this.pageSize, this.sortUsingParam, this.sortBy)
       .subscribe((response) => {
         if (response.status === 200) {
           console.log('Sorted table: ', response)
