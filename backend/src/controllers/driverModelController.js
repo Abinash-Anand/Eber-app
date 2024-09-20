@@ -71,4 +71,16 @@ const driverList = async (req, res) => {
         res.status(500).send({ message: "Internal Server Error", error });
     }
 };
-module.exports = { driverAssignedToVehicle, getSpecificDriver, driverList };
+
+const driversWithServiceAssigned = async (req, res) => {
+try {
+    const allDriversWithService = await DriverVehicleModel.find().populate("driverObjectId")
+    if (!allDriversWithService) {
+        return res.status(404).send({message:"Drivers not found with Services"})
+    }
+    res.status(200).send(allDriversWithService)
+} catch (error) {
+    res.status(500).send(error)
+    }
+}
+module.exports = { driverAssignedToVehicle,driversWithServiceAssigned, getSpecificDriver, driverList };
