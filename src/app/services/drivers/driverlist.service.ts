@@ -73,5 +73,17 @@ export class DriverlistService {
     `${environment.backendServerPORT}/drivers/sorted-table/all-drivers?page=${page}&size=${size}&sortBy=${sortBy}&sortOrder=${sortOrder}`,
     {observe:'response'}
   );
-}
+  }
+  
+    getAssignDriversToVehicle(): Observable<HttpResponse<any>>{
+    return this.http.get<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service`, {observe:"response"})
+    }
+  deleteVehicleService(serviceId): Observable<HttpResponse<any>>{
+    return this.http.delete<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service/delete/${serviceId}`, {observe:"response"})
+  }
+  reAssignServiceToDriver(newService): Observable<HttpResponse<any>>{
+    return this.http.patch<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service/update`,newService, {observe:'response'})
+  }
+
+  
 }

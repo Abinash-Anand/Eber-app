@@ -26,7 +26,7 @@
     const { ensureAuthenticated } = require('../middlewares/authMiddleware');
     const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
     const { assignedDriver } = require('../controllers/driverAssignedRide');
-    const {driverAssignedToVehicle, getSpecificDriver, driverList} =require('../controllers/driverModelController')
+    const {driverAssignedToVehicle, getSpecificDriver, driverList, driversWithServiceAssigned} =require('../controllers/driverModelController')
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, rideRejectedByDriver } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
@@ -116,7 +116,7 @@ router.get('/cities/specific-zone', zoneByCity);
     router.post('/assign/vehicle', driverAssignedToVehicle)
     router.get('/get/driverObject/:id', getSpecificDriver)
     router.get('/get/drivers', driverList)
-
+    router.get('/pricing/driver/assigned/service', driversWithServiceAssigned)
     //----------------------Driver Running requests------------------------------
     router.get('/api/assigned-requests', getAllAcceptedRides)
     router.patch('/api/cancel-request/:id', (req, res) => rideRejectedByDriver(req, res, req.app.get('socketio')))

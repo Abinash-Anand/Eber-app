@@ -16,6 +16,8 @@ import { AssignVehicle } from '../../shared/assign-vehicle';
 import { Pricing } from '../../shared/pricing';
 import { Vehicle } from '../../shared/vehicle';
 import { BankAccountService } from '../../services/driverBankAccount/bank-account.service';
+import { filter } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-driver-list',
@@ -36,6 +38,7 @@ export class DriverListComponent implements OnInit {
     countryCode: '',
     city: ''
   };
+  assignedServiceToDriver:any
   @ViewChild('selectedBooking') selectedBooking: ElementRef
   // filteredCityService: any[] = [];
   confirmedRides: any[] = []
@@ -83,6 +86,7 @@ export class DriverListComponent implements OnInit {
   user: { userProfile: string, username: string, email: string, phone: number, countryCode: string, city: '' } = {
     userProfile: '', username: '', email: '', phone: null, countryCode: '', city: ''
   }
+  serviceAssignedCheck: any;
   driverIndexId: string = '';
   searchObject: { searchBy: string, searchInput: string } = { searchBy: '', searchInput: '' }
   driverId: any;
@@ -106,6 +110,7 @@ export class DriverListComponent implements OnInit {
     this.getAllUsers();
     this.getCountries();
     this.getVehicleData();
+  
      // Initialize the form with controls and validators
  this.bankAccountForm = this.fb.group({
   bank_name: ['', Validators.required],
@@ -352,24 +357,26 @@ export class DriverListComponent implements OnInit {
   }
 
   onAssignVehicle(driver) {
-  this.driverIndexId = driver._id;
-  console.log(this.driverIndexId);
-  
-  // Filtering the pricingDataArray according to the driver's city
-  const filteredPricingArray = this.pricingDataArray.filter((object: any) => {
-    return object.city.city === driver.city;
-  });
-  console.log("Filtered Pricing Array: ", filteredPricingArray);
-  // Filtering vehicleDataArray with parameter vehicleType
-    const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
-    // console.log(vehicle)
-
-      return filteredPricingArray.some((dataObject) => {
-    // console.log(dataObject)
-      return vehicle.vehicleType === dataObject.vehicleType;
+    
+    this.driverIndexId = driver._id;
+    console.log(this.driverIndexId);
+    
+    // Filtering the pricingDataArray according to the driver's city
+    const filteredPricingArray = this.pricingDataArray.filter((object: any) => {
+      return object.city.city === driver.city;
     });
-  });
-  console.log("Filtered Vehicle Array: ", filteredVehicleType);
+    console.log("Filtered Pricing Array: ", filteredPricingArray);
+    this.getServiceAssignedToDriver(driver._id, filteredPricingArray);
+    // Filtering vehicleDataArray with parameter vehicleType
+    const filteredVehicleType = this.vehicleDataArray.filter((vehicle) => {
+      // console.log(vehicle)
+      
+      return filteredPricingArray.some((dataObject) => {
+        // console.log(dataObject)
+        return vehicle.vehicleType === dataObject.vehicleType;
+      });
+    });
+    console.log("Filtered Vehicle Array: ", filteredVehicleType);
   
   // Combine and merge the filtered arrays based on vehicleType
   const combinedArray = filteredVehicleType.map(vehicle => {
@@ -457,4 +464,64 @@ onAssignBooking(vehicle, i) {
       console.log('Form is invalid');
     }
   }
+
+  getServiceAssignedToDriver(driverId, filteredPricingArray) {
+    console.log("ids: ",driverId, filteredPricingArray);
+    
+    this.driverListService.getAssignDriversToVehicle().subscribe((response) => {
+        if (response.status === 200) {
+            this.assignedServiceToDriver = response.body;
+            console.log("Services: ", this.assignedServiceToDriver);
+
+            // Properly return from filter using some to compare
+            const checkingAssignedService = this.assignedServiceToDriver.filter((service) => {
+                // Ensure some returns true if any pricing matches the condition
+                return filteredPricingArray.some((pricing) => {
+                    return service.driverObjectId._id === driverId &&
+                        service.vehicleType === pricing.vehicleType;
+                });
+            });
+
+            console.log("CheckingAssignedService: ", checkingAssignedService);
+            this.serviceAssignedCheck  = checkingAssignedService[0]
+        } else {
+            console.error('Failed to fetch assigned services:', response.status);
+        }
+    }, error => {
+        console.error('Error fetching assigned services:', error);
+    });
+}
+
+  onUpdateService(vehicle) {
+    console.log("Update: ", vehicle)
+    this.driverListService.reAssignServiceToDriver(vehicle).subscribe((response) => {
+      if (response.status === 200) {
+        console.log("Service updated: ", response.body);
+          // Example of showing an alert
+        Swal.fire({
+        title: 'Success!',
+        text: 'Service Updated Successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
+      }
+    })
+  }
+  onDeleteService(vehicle) {
+    console.log("delete: ", vehicle);
+    this.driverListService.deleteVehicleService(vehicle._id).subscribe((response) => {
+      if (response.status === 200) {
+        console.log("Service Deleted: ", response.body);
+          // Example of showing an alert
+        Swal.fire({
+        title: 'Success!',
+        text: 'Service Deleted Successfully.',
+        icon: 'success',
+        confirmButtonText: 'OK'
+});
+      }
+    })
+    
+  }
+
 }

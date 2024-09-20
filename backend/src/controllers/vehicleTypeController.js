@@ -66,7 +66,7 @@ const updateVehicleData = async (req, res) => {
     console.log("Pricing: ", pricingUpdate)
     if (!pricingUpdate) {
       console.error("Pricing model do not exists for this vehicleType")
-    } 
+    }   
       pricingUpdate.vehicleType = req.body.type;
      await pricingUpdate.save();
       console.log("updated Pricing: ", pricingUpdate)
