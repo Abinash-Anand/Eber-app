@@ -83,4 +83,43 @@ try {
     res.status(500).send(error)
     }
 }
-module.exports = { driverAssignedToVehicle,driversWithServiceAssigned, getSpecificDriver, driverList };
+
+const serviceDeleted = async (req, res) => {
+    try {
+        const _id = req.params.id;
+        const serviceToBeDeleted = await DriverVehicleModel.findByIdAndDelete(_id)
+        if (!serviceToBeDeleted) {
+            return res.status(404).send("Service to be deleted not found")
+        }
+        res.status(200).send(serviceToBeDeleted)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+const serviceUpdated = async (req, res) => {
+    console.log("serviceUpdated: ", req.body._id)
+    try {
+        const service = req.body;
+        const serviceId = service._id
+        const serviceToBeUpdated = await DriverVehicleModel.findOne({ _id: serviceId });
+        if (!serviceToBeUpdated) {
+            return res.status(404).send("Service to be updated was not found");
+        }
+       //directly updating the data
+        serviceToBeUpdated.basePrice=service.basePrice;
+        serviceToBeUpdated.distanceForBasePrice=service.distanceForBasePrice;
+        serviceToBeUpdated.driverProfit=service.driverProfit;
+        serviceToBeUpdated.maxSpace=service.maxSpace;
+        serviceToBeUpdated.minFare=service.minFare;
+        serviceToBeUpdated.pricePerUnitDistance=service.pricePerUnitDistance;
+        serviceToBeUpdated.pricePerUnitTime=service.pricePerUnitTime;
+        serviceToBeUpdated.vehicleImageURL=service.vehicleImageURL;
+        serviceToBeUpdated.vehicleType = service.vehicleType;
+        console.log("servicetobe uPdated: ", serviceToBeUpdated)
+        await serviceToBeUpdated.save();
+        res.status(200).send(serviceToBeUpdated)
+    } catch (error) {
+        res.status(500).send(error)
+    }
+}
+module.exports = { driverAssignedToVehicle,driversWithServiceAssigned, getSpecificDriver,serviceDeleted, driverList, serviceUpdated };
