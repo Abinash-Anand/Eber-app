@@ -115,7 +115,7 @@ const serviceUpdated = async (req, res) => {
         serviceToBeUpdated.pricePerUnitTime=service.pricePerUnitTime;
         serviceToBeUpdated.vehicleImageURL=service.vehicleImageURL;
         serviceToBeUpdated.vehicleType = service.vehicleType;
-        console.log("servicetobe uPdated: ", serviceToBeUpdated)
+        // console.log("servicetobe uPdated: ", serviceToBeUpdated)
         await serviceToBeUpdated.save();
         res.status(200).send(serviceToBeUpdated)
     } catch (error) {
