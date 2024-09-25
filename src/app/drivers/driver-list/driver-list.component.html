@@ -399,7 +399,7 @@
                     </div>
                     
                         <!-- Always Display Delete/Remove Button -->
-                        <div class="col-1 mx-3">
+                        <div class="col-1 mx-3" *ngIf="serviceAssignedCheck?.vehicleType === vehicle.vehicleType" >
                             <button class="btn btn-outline-light"
                             (click)="onDeleteService()">
                                 <img width="35" height="35" src="https://img.icons8.com/color/48/delete-forever.png"

@@ -503,7 +503,8 @@ onAssignBooking(vehicle, i) {
         text: 'Service Updated Successfully.',
         icon: 'success',
         confirmButtonText: 'OK'
-});
+        });
+       
       }
     })
   }
