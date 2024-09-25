@@ -81,8 +81,8 @@ export class DriverlistService {
   deleteVehicleService(serviceId): Observable<HttpResponse<any>>{
     return this.http.delete<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service/delete/${serviceId}`, {observe:"response"})
   }
-  reAssignServiceToDriver(newService): Observable<HttpResponse<any>>{
-    return this.http.patch<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service/update`,newService, {observe:'response'})
+  reAssignServiceToDriver(newService, driverIndex): Observable<HttpResponse<any>>{
+    return this.http.patch<any>(`${environment.backendServerPORT}/pricing/driver/assigned/service/update/${driverIndex}`,newService, {observe:'response'})
   }
 
   

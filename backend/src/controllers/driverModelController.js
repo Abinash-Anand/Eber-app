@@ -85,23 +85,27 @@ try {
 }
 
 const serviceDeleted = async (req, res) => {
+    console.log("DrvierObjectId: ", req.params.id)
     try {
-        const _id = req.params.id;
-        const serviceToBeDeleted = await DriverVehicleModel.findByIdAndDelete(_id)
+        const driverObjectId= req.params.id;
+        const serviceToBeDeleted = await DriverVehicleModel.findOneAndDelete({ driverObjectId })
+
+        
         if (!serviceToBeDeleted) {
             return res.status(404).send("Service to be deleted not found")
         }
+        
         res.status(200).send(serviceToBeDeleted)
     } catch (error) {
         res.status(500).send(error)
     }
 }
 const serviceUpdated = async (req, res) => {
-    console.log("serviceUpdated: ", req.body._id)
+    // console.log("serviceUpdated: ", req.body)
     try {
         const service = req.body;
-        const serviceId = service._id
-        const serviceToBeUpdated = await DriverVehicleModel.findOne({ _id: serviceId });
+        const driverObjectId =  req.params.id
+        const serviceToBeUpdated = await DriverVehicleModel.findOne({ driverObjectId });
         if (!serviceToBeUpdated) {
             return res.status(404).send("Service to be updated was not found");
         }

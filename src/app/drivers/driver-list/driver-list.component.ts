@@ -414,7 +414,7 @@ export class DriverListComponent implements OnInit {
 
 onAssignBooking(vehicle, i) {
   console.log(vehicle, i);
-  console.log(this.driverIndexId);
+  console.log("Inside OnAssignBooking: ",this.driverIndexId);
   
   this.driverObjectIncludeVehicle = { ...vehicle, driverObjectId: this.driverIndexId };
   console.log("Driver with Vehicle Payload: ",this.driverObjectIncludeVehicle);
@@ -494,7 +494,7 @@ onAssignBooking(vehicle, i) {
 
   onUpdateService(vehicle) {
     console.log("Update: ", vehicle)
-    this.driverListService.reAssignServiceToDriver(vehicle).subscribe((response) => {
+    this.driverListService.reAssignServiceToDriver(vehicle, this.driverIndexId).subscribe((response) => {
       if (response.status === 200) {
         console.log("Service updated: ", response.body);
           // Example of showing an alert
@@ -507,9 +507,8 @@ onAssignBooking(vehicle, i) {
       }
     })
   }
-  onDeleteService(vehicle) {
-    console.log("delete: ", vehicle);
-    this.driverListService.deleteVehicleService(vehicle._id).subscribe((response) => {
+  onDeleteService() {
+    this.driverListService.deleteVehicleService(this.driverIndexId).subscribe((response) => {
       if (response.status === 200) {
         console.log("Service Deleted: ", response.body);
           // Example of showing an alert

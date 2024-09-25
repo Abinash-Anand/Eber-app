@@ -118,7 +118,7 @@ router.get('/cities/specific-zone', zoneByCity);
     router.get('/get/driverObject/:id', getSpecificDriver)
     router.get('/get/drivers', driverList)
     router.get('/pricing/driver/assigned/service', driversWithServiceAssigned)
-    router.patch('/pricing/driver/assigned/service/update', serviceUpdated)
+    router.patch('/pricing/driver/assigned/service/update/:id', serviceUpdated)
     router.delete('/pricing/driver/assigned/service/delete/:id', serviceDeleted)
     //----------------------Driver Running requests------------------------------
     router.get('/api/assigned-requests', getAllAcceptedRides)

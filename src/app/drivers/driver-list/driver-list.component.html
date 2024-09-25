@@ -367,7 +367,7 @@
             <div class="modal-body">
                 <div class="loop-container p-2">
                     <div class="row p-3 bookings"
-                        *ngFor="let vehicle of combinedPricingAndVehicleObject; let i = index">
+                    *ngFor="let vehicle of combinedPricingAndVehicleObject; let i = index">
                         <div class="col-sm">
                             <img [src]="vehicle.vehicleImageURL" style="width: 10rem; height: max-content" alt="">
                         </div>
@@ -386,16 +386,22 @@
                             <img width="35" height="35" src="https://img.icons8.com/cotton/64/loop.png" alt="loop" />
                         </button>
                     </div>
+                    <div class="col-2 mx-3" *ngIf="serviceAssignedCheck?.vehicleType !== vehicle.vehicleType"
+                    (click)="onAssignBooking(vehicle, i)">
+                        <button class="btn btn-sm btn-outline-success">
+                            Assign Service
+                        </button>
+                    </div>
                     <div class="col-2 mx-3" *ngIf="serviceAssignedCheck?.vehicleType === vehicle.vehicleType">
                         <button class="btn btn-lg btn-outline-success">
                             Assigned
                         </button>
                     </div>
-
+                    
                         <!-- Always Display Delete/Remove Button -->
                         <div class="col-1 mx-3">
                             <button class="btn btn-outline-light"
-                            (click)="onDeleteService(vehicle)">
+                            (click)="onDeleteService()">
                                 <img width="35" height="35" src="https://img.icons8.com/color/48/delete-forever.png"
                                     alt="delete-forever" />
                             </button>
