@@ -95,10 +95,10 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    vehicleName: {
-        type: String,
-        required: true,
-    },
+    // vehicleName: {
+    //     type: String,
+    //     required: true,
+    // },
     vehicleType: {
         type: String,
         required: true,
@@ -112,6 +112,18 @@ const invoiceSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    tripFare: {
+        type: Number,
+        required:true,
+     },
+    platformCharge: {
+        type: Number,
+        required:true
+    },
+    totalFare: {
+        type: Number,
+        required:true
+    }
 }, { timestamps: true });
 // invoiceSchema.pre('save', async function (next) {
 //     if (this.isNew) {

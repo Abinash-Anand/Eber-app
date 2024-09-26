@@ -106,7 +106,7 @@ const filteredDriverList = availableDriverList.filter(driver => {
     io.emit('cron-driver-assignment', driverAssignedToBookings);
     iteration++
     // Set up a timeout to handle driver non-response
-    const timeoutDuration = 15000; // 15 seconds or any desired duration
+    const timeoutDuration = booking.requestTimer * 1000 || 15000; // 15 seconds or any desired duration
     const timeoutId = setTimeout(() => {
       console.log(`Driver ${currentDriver.driverObjectId._id} did not respond in time for booking ${booking._id}`);
       console.log("INSIDE SET TIMEOUT Driver Value: ", currentDriver)
@@ -264,8 +264,11 @@ const stopCountdown = () => {
 };
 
 const cronSchedularExecuter = (booking, io, driver) => {
-  cronScheduler =  cron.schedule('*/15 * * * * *', () => {
+  const requestTime = booking.requestTimer 
+  cronScheduler = cron.schedule(`*/${requestTime} * * * * *`, () => {
+    console.log("CRON SCHEDULAR IS RUnning")
     scheduledReassignDriver(booking, io, driver);
+
   });
   if (!cronScheduler) {
     console.log('CRON SCHEDULER DESTROYED')

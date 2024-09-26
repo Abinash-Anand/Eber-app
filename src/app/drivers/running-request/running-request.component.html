@@ -98,102 +98,81 @@
     <hr>
 
 
-<div class="container my-5" *ngIf="showInvoice" >
+<div class="container my-5" *ngIf="showInvoice">
     <!-- Invoice Header -->
-    <div class="row invoice-header">
-        <div class="col-md-6">
-            <h2>Invoice</h2>
-            <p><strong>Invoice Number:</strong> {{invoiceObject.invoiceNo}}</p>
-            <p><strong>Date:</strong> {{invoiceObject.invoiceDate}}</p>
-            <p><strong>Due Date:</strong> {{invoiceObject.dueDate | date: medium}}</p>
+    <div class="container mt-5">
+        <!-- Header Section -->
+        <div class="card bg-light text-center p-4 mb-3">
+            <h2 class="card-title mb-1">Thanks for riding, {{invoiceObject.bookingId.username}}</h2>
+            <p class="card-text">We hope you enjoyed your Ride.</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-start">
+                    <p class="text-muted mb-0">Total: <strong>{{invoiceObject.totalFare | currency :
+                            invoiceObject.userId.countryCode : display : digitsInfo : locale}}</strong></p>
+                    <p class="text-muted mb-0">{{(invoiceObject.createdAt | date: 'shortDate')}}</p>
+                    <p class="text-muted mb-0">Invoice No:  {{invoiceObject.invoiceNo}}</p>
+                </div>
+                <div>
+                    <img width="94" height="94" src="https://img.icons8.com/3d-fluency/94/taxi.png" alt="taxi" />
+                </div>
+            </div>
         </div>
-        <div class="col-md-6 text-right">
-            <h4>Seller</h4>
-            <p><strong>Eber</strong></p>
 
-        <img class="mt-5" [src]="invoiceObject.vehicleImageURL" style="width: 10rem; height:max-content" alt="">
+        <!-- Total Section -->
+        <div class="text-center mb-4">
+            <h3 class="fw-bold">Total <span class="d-block">{{invoiceObject.totalFare | currency :
+                    invoiceObject.userId.countryCode : display : digitsInfo : locale}}</span></h3>
         </div>
-    </div>
 
-    <!-- Buyer Information -->
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Buyer</h4>
-            <p>User ID: <strong>{{invoiceObject.userId}}</strong><br>Phone: <strong>{{invoiceObject.phone}}</strong></p>
+        <!-- Trip Details Section -->
+        <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Trip Fare</span>
+                <span>{{invoiceObject.tripFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
+                    locale}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span>{{invoiceObject.tripFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
+                    locale}}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between">
+                <span>Platform Charges
+                    <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Airport charge details.">?</span>
+                </span>
+                <span>{{invoiceObject.platformCharge | currency : invoiceObject.userId.countryCode : display :
+                    digitsInfo : locale}}</span>
+            </li>
+        </ul>
+
+        <!-- Payment Method Section -->
+        <div class="mb-4">
+            <div class="d-flex justify-content-between">
+                <span>Amount Charged </span>
+                <span>{{invoiceObject.totalFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
+                    locale}}</span>
+            </div>
+            <div class="d-flex align-items-center" *ngIf="invoiceObject.paymentOption !== 'cash' else cashPayment">
+                <img width="60" height="60" src="https://img.icons8.com/3d-fluency/94/stripe.png" alt="stripe" />
+            </div>
+                <ng-template class="d-flex align-items-center" #cashPayment>
+                    <img width="64" height="64"
+                        src="https://img.icons8.com/external-nawicon-flat-nawicon/64/external-Cash-ecommerce-nawicon-flat-nawicon.png"
+                        alt="external-Cash-ecommerce-nawicon-flat-nawicon" />
+                </ng-template>
         </div>
-    </div>
+        <hr>
 
-    <!-- Booking Details -->
-    <div class="row">
-        <div class="col-md-12">
-            <h4>Booking Details</h4>
-            <p><strong>Booking ID:</strong> {{invoiceObject.bookingId}}</p>
-            <p><strong>Service Type:</strong> {{invoiceObject.serviceType}}</p>
-            <p><strong>Vehicle Name:</strong> {{invoiceObject.vehicleName}}</p>
-            <p><strong>Vehicle Type:</strong> {{invoiceObject.vehicleType}}</p>
-            <p><strong>Pickup Location:</strong>{{invoiceObject.pickupLocation}} </p>
-            <p><strong>Drop Off Location:</strong>{{invoiceObject.dropOffLocation}} </p>
-            <p><strong>Estimated Time:</strong> {{invoiceObject.EstimatedTime}} Min</p>
-            <p><strong>Total Distance:</strong>{{invoiceObject.totalDistance}} km</p>
-        </div>
-    </div>
-
-    <!-- Invoice Table -->
-    <div class="row">
-        <div class="col-md-12">
-            <h4>Description</h4>
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Description</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Total Price</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Base Price (1 km)</td>
-                        <td>1</td>
-                        <td>$20.00</td>
-                        <td>$20.00</td>
-                    </tr>
-                    <tr>
-                        <td>Distance Price ({{invoiceObject.bookingId.totalDistance}} km)</td>
-                        <td>1</td>
-                        <td>$10.00/km</td>
-                        <td>$81.20</td>
-                    </tr>
-                    <tr>
-                        <td>Time Price ({{invoiceObject.bookingId.EstimatedTime}} minutes)</td>
-                        <td>1</td>
-                        <td>$1.00/min</td>
-                        <td>{{invoiceObject.bookingId.EstimatedTime  * 1}}</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Total</strong></td>
-                        <td></td>
-                        <td></td>
-                        <td><strong>{{invoiceObject.bookingId.totalFare}}</strong></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Payment Information -->
-    <div class="row">
-        <div class="col-md-6">
-            <h4>Payment Information</h4>
-            <p><strong>Payment Option:</strong> {{invoiceObject.paymentOptions}}</p>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="row invoice-footer">
-        <div class="col-md-12 text-center">
-            <p>Thank you for your business!</p>
-            <p>If you have any questions regarding this invoice, please contact us at (123) 456-7890.</p>
+        <!-- Driver Section -->
+        <div class="row align-items-center">
+            <div class="col-auto">
+                <!-- You can add content here if needed -->
+            </div>
+            <div class="col">
+                <h5 class="mb-0">{{invoiceObject.driverObjectId.username}}</h5>
+                <p class="text-muted mb-0">{{invoiceObject.driverObjectId.rating || '4.97'}} ★ Rating</p>
+            </div>
         </div>
     </div>
 </div>

@@ -26,15 +26,15 @@ const updateBookingStatus = async (req, res, io) => {
     ride.status = status;
 
    //---------------Messaging service-------------------------
-   await twilioSMSNotification(booking.userId, status)
+  //  await twilioSMSNotification(booking.userId, status)
 
     // console.log("ID: ", booking.bookingId._id)
     await booking.save();
     await ride.save();
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
-    // console.log(JSON.stringify(reqId))
     const id = reqId.toString()
+    console.log("ID: ", id)
     let inovice;
     // let nodemail;
     // let transcationResponse;
@@ -42,13 +42,13 @@ const updateBookingStatus = async (req, res, io) => {
 //================================= When Ride is Completed================================
     if (booking.status === 'Completed') {
       //-------------------------Initiate Invoice--------------------------------
-      inovice =   await calculateInvoice(id)
-      // console.log(chalk.blue(id))
+      inovice = await calculateInvoice(id)
+      console.log("INvoice: ", inovice)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
       if (booking.paymentOption === 'card') {
-        await TranscationInitiation(booking)
+        // await TranscationInitiation(booking)
       }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
@@ -104,18 +104,20 @@ async function calculateInvoice(id) {
       return console.log(chalk.yellow("ID is not valid"))
     }
 
-    const booking = await Booking.findOne({bookingId:id}).populate('userId');
+    const booking = await Booking.findOne({bookingId:id}).populate('userId').populate("bookingId");
     if (!booking) {
      return console.log(chalk.yellow('Booking not Found!'))
     }
-
+    const tripFare = ((booking.bookingId.totalFare / 100) * 80).toFixed(2);
+    const platformCharge = ((booking.bookingId.totalFare / 100) * 20).toFixed(2);
+    const totalFare =  booking.bookingId.totalFare
     // Manually fetch the next sequence number for invoiceNo
     const counter = await Counter.findByIdAndUpdate(
       { _id: 'invoiceNo' },
       { $inc: { seq: 1 } },
       { new: true, upsert: true }
     );
-
+    
     const newInvoice = new Invoice({
       invoiceNo: counter.seq, // Manually assign the invoice number
       bookingId: booking._id,
@@ -137,11 +139,14 @@ async function calculateInvoice(id) {
       toLocation: booking.toLocation,
       totalDistance: booking.totalDistance,
       vehicleImageURL: booking.vehicleImageURL,
-      vehicleName: booking.vehicleName,
+      // vehicleName: booking.vehicleName,
       vehicleType: booking.vehicleType,
       userId: booking.userId,
       requestTimer: booking.requestTimer,
       dueDate: new Date(), // Set the due date based on your business logic
+      tripFare,
+      platformCharge,
+      totalFare
     })
     // console.log(`Invoice ${newInvoice}`);
 

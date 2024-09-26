@@ -155,12 +155,12 @@ const assignDriver = async (req, res, io) => {
     
     console.log('Original Booking after update:', originalBookingObject);
     // console.log('----------------Ride Request Accepted by driver---------------------');
-    stopCountdown()
     console.log()
     io.emit('assignedRequest', originalBookingObject);
     // console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
-
+    
     res.status(200).send({ message: 'Driver Accepted the request', booking });
+    stopCountdown()
   } catch (error) {
     console.error('Error assigning driver:', error);
     res.status(500).send({ message: 'Internal Server Error', error });

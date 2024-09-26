@@ -54,6 +54,8 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerInterceptor } from './services/spinner.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+// import {PushNotificationsModule} from 'ng-push'
+
 // import { ServiceWorkerModule } from '@angular/service-worker';
 // import { SwPush } from '@angular/service-worker';
 const config: SocketIoConfig = { url: environment.backendServerPORT, options: {} };
@@ -104,7 +106,7 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     SocketIoModule.forRoot(config),
     BrowserAnimationsModule,
     NgxSpinnerModule,
-
+    
    
    
 

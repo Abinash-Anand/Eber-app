@@ -58,104 +58,60 @@ const sendInvoiceEmail = async (email, name, invoice) => {
     
   const subject = "Your Trip Invoice";
   const text = `Hi ${name}, thank you for using our service. Please find your trip invoice attached.`;
-  const html = `<div class="container my-5">
-      <!-- Invoice Header -->
-      <div class="row invoice-header">
-          <div class="col-md-6">
-              <h2>Invoice</h2>
-              <p><strong>Invoice Number:</strong> ${invoice.invoiceNo}</p>
-              <p><strong>Date:</strong> ${invoice.invoiceDate}</p>
-              <p><strong>Due Date:</strong> ${new Date(invoice.dueDate).toLocaleDateString()}</p>
-          </div>
-          <div class="col-md-6 text-right">
-              <h4>Seller</h4>
-              <p><strong>Eber</strong></p>
-              <img class="mt-5" src="${invoice.vehicleImageURL}" style="width: 10rem; height:max-content" alt="">
-          </div>
-      </div>
+  const html = `<div class="container mt-5">
+    <!-- Header Section -->
+    <div class="card bg-light text-center p-4 mb-3">
+        <h2 class="card-title mb-1">Thanks for riding, ${name}</h2>
+        <p class="card-text">We hope you enjoyed your Ride.</p>
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-start">
+                <p class="text-muted mb-0">Total: <strong>$ ${invoice.totalFare}</strong></p>
+                <p class="text-muted mb-0">${invoice.createdAt.toLocaleDateString('en-US')}</p>
+            </div>
+            <div>
+                <img width="64" height="64" src="https://img.icons8.com/cotton/64/taxi--v3.png" alt="taxi--v3"/>
+            </div>
+        </div>
+    </div>
 
-      <!-- Buyer Information -->
-      <div class="row">
-          <div class="col-md-6">
-              <h4>Buyer</h4>
-              <p>User ID: <strong>${invoice.userId}</strong><br>Phone: <strong>${invoice.phone}</strong></p>
-          </div>
-      </div>
+    <!-- Total Section -->
+    <div class="text-center mb-4">
+        <h3 class="fw-bold">Total <span class="d-block">$ ${invoice.totalFare}</span></h3>
+    </div>
 
-      <!-- Booking Details -->
-      <div class="row">
-          <div class="col-md-12">
-              <h4>Booking Details</h4>
-              <p><strong>Booking ID:</strong> ${invoice.bookingId}</p>
-              <p><strong>Service Type:</strong> ${invoice.serviceType}</p>
-              <p><strong>Vehicle Name:</strong> ${invoice.vehicleName}</p>
-              <p><strong>Vehicle Type:</strong> ${invoice.vehicleType}</p>
-              <p><strong>Pickup Location:</strong> ${invoice.pickupLocation}</p>
-              <p><strong>Drop Off Location:</strong> ${invoice.dropOffLocation}</p>
-              <p><strong>Estimated Time:</strong> ${invoice.EstimatedTime} Min</p>
-              <p><strong>Total Distance:</strong> ${invoice.totalDistance} km</p>
-          </div>
-      </div>
+    <!-- Trip Details Section -->
+    <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between">
+            <span>Trip Fare</span>
+            <span>$ ${invoice.tripFare}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+            <span>Subtotal</span>
+            <span>$ ${invoice.tripFare}</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between">
+            <span>Platform Charge:
+                <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Airport charge details.">?</span>
+            </span>
+            <span>$ ${invoice.platformCharge}</span>
+        </li>
+     
+    </ul>
 
-      <!-- Invoice Table -->
-      <div class="row">
-          <div class="col-md-12">
-              <h4>Description</h4>
-              <table class="table table-bordered">
-                  <thead>
-                      <tr>
-                          <th>Description</th>
-                          <th>Quantity</th>
-                          <th>Unit Price</th>
-                          <th>Total Price</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <tr>
-                          <td>Base Price (1 km)</td>
-                          <td>1</td>
-                          <td>$20.00</td>
-                          <td>$20.00</td>
-                      </tr>
-                      <tr>
-                          <td>Distance Price (${invoice.totalDistance} km)</td>
-                          <td>1</td>
-                          <td>$10.00/km</td>
-                          <td>$${invoice.totalDistance * 10}</td>
-                      </tr>
-                      <tr>
-                          <td>Time Price (${invoice.EstimatedTime} minutes)</td>
-                          <td>1</td>
-                          <td>$1.00/min</td>
-                          <td>$${invoice.EstimatedTime * 1}</td>
-                      </tr>
-                      <tr>
-                          <td><strong>Total</strong></td>
-                          <td></td>
-                          <td></td>
-                          <td><strong>$${invoice.totalFare}</strong></td>
-                      </tr>
-                  </tbody>
-              </table>
-          </div>
-      </div>
+    <!-- Payment Method Section -->
+    <div class="mb-4">
+        <div class="d-flex justify-content-between">
+            <span>Amount Charged</span>
+            <span>$ ${invoice.totalFare}</span>
+        </div>
+        <div class="d-flex align-items-center">
+<img width="54" height="54" src="https://img.icons8.com/3d-fluency/94/stripe.png" alt="stripe"/>
+        </div>
+    </div>
 
-      <!-- Payment Information -->
-      <div class="row">
-          <div class="col-md-6">
-              <h4>Payment Information</h4>
-              <p><strong>Payment Option:</strong> ${invoice.paymentOptions}</p>
-          </div>
-      </div>
+    <hr>
 
-      <!-- Footer -->
-      <div class="row invoice-footer">
-          <div class="col-md-12 text-center">
-              <p>Thank you for your business!</p>
-              <p>If you have any questions regarding this invoice, please contact us at (123) 456-7890.</p>
-          </div>
-      </div>
-    </div>`; // Replace this with your full invoice HTML template
+</div>`; // Replace this with your full invoice HTML template
     // console.log('Email: ', email)
 //   console.log(`====inside invoice nodemailer:  ${subject}, ${html}`)
     try {

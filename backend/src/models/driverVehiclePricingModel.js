@@ -42,7 +42,7 @@ const driverVehicleSchema = mongoose.Schema({
         type: String, required: true
     },
     vehicleType: {
-        type: String, required: true, unique:true
+        type: String, required: true
     },
 
 

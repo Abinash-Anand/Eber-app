@@ -127,9 +127,9 @@ export class RunningRequestComponent implements OnInit {
       if (response) {
         this.loadAssignedRequests();
         this.cdr.detectChanges(); // Manually trigger change detection
-        this.socketService.emitDriverResponse(response).subscribe((response) => {
-             console.log(response)
-  })
+  //       this.socketService.emitDriverResponse(response).subscribe((response) => {
+  //            console.log(response)
+  // })
     }
     
   });

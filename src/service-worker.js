@@ -2,7 +2,7 @@ self.addEventListener('push', function(event) {
   console.log('Push event received:', event);
   
     //   const data = event.data ? event.data.text() : 'No payload';
-    const data = 'NEW NOTIFICATION'
+    const data = 'Pop notify'
   const options = {
     body: data, // Use the payload data or default text
   };
