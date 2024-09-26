@@ -90,7 +90,16 @@ export class RunningRequestComponent implements OnInit {
 
       }
     })
-  
+    
+    //manual booking cancellation
+    this.socketService.manualBookingCancelled().subscribe((response) => {
+      if (response) {
+        console.log("Manually settimeout Booking cancelled: ", response)
+        this.removeRequest(response.bookingId);
+        this.router.navigate(['/rides/confirm-ride'])
+      }
+    })
+
     //count down timer
     this.socketService.requestCountdownTimer().subscribe((countdown) => {
       this.booking_id = countdown.booking._id

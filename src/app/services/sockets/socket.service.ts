@@ -57,6 +57,9 @@ export class SocketService {
   noDriversFoundNearBy(): Observable<any>{
     return this.socket.fromEvent('no-drivers-available')
   }
+  manualBookingCancelled(): Observable<any>{
+    return this.socket.fromEvent('booking-cancelled')
+  }
   disconnect() {
     this.socket.disconnect();
   }

@@ -25,7 +25,7 @@ const BookingSchema = new mongoose.Schema({
   totalDistance: { type: String, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'userModel', required: true },
   requestTimer: { type: Number, required: true },
-  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride', required: true },
+  bookingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Ride', required: true,  },
   vehicleImageURL: { type: String, required: true },
   vehicleType: { type: String, required: true },
 

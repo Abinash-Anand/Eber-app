@@ -35,7 +35,8 @@ const scheduledReassignDriver = async (bookingId, io) => {
       // If a driver is already assigned, we need to wait for their response
       if (bookingRequest.driverObjectId && bookingRequest.schedulerState.currentDriverId) {
         console.log('Driver is already assigned. Waiting for driver response.');
-
+        bookingRequest.schedulerState.assignmentStatus = 'Assigned';
+        await bookingRequest.save()
         // Schedule a timeout to handle driver response
         scheduleDriverResponseTimeout(bookingRequest, io);
 
@@ -102,7 +103,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
 
     // Assign the driver to the booking
     await driverAssignedWithABooking(currentDriver, bookingRequest);
-
+    
     // Emit the driver assignment to the client
     io.emit('cron-driver-assignment', {
       booking: bookingRequest,
@@ -130,6 +131,9 @@ const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null)
     console.log('Fetched updated booking after timeout:', updatedBooking);
 
     // If the driver hasn't accepted yet and booking is still 'Assigned'
+    console.log('assignmentStatus & currentDriverId: ',
+      updatedBooking.schedulerState.assignmentStatus,
+      updatedBooking.schedulerState.currentDriverId);
     if (
       updatedBooking.schedulerState.assignmentStatus === 'Assigned' &&
       updatedBooking.schedulerState.currentDriverId
@@ -158,13 +162,13 @@ const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null)
         console.log('Manual assignment: Cancelling booking due to driver non-response.');
 
         // Update booking and ride status to 'Cancelled'
-        updatedBooking.status = 'Cancelled';
+        updatedBooking.status = 'Pending';
         updatedBooking.schedulerState.assignmentStatus = 'Cancelled';
         await updatedBooking.save();
 
         const rideRequest = await Ride.findById(updatedBooking.bookingId);
         if (rideRequest) {
-          rideRequest.status = 'Cancelled';
+          rideRequest.status = 'Pending';
           await rideRequest.save();
         }
 
