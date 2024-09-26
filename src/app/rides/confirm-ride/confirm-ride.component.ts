@@ -236,7 +236,7 @@ listenForUpdatedRideStatus() {
       this.selectedRide.status = this.rideStatus;
       this.selectedRide.bookingId = this.bookingId
       console.log("Checking...",this.selectedRide);
-      
+      this.selectedRide.assignmentType =  'manual'
       this.rideService.submitRideRequestData(this.selectedRide).subscribe((rideResponse) => {
         console.log(rideResponse);
         if (rideResponse.status === 201) {
@@ -308,7 +308,8 @@ assignAnyAvailableDriver(): void {
     this.selectedRide.driver = this.filteredDriverList[randomIndex];
     this.selectedRide.status = this.rideStatus;
     this.selectedRide.bookingId = this.bookingId
-    console.log("Selected Ride: ",this.selectedRide);
+    console.log("Selected Ride: ", this.selectedRide);
+    this.selectedRide.assignmentType =  'auto'
     this.rideService.submitRideRequestData(this.selectedRide).subscribe((response) => {
       console.log(response);
        if (response.status === 201) {

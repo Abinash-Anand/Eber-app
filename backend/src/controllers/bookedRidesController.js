@@ -1,28 +1,122 @@
-const Booking = require('../models/rideBookings'); // Ensure the correct path to your model
+// const Booking = require('../models/rideBookings'); // Ensure the correct path to your model
 const cron = require('node-cron'); // For scheduling tasks
 const driverModel = require('../models/driverVehiclePricingModel'); // Ensure the correct path to your model
 const DriverVehicleModel = require('../models/driverVehiclePricingModel')
 const chalk = require('chalk')
-const Ride = require('../models/createRideModel')
-const {cronSchedularExecuter, countdownIntervalId, cronScheduler, stopCountdown} = require('./cronScheduler')
-
+// const Ride = require('../models/createRideModel')
+// const {cronSchedularExecuter, countdownIntervalId, cronScheduler, stopCountdown} = require('./cronScheduler')
+const Booking = require('../models/rideBookings');
+const Ride = require('../models/createRideModel');
+const { scheduledReassignDriver } = require('../utils/scheduler');
 
 //========================================================================================
 // Function to handle ride booking
+// const rideBooked = async (req, res, io) => {
+//   console.log(req.body)
+//   try {
+//     const {
+//       EstimatedTime, bookingOption, driver, dropOffLocation, fromLocation,
+//       paymentOption, phone, pickupLocation, scheduleDateTime,
+//       selectedCard, serviceType, status, stopLocations, toLocation,
+//       totalDistance, userId, requestTimer, bookingId
+//     } = req.body;
+
+//     if (!EstimatedTime || !bookingOption || !driver || !dropOffLocation ||
+//         !fromLocation || !paymentOption || !phone || !pickupLocation || !scheduleDateTime
+//         || !selectedCard || !serviceType || !status || !toLocation || !totalDistance || !userId || !requestTimer || !bookingId) {
+//       return res.status(400).send({ Message: "Missing required fields" });
+//     }
+
+//     const newBooking = new Booking({
+//       EstimatedTime,
+//       bookingOption,
+//       city: driver.city._id,
+//       country: driver.country._id,
+//       driverObjectId: driver.driverObjectId._id,
+//       dropOffLocation,
+//       fromLocation,
+//       paymentOption,
+//       phone,
+//       pickupLocation,
+//       scheduleDateTime,
+//       selectedCard,
+//       serviceType,
+//       status,
+//       stopLocations,
+//       toLocation,
+//       totalDistance,
+//       userId,
+//       requestTimer,
+//       bookingId,
+//       vehicleImageURL: driver.vehicleImageURL,
+//       // vehicleName: driver.vehicleName,
+//       vehicleType: driver.vehicleType
+//     });
+
+//     // console.log("New Booking Object: ", newBooking);
+
+//     await newBooking.save();
+//     io.emit('rideDriverConfirmed', newBooking); // 'rideDriverConfirmed' is the event name, newBooking is the data sent with the event
+
+//       cronSchedularExecuter(newBooking, io, driverObject=null)
+//     res.status(201).send({ Message: "New Booking Created", newBooking });
+//   } catch (error) {
+//     console.error("Error in rideBooked: ", error);
+//     res.status(500).send({ Message: "Internal Server Error", error });
+//   }
+// };
+
+
+
+// controllers/rideBookedController.js
+
+
+
 const rideBooked = async (req, res, io) => {
-  console.log(req.body)
   try {
     const {
-      EstimatedTime, bookingOption, driver, dropOffLocation, fromLocation,
-      paymentOption, phone, pickupLocation, scheduleDateTime,
-      selectedCard, serviceType, status, stopLocations, toLocation,
-      totalDistance, userId, requestTimer, bookingId
+      EstimatedTime,
+      bookingOption,
+      driver,
+      dropOffLocation,
+      fromLocation,
+      paymentOption,
+      phone,
+      pickupLocation,
+      scheduleDateTime,
+      selectedCard,
+      serviceType,
+      status,
+      stopLocations,
+      toLocation,
+      totalDistance,
+      userId,
+      requestTimer,
+      bookingId,
+      vehicleImageURL,
+      vehicleType,
+      assignmentType
     } = req.body;
 
-    if (!EstimatedTime || !bookingOption || !driver || !dropOffLocation ||
-        !fromLocation || !paymentOption || !phone || !pickupLocation || !scheduleDateTime
-        || !selectedCard || !serviceType || !status || !toLocation || !totalDistance || !userId || !requestTimer || !bookingId) {
-      return res.status(400).send({ Message: "Missing required fields" });
+    if (
+      !EstimatedTime ||
+      !bookingOption ||
+      !dropOffLocation ||
+      !fromLocation ||
+      !paymentOption ||
+      !phone ||
+      !pickupLocation ||
+      !scheduleDateTime ||
+      !serviceType ||
+      !status ||
+      !toLocation ||
+      !totalDistance ||
+      !userId ||
+      !requestTimer ||
+      !bookingId ||
+      !assignmentType
+    ) {
+      return res.status(400).send({ Message: 'Missing required fields' });
     }
 
     const newBooking = new Booking({
@@ -30,7 +124,7 @@ const rideBooked = async (req, res, io) => {
       bookingOption,
       city: driver.city._id,
       country: driver.country._id,
-      driverObjectId: driver.driverObjectId._id,
+      driverObjectId: driver ? driver.driverObjectId._id : null,
       dropOffLocation,
       fromLocation,
       paymentOption,
@@ -47,25 +141,34 @@ const rideBooked = async (req, res, io) => {
       requestTimer,
       bookingId,
       vehicleImageURL: driver.vehicleImageURL,
-      // vehicleName: driver.vehicleName,
-      vehicleType: driver.vehicleType
+      vehicleType: driver.vehicleType,
+      schedulerState: {
+        rejectedDrivers: [],
+        assignmentStatus: 'Pending',
+        currentDriverId: driver ? driver.driverObjectId._id : null,
+        assignmentTimestamp: driver ? new Date() : null,
+        expirationTimestamp: driver ? new Date(Date.now() + requestTimer * 1000) : null,
+      },
+      assignmentType: assignmentType
     });
 
-    // console.log("New Booking Object: ", newBooking);
-
     await newBooking.save();
-    io.emit('rideDriverConfirmed', newBooking); // 'rideDriverConfirmed' is the event name, newBooking is the data sent with the event
+    console.log('New booking created:', newBooking._id);
 
-    // Start the timer for request expiration
-    // scheduleRequestTimeout(newBooking);
-    // scheduledReassignDriver(newBooking)
-      cronSchedularExecuter(newBooking, io, driverObject=null)
-    res.status(201).send({ Message: "New Booking Created", newBooking });
+    io.emit('rideDriverConfirmed', newBooking);
+    console.log('Emitted rideDriverConfirmed event for booking:', newBooking._id);
+
+    // Start the assignment process
+    scheduledReassignDriver(newBooking._id, io);
+
+    res.status(201).send({ Message: 'New Booking Created', newBooking });
   } catch (error) {
-    console.error("Error in rideBooked: ", error);
-    res.status(500).send({ Message: "Internal Server Error", error });
+    console.error('Error in rideBooked:', error);
+    res.status(500).send({ Message: 'Internal Server Error', error });
   }
 };
+
+
 
 const findAnotherDriver = async (driverObjectId, cityId, vehicleType) => {
   try {
@@ -127,7 +230,7 @@ const getAllAcceptedRides = async (req, res) => {
 
 const assignDriver = async (req, res, io) => {
   try {
-    console.log('accept ride has been hit<=====================>')
+    console.log('Accept ride endpoint hit');
     const requestId = req.params.id;
     console.log('requestId:', requestId);
 
@@ -147,20 +250,18 @@ const assignDriver = async (req, res, io) => {
 
     // Update statuses
     booking.status = 'Accepted';
+    booking.schedulerState.assignmentStatus = 'Completed'; // Update scheduler state
     originalBookingObject.status = 'Accepted';
+
     // Save both objects
     await booking.save();
-    await originalBookingObject.save(); // Ensure you save the updated originalBookingObject
-    // console.log('BEFORE EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
-    
+    await originalBookingObject.save();
+
     console.log('Original Booking after update:', originalBookingObject);
-    // console.log('----------------Ride Request Accepted by driver---------------------');
-    console.log()
+
     io.emit('assignedRequest', originalBookingObject);
-    // console.log('AFTER EXE=>countdownIntervalId, cronScheduler: ',countdownIntervalId, cronScheduler)
-    
-    res.status(200).send({ message: 'Driver Accepted the request', booking });
-    stopCountdown()
+
+    res.status(200).send({ message: 'Driver accepted the request', booking });
   } catch (error) {
     console.error('Error assigning driver:', error);
     res.status(500).send({ message: 'Internal Server Error', error });
@@ -195,7 +296,7 @@ const rideRejectedByDriver = async (req, res, io) => {
     const requestId = req.params.id;
     console.log('Request ID:', requestId);
 
-    // Find the booking by requestId to get the bookingId
+    // Find the booking by requestId
     const booking = await Booking.findById(requestId);
     if (!booking) {
       console.error(`Booking not found for requestId: ${requestId}`);
@@ -204,24 +305,29 @@ const rideRejectedByDriver = async (req, res, io) => {
 
     const bookingId = booking.bookingId;
 
-    // Delete the associated Ride document
-    const OriginalBooking = await Ride.findById(bookingId);
-    console.log('Original booking deleted:', OriginalBooking);
-    if (!OriginalBooking) {
-      res.status(404).send("Ride Request not Found!")
-    }
-    //Ride is rejected by the driver Status changes to Pending agian to Reassign Driver Manually
-    OriginalBooking.status = 'Pending'
-    io.emit('ride-rejected-by-driver', OriginalBooking); 
-    await OriginalBooking.save()
-    // Delete the Booking document
-    const deletedBooking = await Booking.findByIdAndDelete(requestId);
-    console.log('Booking deleted:', deletedBooking);
+    // Update booking status
+    booking.status = 'Pending';
+    booking.schedulerState.assignmentStatus = 'Cancelled'; // Update scheduler state
+    await booking.save();
 
-    res.status(200).send(OriginalBooking);
-   
+    // Update the associated Ride document
+    const rideRequest = await Ride.findById(bookingId);
+    if (!rideRequest) {
+      console.error('Ride request not found!');
+      return res.status(404).send({ message: 'Ride request not found' });
+    }
+
+    // Update ride status to 'Pending' to manually reassign driver
+    rideRequest.status = 'Pending';
+    await rideRequest.save();
+
+    console.log('Ride request updated to Pending:', rideRequest);
+
+    io.emit('ride-rejected-by-driver', rideRequest);
+
+    res.status(200).send(rideRequest);
   } catch (error) {
-    console.error('Error deleting ride booking:', error);
+    console.error('Error in rideRejectedByDriver:', error);
     res.status(500).send({ message: 'Internal Server Error', error });
   }
 };

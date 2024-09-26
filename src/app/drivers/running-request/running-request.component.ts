@@ -59,7 +59,9 @@ export class RunningRequestComponent implements OnInit {
   }
 
   filteredRequests(requests) {
-    this.assignedRequests = requests.filter(request => request.status !== "Completed");
+    this.assignedRequests = requests.filter((request) => {
+     return (request.status !== "Completed" && request.status !== "Pending" && request.status !== "Cancelled")
+    });
     this.emptyBookingError = this.assignedRequests.length === 0;
   }
 
@@ -73,18 +75,22 @@ export class RunningRequestComponent implements OnInit {
       this.socketService.cronReassignDriver().subscribe((newDriverBooking) => {
         console.log("CRON ASSIGNED DRIVER: ", newDriverBooking)
         if (newDriverBooking) {
-          this.cronDataBooking = newDriverBooking
-          // const filteredDriverList = this.assignedRequests.filter((ride) => {
-          //   return ride.driverObjectId._id === newDriverBooking.driverObjectId._id
-          // })
-          // console.log("FilteredDriverList: ", filteredDriverList);
+          this.cronDataBooking = newDriverBooking.driver
+          console.log("cronDataBooking: ", this.cronDataBooking.driverArrayLength)
           
-          // this.assignedRequests = filteredDriverList
-          // // const filteredAssignedRequests = assignedRequests.
-          // this.assignedRequests.push(newDriverBooking)
         }
       })
-    
+      // When there are no drivers found by the scheduler
+    this.socketService.noDriversFoundNearBy().subscribe((response) => {
+      console.log("No Drivers found")
+      if (response.filteredDriverList.length === 0) {
+        this.cronDataBooking = null
+      this.removeRequest(response.bookingId);
+      this.router.navigate(['/rides/confirm-ride'])
+
+      }
+    })
+  
     //count down timer
     this.socketService.requestCountdownTimer().subscribe((countdown) => {
       this.booking_id = countdown.booking._id
@@ -102,23 +108,7 @@ export class RunningRequestComponent implements OnInit {
     // this.startTimer(request.requestTimer);
   }
 
-  // startTimer(duration: number): void {
-  //   if (this.timer) {
-  //     clearInterval(this.timer);
-  //   }
-  //   let timer = duration;
-  //   this.timer = setInterval(() => {
-  //     let minutes = Math.floor(timer / 60);
-  //     let seconds = timer % 60;
-
-  //     this.countdown = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-
-  //     if (--timer < 0) {
-  //       this.cancelRequest(this.selectedRequest);
-  //       clearInterval(this.timer);
-  //     }
-  //   }, 1000);
-  // }
+ 
 
   acceptRequest(request: any): void {
   console.log(request)

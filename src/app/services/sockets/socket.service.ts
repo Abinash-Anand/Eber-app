@@ -54,6 +54,9 @@ export class SocketService {
   sessionEnding(): Observable<any>{
     return this.socket.emit('one-minute-left')
   }
+  noDriversFoundNearBy(): Observable<any>{
+    return this.socket.fromEvent('no-drivers-available')
+  }
   disconnect() {
     this.socket.disconnect();
   }
