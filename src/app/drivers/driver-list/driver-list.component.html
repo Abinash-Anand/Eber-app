@@ -213,6 +213,14 @@
                             (click)="createBankAccount(user)">
                             Create Bank Account
                         </button>
+                        <!-- <button type="button" class="btn btn-outline-success btn-sm mx-2 my-2" data-bs-toggle="modal" 
+                        data-target="#accountUpdateModal" (click)="updateBankDetails(user)">
+                            Update Account
+                        </button> -->
+                        <button type="button" class="btn btn-outline-success btn-sm mx-2 my-2" data-toggle="modal"
+                            data-target="#updateDriverBankAccount" (click)="updateBankDetails(user)">
+                            Update Bank Details
+                        </button>
                         </div>
                         
                     </div>
@@ -426,85 +434,155 @@
             </div>
             <div class="modal-body">
                 <form [formGroup]="bankAccountForm" (ngSubmit)="onSubmit()">
+
+                    <!-- Country -->
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <input type="text" id="country" class="form-control" formControlName="country"  />
+                        <div *ngIf="bankAccountForm.get('country').touched && bankAccountForm.get('country').invalid"
+                            class="text-danger">
+                            Country is required.
+                        </div>
+                    </div>
+
                     <!-- Account Type -->
-                    <!-- <div class="mb-3">
-                        <label for="accountType" class="form-label"><i class="bi bi-wallet2 me-2"></i>Account
-                            Type</label>
-                        <select id="accountType" class="form-select" formControlName="account_type">
-                            <option value="" disabled selected>Select account type</option>
-                            <option value="bank_account">Bank Account</option>
-                            <option value="vpa">UPI</option>
-                        </select>
-                        <div *ngIf="bankAccountForm.get('account_type').touched && bankAccountForm.get('account_type').invalid"
+                    <div class="mb-3">
+                        <label for="type" class="form-label">Account Type</label>
+                        <input type="text" id="type" class="form-control" formControlName="type"  />
+                        <div *ngIf="bankAccountForm.get('type').touched && bankAccountForm.get('type').invalid"
                             class="text-danger">
                             Account type is required.
                         </div>
-                    </div> -->
+                    </div>
 
-                    <!-- IFSC Code -->
-                    <!-- <div class="mb-3">
-                        <label for="ifsc" class="form-label"><i class="bi bi-bank2 me-2"></i>IFSC Code</label>
-                        <input type="text" id="ifsc" class="form-control" formControlName="ifsc"
-                            placeholder="e.g., HDFC0000123">
-                        <div *ngIf="bankAccountForm.get('ifsc').touched && bankAccountForm.get('ifsc').invalid"
-                            class="text-danger">
-                            <div *ngIf="bankAccountForm.get('ifsc').errors.required">IFSC code is required.</div>
-                            <div *ngIf="bankAccountForm.get('ifsc').errors.pattern">Invalid IFSC code.</div>
-                        </div>
-                    </div> -->
-
-                    <!-- Bank Name -->
+                    <!-- Business Type -->
                     <div class="mb-3">
-                        <label for="bankName" class="form-label"><i class="bi bi-building me-2"></i>Bank Name</label>
-                        <input type="text" id="bankName" class="form-control" formControlName="bank_name"
-                            placeholder="e.g., HDFC Bank">
-                        <div *ngIf="bankAccountForm.get('bank_name').touched && bankAccountForm.get('bank_name').invalid"
+                        <label for="businessType" class="form-label">Business Type</label>
+                        <input type="text" id="businessType" class="form-control" formControlName="business_type"
+                             />
+                        <div *ngIf="bankAccountForm.get('business_type').touched && bankAccountForm.get('business_type').invalid"
                             class="text-danger">
-                            Bank name is required.
+                            Business type is required.
                         </div>
                     </div>
 
-                    <!-- Account Number -->
+                    <!-- First Name -->
                     <div class="mb-3">
-                        <label for="accountNumber" class="form-label"><i
-                                class="bi bi-credit-card-2-front me-2"></i>Account Number</label>
-                        <input type="text" id="accountNumber" class="form-control" formControlName="account_number"
-                            placeholder="e.g., 123456789">
-                        <div *ngIf="bankAccountForm.get('account_number').touched && bankAccountForm.get('account_number').invalid"
+                        <label for="firstName" class="form-label">First Name</label>
+                        <input type="text" id="firstName" class="form-control" formControlName="first_name"
+                            placeholder="Enter first name">
+                        <div *ngIf="bankAccountForm.get('first_name').touched && bankAccountForm.get('first_name').invalid"
                             class="text-danger">
-                            <div *ngIf="bankAccountForm.get('account_number').errors.required">Account number is
-                                required.</div>
-                            <div *ngIf="bankAccountForm.get('account_number').errors.pattern">Invalid account number.
-                            </div>
+                            First name is required.
                         </div>
                     </div>
 
-                    <!-- Virtual Account Description -->
-                    <!-- <div class="mb-3">
-                        <label for="description" class="form-label"><i class="bi bi-info-circle me-2"></i>Virtual
-                            Account Description</label>
-                        <select id="description" class="form-select form-control" formControlName="description">
-                            <option [value]="description"  selected *ngFor="let description of descriptions">{{description}}
-                            </option>
-                        </select>
-                        <div *ngIf="bankAccountForm.get('description').touched && bankAccountForm.get('description').invalid"
+                    <!-- Last Name -->
+                    <div class="mb-3">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" id="lastName" class="form-control" formControlName="last_name"
+                            placeholder="Enter last name">
+                        <div *ngIf="bankAccountForm.get('last_name').touched && bankAccountForm.get('last_name').invalid"
                             class="text-danger">
-                            Description is required.
+                            Last name is required.
                         </div>
-                    </div> -->
+                    </div>
 
-                    <!-- Project Name -->
-                    <!-- <div class="mb-3">
-                        <label for="projectName" class="form-label"><i class="bi bi-briefcase me-2"></i>Project
-                            Name</label>
-                        <input type="text" id="projectName" class="form-control" formControlName="project_name"
-                            placeholder="e.g., Eber App Driver Fund">
-                        <div *ngIf="bankAccountForm.get('project_name').touched && bankAccountForm.get('project_name').invalid"
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" class="form-control" formControlName="email"
+                            placeholder="Enter email">
+                        <div *ngIf="bankAccountForm.get('email').touched && bankAccountForm.get('email').invalid"
                             class="text-danger">
-                            Project name is required.
+                            Email is required and must be valid.
                         </div>
-                    </div> -->
+                    </div>
 
+                    <!-- Phone Number -->
+                    <div class="mb-3">
+                        <label for="phoneNumber" class="form-label">Phone Number</label>
+                        <input type="text" id="phoneNumber" class="form-control" formControlName="phone"
+                            placeholder="Enter phone number">
+                        <div *ngIf="bankAccountForm.get('phone').touched && bankAccountForm.get('phone').invalid"
+                            class="text-danger">
+                            Phone number is required.
+                        </div>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div class="mb-3">
+                        <label for="dob" class="form-label">Date of Birth</label>
+                        <div class="d-flex">
+                            <input type="text" id="dobDay" class="form-control me-1" formControlName="dob_day"
+                                placeholder="Day">
+                            <input type="text" id="dobMonth" class="form-control me-1" formControlName="dob_month"
+                                placeholder="Month">
+                            <input type="text" id="dobYear" class="form-control" formControlName="dob_year"
+                                placeholder="Year">
+                        </div>
+                        <div *ngIf="bankAccountForm.get('dob_day').touched && bankAccountForm.get('dob_day').invalid"
+                            class="text-danger">
+                            Date of birth is required.
+                        </div>
+                    </div>
+
+                    <!-- Address Line 1 -->
+                    <div class="mb-3">
+                        <label for="addressLine1" class="form-label">Address Line 1</label>
+                        <input type="text" id="addressLine1" class="form-control" formControlName="line1"
+                            placeholder="Enter address line 1">
+                        <div *ngIf="bankAccountForm.get('line1').touched && bankAccountForm.get('line1').invalid"
+                            class="text-danger">
+                            Address line 1 is required.
+                        </div>
+                    </div>
+
+                    <!-- City -->
+                    <div class="mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <input type="text" id="city" class="form-control" formControlName="city"
+                            placeholder="Enter city">
+                        <div *ngIf="bankAccountForm.get('city').touched && bankAccountForm.get('city').invalid"
+                            class="text-danger">
+                            City is required.
+                        </div>
+                    </div>
+
+                    <!-- Postal Code -->
+                    <div class="mb-3">
+                        <label for="postalCode" class="form-label">Postal Code</label>
+                        <input type="text" id="postalCode" class="form-control" formControlName="postal_code"
+                            placeholder="Enter postal code">
+                        <div *ngIf="bankAccountForm.get('postal_code').touched && bankAccountForm.get('postal_code').invalid"
+                            class="text-danger">
+                            Postal code is required.
+                        </div>
+                    </div>
+
+                    <!-- State -->
+                    <div class="mb-3">
+                        <label for="state" class="form-label">State</label>
+                        <input type="text" id="state" class="form-control" formControlName="state"
+                            placeholder="Enter state">
+                        <div *ngIf="bankAccountForm.get('state').touched && bankAccountForm.get('state').invalid"
+                            class="text-danger">
+                            State is required.
+                        </div>
+                    </div>
+
+                    <!-- Business Profile URL -->
+                    <div class="mb-3">
+                        <label for="businessUrl" class="form-label">Business Profile URL</label>
+                        <input type="text" id="businessUrl" class="form-control" formControlName="business_url"
+                            placeholder="https://your-platform-url.com">
+                        <div *ngIf="bankAccountForm.get('business_url').touched && bankAccountForm.get('business_url').invalid"
+                            class="text-danger">
+                            A valid business URL is required.
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
                     <button type="submit" class="btn btn-success w-100 mt-3" [disabled]="bankAccountForm.invalid">
                         <i class="bi bi-check-circle me-2"></i>Submit
                     </button>
@@ -513,3 +591,92 @@
         </div>
     </div>
 </div>
+
+<!--Update account data-->
+
+
+
+    <!-- Modal -->
+    <!-- Modal -->
+    <div class="modal fade" id="updateDriverBankAccount" tabindex="-1" role="dialog" aria-labelledby="DriverBankAccount"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="bankAccountModalLabel">Update Driver Bank Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form [formGroup]="accountUpdateForm" (ngSubmit)="submitUpdatedBankDetails()">
+                        <!-- Business MCC -->
+                        <div class="mb-3">
+                            <label for="businessMCC" class="form-label">Business MCC (Transportation)</label>
+                            <input type="text" id="businessMCC" class="form-control" formControlName="business_mcc"
+                                 />
+                        </div>
+    
+                        <!-- Bank Account Holder Name -->
+                        <div class="mb-3">
+                            <label for="accountHolderName" class="form-label">Account Holder Name</label>
+                            <input type="text" id="accountHolderName" class="form-control"
+                                formControlName="account_holder_name" placeholder="John Doe" />
+                            <div *ngIf="accountUpdateForm.get('account_holder_name').touched && accountUpdateForm.get('account_holder_name').invalid"
+                                class="text-danger">
+                                Account holder name is required.
+                            </div>
+                        </div>
+    
+                        <!-- IBAN (Bank Account Number) -->
+                        <div class="mb-3">
+                            <label for="accountNumber" class="form-label">IBAN (Account Number)</label>
+                            <input type="text" id="accountNumber" class="form-control" formControlName="account_number"
+                                placeholder="DE89370400440532013000" />
+                            <div *ngIf="accountUpdateForm.get('account_number').touched && accountUpdateForm.get('account_number').invalid"
+                                class="text-danger">
+                                <div *ngIf="accountUpdateForm.get('account_number').errors.required">Account number is
+                                    required.</div>
+                                <div *ngIf="accountUpdateForm.get('account_number').errors.pattern">Invalid IBAN format.
+                                </div>
+                            </div>
+                        </div>
+    
+                        <!-- Country -->
+                        <div class="mb-3">
+                            <label for="country" class="form-label">Country</label>
+                            <input type="text" id="country" class="form-control" formControlName="country" value="DE"
+                                 />
+                        </div>
+    
+                        <!-- Account Holder Type -->
+                        <div class="mb-3">
+                            <label for="accountHolderType" class="form-label">Account Holder Type</label>
+                            <input type="text" id="accountHolderType" class="form-control"
+                                formControlName="account_holder_type" value="individual"  />
+                        </div>
+    
+                        <!-- Card Capabilities Checkbox -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="cardCapabilities"
+                                formControlName="card_capabilities" />
+                            <label class="form-check-label" for="cardCapabilities">Enable Card Payments</label>
+                        </div>
+    
+                        <!-- Accept Terms of Service -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="acceptTos" formControlName="accept_tos" />
+                            <label class="form-check-label" for="acceptTos">I accept the Terms of Service</label>
+                            <div *ngIf="accountUpdateForm.get('accept_tos').touched && accountUpdateForm.get('accept_tos').invalid"
+                                class="text-danger">
+                                You must accept the Terms of Service.
+                            </div>
+                        </div>
+    
+                        <!-- Submit Button -->
+                        <button type="submit" class="btn btn-success w-100 mt-3" [disabled]="accountUpdateForm.invalid">
+                            Update Account
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

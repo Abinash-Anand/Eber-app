@@ -141,8 +141,8 @@ router.get('/cities/specific-zone', zoneByCity);
     router.get('/stripe/cards/user-cards/:id', userStripeCards);
     router.delete('/stripe/cards/delete-one/:id', deleteStripeCard)
     router.patch('/stripe/cards/update/make-default',setCardToDefault)
-    router.post('/driver/stripe/create/express/account', stripeCustomConnectedAccount)
-    router.patch('/update-stripe-account', updateStripeAccount);
+    router.post('/driver/stripe/create/express/account/:id', stripeCustomConnectedAccount)
+    router.patch('/driver/account/stripe/update/:id', updateStripeAccount)
     //------------------------------Create Rides Section--------------------------------
     router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 

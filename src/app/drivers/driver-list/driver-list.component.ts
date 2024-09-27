@@ -25,6 +25,7 @@ import Swal from 'sweetalert2';
   styleUrl: './driver-list.component.css'
 })
 export class DriverListComponent implements OnInit {
+  ipAddress:any
   driverCreated: boolean = false;
   @ViewChild('form') formData: NgForm;
   @ViewChild('updateForm') updateForm: NgForm;
@@ -93,7 +94,8 @@ export class DriverListComponent implements OnInit {
   @ViewChild('searchForm') searchFormData: NgForm;
   @ViewChild('form') userForm: NgForm;
   @ViewChild('form') form: NgForm;
-    bankAccountForm: FormGroup;
+  bankAccountForm: FormGroup;
+    accountUpdateForm: FormGroup
   constructor(
     private driverListService: DriverlistService,
     private countryApiService: CountryApiService,
@@ -110,12 +112,46 @@ export class DriverListComponent implements OnInit {
     this.getAllUsers();
     this.getCountries();
     this.getVehicleData();
-  
      // Initialize the form with controls and validators
  this.bankAccountForm = this.fb.group({
-  bank_name: ['', Validators.required],
-  account_number: ['', [Validators.required, Validators.pattern('^[0-9]{9,18}$')]], // Bank account number regex pattern
-});
+      // Account Details
+      country: ['DE', Validators.required], // Fixed country code for Germany
+      type: ['custom', Validators.required], // Account type 'custom'
+      business_type: ['individual', Validators.required], // Business type 'individual'
+
+      // Individual Fields (driver details)
+      first_name: ['', Validators.required],
+      last_name: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+
+      // Date of Birth
+      dob_day: ['', Validators.required],
+      dob_month: ['', Validators.required],
+      dob_year: ['', Validators.required],
+
+      // Address Fields
+      line1: ['', Validators.required],
+      city: ['', Validators.required],
+      postal_code: ['', Validators.required],
+      state: ['', Validators.required],
+      country_address: ['DE', Validators.required], // Fixed country code for Germany
+
+      // Business Profile
+      business_url: ['https://your-platform-url.com', Validators.required], // Replace with actual platform URL
+    });
+    this.accountUpdateForm = this.fb.group({
+      business_mcc: ['4789', Validators.required], // Business MCC for transportation
+      account_holder_name: ['', Validators.required], // Account holder's name
+      account_number: [
+        '',
+        [Validators.required, Validators.pattern('^[A-Z]{2}[0-9]{2}[A-Z0-9]{1,30}$')], // IBAN pattern validation
+      ],
+      country: ['DE'], // Fixed value for Germany
+      account_holder_type: ['individual'], // Fixed value for individual
+      card_capabilities: [false], // Toggle for card capabilities
+      accept_tos: [false, Validators.requiredTrue], // Terms of Service acceptance
+    });
 
 
   }
@@ -443,9 +479,29 @@ onAssignBooking(vehicle, i) {
   }
   createBankAccount(driver) {
     console.log(driver);
+    this.driverId =null
     this.driverId =  driver._id
     
-}
+  }
+  updateBankDetails(driver) {
+    console.log("Update Driver: ", driver)
+    this.driverId =null
+    this.driverId =  driver._id
+
+  }
+    submitUpdatedBankDetails() {
+    if (this.accountUpdateForm.valid) {
+      const accountData = this.accountUpdateForm.value;
+      console.log('Submitted Account Data:', accountData);
+      this.bankAccountService.updateStripeAccount(this.driverId, accountData).subscribe((response) => {
+        if (response.status === 201) {
+          console.log("Account Updated: ", response.body);
+          
+        }
+  })
+      // You can make an API call to your backend with the updated data here
+    }
+  }
  onSubmit() {
    if (this.bankAccountForm.valid) {
       const bankDetails = this.bankAccountForm.value
@@ -523,5 +579,6 @@ onAssignBooking(vehicle, i) {
     })
     
   }
+
 
 }

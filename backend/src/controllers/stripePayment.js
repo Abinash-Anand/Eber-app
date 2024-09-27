@@ -2,13 +2,14 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PaymentMethod = require('../models/stripePayment'); // Adjust the path as necessary
 const Booking = require('./bookedRidesController');
 const Pricing = require('../models/pricingModel');
-const { createRazorpayTransfer } = require('./razorpayGateway');
 const chalk = require('chalk')
+const CustomAccount = require('../models/stripeDriverAccount');
+const driverModel = require('../models/driverModel');
 
 
 const createNewPayment = async (req, res) => {
   const { paymentMethod } = req.body; // Payment method data from request body
-
+  
   if (!paymentMethod || !paymentMethod.id) {
     return res.status(400).send({ error: 'Invalid payment method' });
   }
@@ -176,116 +177,298 @@ const fetchUserCardDetails = async (req, res) => {
 //===============================CREATING A CUSTOM ACCOUNT===================================
 const stripeCustomConnectedAccount = async (req, res) => {
   try {
-    const driver = req.body;  // Extract driver data from request body
-console.log("driver account: ", req.body)
+    const driverId = req.params.id;
+
+    if (!driverId) {
+      return res.status(400).send({ error: "Driver ID is required in params." });
+    }
+
+    const {
+      city,
+      country,
+      dob_day,
+      dob_month,
+      dob_year,
+      email,
+      first_name,
+      last_name,
+      line1,
+      phone,
+      postal_code,
+      state,
+      type,
+      business_url, // Ensure this is sent from the client or set a default
+    } = req.body;
+
+    // Corrected Validation: Use logical OR (||) between each condition
+    if (
+      !city ||
+      !country ||
+      !dob_day ||
+      !dob_month ||
+      !dob_year ||
+      !email ||
+      !first_name ||
+      !last_name ||
+      !line1 ||
+      !phone ||
+      !postal_code ||
+      !state ||
+      !type ||
+      !business_url
+    ) {
+      return res.status(400).send({ error: "All required fields must be provided." });
+    }
+
+    // Fetch the driver from the database
+    const driver = await driverModel.findOne({ _id: driverId });
+    if (!driver) {
+      return res.status(404).send({ error: "Driver not found." });
+    }
+
+    // Create Stripe Account
     const account = await stripe.accounts.create({
-      country: 'DE',  // Germany country code
-      type: 'custom', // Express account type
-      capabilities: {
+      country: country, // Germany country code 'DE'
+      type: 'custom', // Fixed to 'custom' as per your schema
+      business_type: 'individual', // Assuming drivers are individuals
+         capabilities: {
         card_payments: { requested: true },
-        transfers: { requested: true },
+        transfers: { requested: true }
       },
-      business_type: 'individual',  // Driver is an individual
       individual: {
-        first_name: driver.firstName,
-        last_name: driver.lastName,
-        email: driver.email,
-        phone: driver.phoneNumber,
+        first_name: first_name,
+        last_name: last_name,
+        email: email,
+        phone: phone,
         dob: {
-          day: driver.dob.day,
-          month: driver.dob.month,
-          year: driver.dob.year,
+          day: dob_day,
+          month: dob_month,
+          year: dob_year,
         },
         address: {
-          line1: driver.address.line1,
-          city: driver.address.city,
-          postal_code: driver.address.postal_code,
-          state: driver.address.state,
-          country: 'DE',  // Germany country code
+          line1: line1,
+          city: city,
+          postal_code: postal_code,
+          state: state,
+          country: country,
         },
       },
       business_profile: {
-        url: 'https://your-platform-url.com',  // Replace with your platform URL
-      }
+        url: business_url, // Ensure this is provided by the client
+      },
+    });
+  console.log("account creation response: ", account)
+    // Create CustomAccount Document in MongoDB
+    const customAccount = new CustomAccount({
+      stripe_account_id: account.id, // Save Stripe Account ID
+      driverObjectId:driver._id,
+      email: email,
+      country: country,
+      type: type,
+      business_type: 'individual', // As set during Stripe account creation
+      individual: {
+        first_name: first_name,
+        last_name: last_name,
+        email: email,
+        phone: phone,
+        dob: {
+          day: dob_day,
+          month: dob_month,
+          year: dob_year,
+        },
+        address: {
+          line1: line1,
+          city: city,
+          postal_code: postal_code,
+          state: state,
+          country: country,
+        },
+      },
+      business_profile: {
+        url: business_url,
+      },
+      // Optional fields can remain as defaults or empty
     });
 
-    // Create the Account Link for onboarding (see Step 2)
-    // const accountLink = await createAccountLink(account.id);
+    await customAccount.save();
 
-    res.status(201).send({ account });  // Return the created account and the onboarding link
+    // Optionally, you might want to associate the CustomAccount with the Driver
+    // For example:
+    // driver.customAccount = customAccount._id;
+    // await driver.save();
+
+    res.status(201).send({ account, customAccount });
   } catch (error) {
-    console.error('Error creating driver Stripe account:', error.message);
-    res.status(500).send({ error: error.message });
+    console.error('Error creating driver Stripe account:', error);
+
+    // Enhanced error response
+    if (error.type === 'StripeCardError') {
+      // Handle Stripe specific errors
+      res.status(400).send({ error: error.message });
+    } else {
+      res.status(500).send({ error: "Internal Server Error" });
+    }
   }
 };
 
-
 // Define the sequential function to handle all steps
+// {
+//   "accept_tos": true,
+//   "account_holder_name": "John Doe",
+//   "account_holder_type": "individual",
+//   "account_number": "DE89370400440532013000",
+//   "business_mcc": "4789",
+//   "card_capabilities": true,
+//   "country": "DE"
+// }
 const updateStripeAccount = async (req, res) => {
   try {
-    const { accountId } = req.body;  // Extract the account ID from the request body
+    const driverId = req.params.id;
 
-    // 1. Add Business Profile MCC
-   const businessProfile = await stripe.accounts.update(accountId, {
+    // Validate the presence of driverId
+    if (!driverId) {
+      console.error("Driver ID is missing in params.");
+      return res.status(400).json({ error: "Driver ID is required in params." });
+    }
+
+    // Find the CustomAccount associated with the driver
+    const driverAccount = await CustomAccount.findOne({ driverObjectId: driverId });
+    if (!driverAccount) {
+      console.error(`Driver account not found for driverId: ${driverId}`);
+      return res.status(404).json({ error: "Driver account not found." });
+    }
+
+    // Extract optional data from req.body
+    const {
+      accept_tos,               // Boolean
+      account_holder_name,     // String
+      account_holder_type,     // 'individual' or 'company'
+      account_number,          // String (valid IBAN)
+      business_mcc,            // String (Merchant Category Code)
+      card_capabilities,       // Boolean
+      country,                 // 'DE' (Germany)
+      // Additional optional fields can be added here
+    } = req.body;
+
+    // Validate required fields for update
+    if (
+      accept_tos === undefined ||
+      !account_holder_name ||
+      !account_holder_type ||
+      !account_number ||
+      !business_mcc ||
+      card_capabilities === undefined ||
+      !country
+    ) {
+      console.error("Missing required fields in request body.");
+      return res.status(400).json({ error: "All required fields must be provided." });
+    }
+
+    // 1. Update Business Profile MCC in Stripe
+    const businessProfile = await stripe.accounts.update(driverAccount.stripe_account_id, {
       business_profile: {
-        mcc: '4789'  // Example MCC for transportation services
-      }
+        mcc: business_mcc,  // Example MCC for transportation services
+      },
     });
-    // console.log('Step 1: Business Profile MCC updated', businessProfile);
+    console.log('Step 1: Business Profile MCC updated', businessProfile.business_profile);
 
-    // 2. Add an External Account (Bank Account)
-  const extBankAcc =  await stripe.accounts.createExternalAccount(accountId, {
-  external_account: {
-    object: 'bank_account',
-    country: 'DE',  // Germany
-    currency: 'eur',  // EUR is the currency in Germany
-    account_holder_name: 'John Doe',  // The name of the driver
-    account_holder_type: 'individual',  // Type of account holder
-    account_number: 'DE89370400440532013000'  // Replace with a valid IBAN
-    // Do not include BIC; Stripe derives it from the IBAN
-  }
-});
+    // 2. Add an External Account (Bank Account) to Stripe
+    const externalAccount = await stripe.accounts.createExternalAccount(driverAccount.stripe_account_id, {
+      external_account: {
+        object: 'bank_account',
+        country: country,                  // Germany
+        currency: 'eur',                   // EUR is the currency in Germany
+        account_holder_name: account_holder_name,  // Provided account holder name
+        account_holder_type: account_holder_type,  // Type of account holder
+        account_number: account_number,            // Valid IBAN
+        // Do not include BIC; Stripe derives it from the IBAN
+      },
+    });
+    console.log('Step 2: External account (Bank Account) added', externalAccount);
 
-    console.log('Step 2: External account (Bank Account) added', extBankAcc);
-      
-    
-    // 4. Request Card Payment Capabilities
-   const cardCapabilities =  await stripe.accounts.update(accountId, {
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true }
-      }
-   });
-    // 3. Accept the Terms of Service
-  const termsOfService =   await stripe.accounts.update(accountId, {
+    // 3. Accept the Terms of Service in Stripe
+    if (!accept_tos) {
+      console.error("Terms of Service not accepted.");
+      return res.status(400).json({ error: "You must accept the Terms & Conditions." });
+    }
+
+    const termsOfService = await stripe.accounts.update(driverAccount.stripe_account_id, {
       tos_acceptance: {
         date: Math.floor(Date.now() / 1000),  // Current timestamp
-        ip: req.ip || '192.168.1.1'  // Replace with the actual IP address or fallback to a dummy value
-      }
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress || '192.168.1.1', // Replace with actual IP
+        // Optionally, include user_agent if available
+      },
     });
-    console.log('Step 3: Terms of Service accepted', termsOfService);
+    console.log('Step 3: Terms of Service accepted', termsOfService.tos_acceptance);
 
-    console.log('Step 4: Card Payment and Transfer capabilities requested', cardCapabilities);
+    // 4. Request Card Payment and Transfer Capabilities in Stripe
+    const cardCapabilitiesResponse = await stripe.accounts.update(driverAccount.stripe_account_id, {
+      capabilities: {
+        card_payments: { requested: card_capabilities },
+        transfers: { requested: card_capabilities },
+      },
+    });
+    console.log('Step 4: Card Payment and Transfer capabilities requested', cardCapabilitiesResponse.capabilities);
 
-    // 5. Check for any remaining requirements
-    const account = await stripe.accounts.retrieve(accountId);
+    // 5. Check for any remaining requirements in Stripe
+    const account = await stripe.accounts.retrieve(driverAccount.stripe_account_id);
     const remainingRequirements = account.requirements.currently_due;
-    console.log('Step 5: Remaining requirements checked');
+    console.log('Step 5: Remaining requirements checked', remainingRequirements);
 
-    // Send back the remaining requirements or success message
-    if (remainingRequirements.length > 0) {
-      res.status(200).json({
+    // 6. Prepare Update Data for MongoDB
+    const updateData = {
+      business_profile: {
+        mcc: business_mcc,
+      },
+      external_account: {
+        object: 'bank_account', // Assuming it's a bank account
+        country: country,
+        currency: 'eur', // As per Stripe account settings
+        account_holder_name: account_holder_name,
+        account_holder_type: account_holder_type,
+        account_number: account_number,
+      },
+      capabilities: {
+        card_payments: { requested: cardCapabilitiesResponse.capabilities.card_payments },
+        transfers: { requested:cardCapabilitiesResponse.capabilities.transfers },
+      },
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip: req.headers['x-forwarded-for'] || req.connection.remoteAddress || '192.168.1.1',
+      },
+    };
+
+    // 7. Update MongoDB Document with Optional Data
+    const updatedCustomAccount = await CustomAccount.findOneAndUpdate(
+      { driverObjectId: driverId },
+      { $set: updateData },
+      { new: true } // Return the updated document
+    );
+    console.log('MongoDB: CustomAccount updated with optional data', updatedCustomAccount);
+
+    // 8. Send back the remaining requirements or success message
+    if (Array.isArray(remainingRequirements) && remainingRequirements.length > 0) {
+      console.log("Sending response with remaining requirements.");
+      return res.status(200).json({
         message: 'Account updated but has remaining requirements',
-        remaining_requirements: remainingRequirements
+        remaining_requirements: remainingRequirements,
       });
     } else {
-      res.status(200).json({
-        message: 'Account updated successfully and card capabilities activated'
+      console.log("Sending success response.");
+      return res.status(200).json({
+        message: 'Account updated successfully and card capabilities activated',
       });
     }
   } catch (error) {
-    console.error('Error updating Stripe account:', error.message);
-    res.status(500).send({ error: error.message });
+    console.error('Error updating Stripe account:', error);
+
+    // Enhanced error response
+    if (error.type === 'StripeCardError') {
+      // Handle Stripe specific errors
+      return res.status(400).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
   }
 };
 
