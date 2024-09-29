@@ -60,7 +60,11 @@ const driverSchema = new mongoose.Schema({
     //     required:true,
     //     unique:true
     // },
-    
+    countryObjectId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Country',
+        required:true
+    }
 }, { timestamps: true });
 
 const driverModel = mongoose.model('driverModel', driverSchema);

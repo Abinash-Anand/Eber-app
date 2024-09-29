@@ -25,7 +25,8 @@ import Swal from 'sweetalert2';
   styleUrl: './driver-list.component.css'
 })
 export class DriverListComponent implements OnInit {
-  ipAddress:any
+  ipAddress: any
+  countryObjectId: string = '';
   driverCreated: boolean = false;
   @ViewChild('form') formData: NgForm;
   @ViewChild('updateForm') updateForm: NgForm;
@@ -182,6 +183,7 @@ export class DriverListComponent implements OnInit {
     const selectElement = (event.target as HTMLSelectElement);
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     this.selectedCountryId = selectedOption.value;
+    this.countryObjectId =  selectedOption.id
 
     this.filterCitiesByCountry();
   }
@@ -203,8 +205,9 @@ export class DriverListComponent implements OnInit {
   onCreateUser() {
     this.userObject = this.userForm.value;
     console.log(this.userForm.value);
-
-    this.driverListService.createNewUser(this.userObject).subscribe((users) => {
+    const driverObject: any = this.userObject;
+    driverObject.countryObjectId = this.countryObjectId
+    this.driverListService.createNewUser(driverObject).subscribe((users) => {
       if (users.status === 201) {
         this.getAllUsers(); // Fetch the updated user list
         this.userCreated = true;

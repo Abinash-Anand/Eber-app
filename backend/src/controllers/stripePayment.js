@@ -1,15 +1,19 @@
+// controllers/stripePayment.js
+
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const PaymentMethod = require('../models/stripePayment'); // Adjust the path as necessary
-const Booking = require('./bookedRidesController');
+const Booking = require('../models/rideBookings'); // Adjust the path as necessary
 const Pricing = require('../models/pricingModel');
-const chalk = require('chalk')
 const CustomAccount = require('../models/stripeDriverAccount');
 const driverModel = require('../models/driverModel');
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const User = require('../models/usersModel')
 
+//============================== createNewPayment ===========================
 
 const createNewPayment = async (req, res) => {
   const { paymentMethod } = req.body; // Payment method data from request body
-  
+
   if (!paymentMethod || !paymentMethod.id) {
     return res.status(400).send({ error: 'Invalid payment method' });
   }
@@ -18,9 +22,9 @@ const createNewPayment = async (req, res) => {
   const client_ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
   try {
-    // Check if a payment method with the same card_last4 already exists for this user
+    // Check if a payment method with the same payment_method_id already exists for this user
     const existingPaymentMethod = await PaymentMethod.findOne({
-      card_last4: paymentMethod.card.last4,
+      payment_method_id: paymentMethod.id,
       userId: paymentMethod.userId,
     });
 
@@ -55,6 +59,13 @@ const createNewPayment = async (req, res) => {
           customer: customer.id,
         });
 
+        // Optionally, set the payment method as the default
+        await stripe.customers.update(customer.id, {
+          invoice_settings: {
+            default_payment_method: paymentMethod.id,
+          },
+        });
+
         // Create and save a new payment method document in MongoDB
         const newPaymentMethod = new PaymentMethod({
           payment_method_id: paymentMethod.id,
@@ -65,6 +76,7 @@ const createNewPayment = async (req, res) => {
           card_exp_month: paymentMethod.card.exp_month,
           card_exp_year: paymentMethod.card.exp_year,
           client_ip: client_ip,
+          defaultCard: true, // Set as default if it's the first card
         });
 
         console.log("New Payment Method: ", newPaymentMethod);
@@ -79,25 +91,40 @@ const createNewPayment = async (req, res) => {
         customer: existingPaymentMethod.stripeCustomerId,
       });
 
+      // Optionally, set the payment method as the default
+      await stripe.customers.update(existingPaymentMethod.stripeCustomerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethod.id,
+        },
+      });
+
       // Update existing payment method details in MongoDB
       existingPaymentMethod.payment_method_id = paymentMethod.id;
       existingPaymentMethod.client_ip = client_ip;
+      existingPaymentMethod.defaultCard = true; // Set as default
       await existingPaymentMethod.save();
+
+      // Optionally, unset other cards as default
+      await PaymentMethod.updateMany(
+        { userId: paymentMethod.userId, _id: { $ne: existingPaymentMethod._id } },
+        { defaultCard: false }
+      );
 
       return res.status(200).send(existingPaymentMethod);
     }
-    
+
   } catch (error) {
     console.error('Error saving payment method:', error.message);
     return res.status(500).send({ error: error.message });
   }
 };
 
-const TranscationInitiation = async (booking) => {
+//============================== TransactionInitiation ===========================
+const TransactionInitiation = async (booking) => {
   console.log("Booking: ", booking);
   try {
     // Fetch the payment method and ensure it includes the customer ID
-    const paymentMethod = await PaymentMethod.findOne({ userId: booking.userId._id });
+    const paymentMethod = await PaymentMethod.findOne({ userId: booking.userId._id, defaultCard: true });
 
     if (!paymentMethod) {
       return { error: 'No payment method found for this user' };
@@ -106,50 +133,52 @@ const TranscationInitiation = async (booking) => {
     // Use the Stripe customer ID stored in the payment method document
     const customerId = paymentMethod.stripeCustomerId; // Correctly use the field storing the customer ID
 
-    // console.log("Payment Method: ", paymentMethod);
-
     // Check if customerId is a valid string
     if (typeof customerId !== 'string' || !customerId.trim()) {
       throw new Error('Customer ID must be a valid non-empty string.');
     }
-
+    const user = await User.findOne({ _id: booking.userId._id }).populate('countryObjectId')
+    if (!user) {
+      throw new Error("User not found")
+    }
     // Create a Payment Intent using the saved payment_method_id and customer ID
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: booking.bookingId.totalFare * 100,
-      currency: 'INR',
+      amount: Math.round(booking.bookingId.totalFare * 100), // Amount in the smallest currency unit
+      currency: user.countryObjectId.currency,
       payment_method: paymentMethod.payment_method_id,
       customer: customerId,  // Correctly include the customer ID here
       confirm: true,
       return_url: 'http://localhost:4200/rides/confirm-ride',
       description: `Charge for trip ${booking.bookingId._id}`,
     });
-
+    console.log("Payment intent: ", paymentIntent)
     if (paymentIntent.status === 'succeeded') {
       const pricing = await Pricing.findOne({ city: booking.city._id });
       if (!pricing) {
         console.error('Pricing Data not found');
         throw new Error('Pricing data not found');
       }
-      const {  amount,
-      currency,
-      payment_method,
-      customer,// Correctly include the customer ID here
-      confirm,
-      return_url,
-      description} = paymentIntent
-    //   console.log("Pricing: ", pricing);
-      const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100));
-      // console.log(chalk.bgCyan.bold("Intent: ",  amount,
-      // currency,
-      // payment_method,
-      // customer,// Correctly include the customer ID here
-      // confirm,
-      // return_url,
-      // description ))
-      // console.log(chalk.bgWhite.bold("Driver Profit: ",driverShare))
-      // console.log(chalk.bgYellow.bold("Driver: ",booking.driverObjectId))
-      //  console.log("Payment URL: ",paymentIntent.return_url) 
-      // const paymentReceived = await createRazorpayTransfer(booking.driverObjectId, driverShare);
+      //================tranferring the payment to the driver's account=============================
+      const driverAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id })
+      if (!driverAccount) {
+        throw new Error('Driver Account not found')
+      }
+      if (paymentIntent.id && driverAccount.stripe_account_id) {
+        TransferToDriver(paymentIntent, booking, user)
+      } else {
+        throw new Error("Driver Does not have a Custom stripe account!")
+      }
+      // const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100));
+
+      // TODO: Implement transfer to driver if needed
+      // Example:
+      // const transfer = await stripe.transfers.create({
+      //   amount: driverShare,
+      //   currency: 'inr',
+      //   destination: booking.driverObjectId.stripe_account_id,
+      //   description: `Driver share for trip ${booking.bookingId._id}`,
+      // });
+
       return paymentIntent;
     } else {
       throw new Error('Payment Intent was not successful');
@@ -160,10 +189,12 @@ const TranscationInitiation = async (booking) => {
   }
 };
 
+//============================== fetchUserCardDetails ===========================
+
 const fetchUserCardDetails = async (req, res) => {
   try {
     const userId = req.params.id;
-    console.log(req.params.id);
+    console.log(`Fetching cards for User ID: ${userId}`);
     const cards = await PaymentMethod.find({ userId }); // Expect an object as an argument
     if (!cards || cards.length === 0) {
       return res.status(404).send({ error: 'No cards found for this user' });
@@ -174,7 +205,9 @@ const fetchUserCardDetails = async (req, res) => {
     res.status(500).send({ error: error.message });
   }
 };
+
 //===============================CREATING A CUSTOM ACCOUNT===================================
+
 const stripeCustomConnectedAccount = async (req, res) => {
   try {
     const driverId = req.params.id;
@@ -231,7 +264,7 @@ const stripeCustomConnectedAccount = async (req, res) => {
       country: country, // Germany country code 'DE'
       type: 'custom', // Fixed to 'custom' as per your schema
       business_type: 'individual', // Assuming drivers are individuals
-         capabilities: {
+      capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true }
       },
@@ -257,11 +290,12 @@ const stripeCustomConnectedAccount = async (req, res) => {
         url: business_url, // Ensure this is provided by the client
       },
     });
-  console.log("account creation response: ", account)
+    console.log("Account creation response: ", account);
+
     // Create CustomAccount Document in MongoDB
     const customAccount = new CustomAccount({
       stripe_account_id: account.id, // Save Stripe Account ID
-      driverObjectId:driver._id,
+      driverObjectId: driver._id,
       email: email,
       country: country,
       type: type,
@@ -292,8 +326,7 @@ const stripeCustomConnectedAccount = async (req, res) => {
 
     await customAccount.save();
 
-    // Optionally, you might want to associate the CustomAccount with the Driver
-    // For example:
+    // Optionally, associate the CustomAccount with the Driver
     // driver.customAccount = customAccount._id;
     // await driver.save();
 
@@ -311,16 +344,8 @@ const stripeCustomConnectedAccount = async (req, res) => {
   }
 };
 
-// Define the sequential function to handle all steps
-// {
-//   "accept_tos": true,
-//   "account_holder_name": "John Doe",
-//   "account_holder_type": "individual",
-//   "account_number": "DE89370400440532013000",
-//   "business_mcc": "4789",
-//   "card_capabilities": true,
-//   "country": "DE"
-// }
+//============================== updateStripeAccount ===========================
+
 const updateStripeAccount = async (req, res) => {
   try {
     const driverId = req.params.id;
@@ -429,8 +454,8 @@ const updateStripeAccount = async (req, res) => {
         account_number: account_number,
       },
       capabilities: {
-        card_payments: { requested: cardCapabilitiesResponse.capabilities.card_payments },
-        transfers: { requested:cardCapabilitiesResponse.capabilities.transfers },
+        card_payments: { requested: card_capabilities },
+        transfers: { requested: card_capabilities },
       },
       tos_acceptance: {
         date: Math.floor(Date.now() / 1000),
@@ -472,57 +497,293 @@ const updateStripeAccount = async (req, res) => {
   }
 };
 
+//================================= Transfer Payment to the driver =================
+const TransferToDriver = async (paymentIntent, booking, user) => {
+  try {
+    // Fetch pricing data to determine driver share
+    const pricing = await Pricing.findOne({ city: booking.city._id });
+    if (!pricing) {
+      throw new Error('Pricing data not found');
+    }
+
+    // Calculate the driver's share based on the total payment amount
+    const driverShare = Math.round(paymentIntent.amount * (pricing.driverProfit / 100));
+
+    // Ensure that the driver has a Stripe Custom account ID
+    if (!booking.driverObjectId || !booking.driverObjectId._id) {
+      throw new Error('Driver Object ID not found in the booking');
+    }
+
+    console.log('Driver object ID:', booking.driverObjectId._id);
+
+    // Find the driver's custom Stripe account
+    const driverCustomAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id });
+
+    if (!driverCustomAccount) {
+      console.error("No custom account found for driver:", booking.driverObjectId._id);
+      throw new Error('Driver Account not found');
+    }
+
+    console.log("Driver custom account:", driverCustomAccount);
+
+    if (!driverCustomAccount.stripe_account_id) {
+      console.error("Driver Stripe account ID is missing in the CustomAccount document for driver:", booking.driverObjectId._id);
+      throw new Error('Driver Stripe account ID not found');
+    }
+
+    // Create the transfer to the driver's Stripe Custom account
+    const transfer = await stripe.transfers.create({
+      amount: driverShare, // Amount in smallest currency unit (e.g., cents for USD or paise for INR)
+      currency: user.countryObjectId.currency,     // Currency must match the currency used in the payment
+      destination: driverCustomAccount.stripe_account_id, // Driver's Stripe account ID
+      transfer_group: paymentIntent.id, // Optionally, you can group this transfer with the Payment Intent ID for tracking
+      description: `Driver share for trip ${booking.bookingId._id}`, // Add a meaningful description
+    });
+
+    console.log('Transfer to driver successful: ', transfer);
+    return transfer;
+
+  } catch (error) {
+    console.error('Error during transfer to driver: ', error.message);
+    throw error;
+  }
+};
 
 
+
+
+
+
+
+
+//============================== handleStripeWebhook ===========================
+const handleStripeWebhook = async (req, res) => {
+  const sig = req.headers['stripe-signature'];
+
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    console.log(`Webhook received: ${event.type}`);
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  switch (event.type) {
+    case 'payment_intent.succeeded':
+      const paymentIntent = event.data.object;
+      // Update booking status, notify user, etc.
+      await handlePaymentIntentSucceeded(paymentIntent);
+      break;
+    case 'payment_intent.payment_failed':
+      const failedPaymentIntent = event.data.object;
+      // Notify user of failure, log the error, etc.
+      await handlePaymentIntentFailed(failedPaymentIntent);
+      break;
+    case 'account.updated':
+      const account = event.data.object;
+      // Update your database with the latest account information
+      await handleAccountUpdated(account);
+      break;
+    // Add more cases as needed
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  // Return a response to acknowledge receipt of the event
+  res.json({ received: true });
+};
+
+//============================== Webhook Event Handlers ===========================
+
+const handlePaymentIntentSucceeded = async (paymentIntent) => {
+  try {
+    console.log(`Handling payment_intent.succeeded for PaymentIntent ID: ${paymentIntent.id}`);
+
+    // Find the booking associated with this payment intent
+    const booking = await Booking.findOne({ paymentIntentId: paymentIntent.id });
+    if (booking) {
+      booking.status = 'paid';
+      await booking.save();
+      console.log(`Booking ${booking._id} marked as paid.`);
+
+      // Optionally, notify the user and driver via Socket.io or email
+      // Example:
+      // io.emit('payment-success', { bookingId: booking._id });
+    } else {
+      console.warn(`No booking found for PaymentIntent ID: ${paymentIntent.id}`);
+    }
+  } catch (error) {
+    console.error('Error handling payment_intent.succeeded:', error.message);
+  }
+};
+
+const handlePaymentIntentFailed = async (failedPaymentIntent) => {
+  try {
+    console.log(`Handling payment_intent.payment_failed for PaymentIntent ID: ${failedPaymentIntent.id}`);
+
+    // Find the booking associated with this payment intent
+    const booking = await Booking.findOne({ paymentIntentId: failedPaymentIntent.id });
+    if (booking) {
+      booking.status = 'failed';
+      await booking.save();
+      console.log(`Booking ${booking._id} marked as failed.`);
+
+      // Optionally, notify the user via Socket.io or email
+      // Example:
+      // io.emit('payment-failed', { bookingId: booking._id, reason: failedPaymentIntent.last_payment_error.message });
+    } else {
+      console.warn(`No booking found for PaymentIntent ID: ${failedPaymentIntent.id}`);
+    }
+  } catch (error) {
+    console.error('Error handling payment_intent.payment_failed:', error.message);
+  }
+};
+
+const handleAccountUpdated = async (account) => {
+  try {
+    console.log(`Handling account.updated for Account ID: ${account.id}`);
+
+    // Update the corresponding CustomAccount in MongoDB
+    const customAccount = await CustomAccount.findOne({ stripe_account_id: account.id });
+    if (customAccount) {
+      if (account.business_profile && account.business_profile.mcc) {
+        customAccount.business_profile.mcc = account.business_profile.mcc;
+      }
+      // Update other fields as needed
+      await customAccount.save();
+      console.log(`CustomAccount ${customAccount._id} updated with latest account information.`);
+    } else {
+      console.warn(`No CustomAccount found for Account ID: ${account.id}`);
+    }
+  } catch (error) {
+    console.error('Error handling account.updated:', error.message);
+  }
+};
+
+//============================== userStripeCards ===========================
 
 const userStripeCards = async (req, res) => {
-  console.log(req.params.id)
+  console.log(`Fetching Stripe cards for User ID: ${req.params.id}`);
   try {
-    const _id = req.params.id
-  const cardList = await PaymentMethod.find({userId:_id})
-  if (!cardList) {
-    return res.status(404).send("Cards not Found")
-  }
-  res.status(200).send(cardList)
+    const userId = req.params.id;
+    const cardList = await PaymentMethod.find({ userId });
+    if (!cardList || cardList.length === 0) {
+      return res.status(404).send({ error: 'No cards found for this user' });
+    }
+    res.status(200).send(cardList);
   } catch (error) {
-    res.status(500).send(error)
+    console.error('Error fetching card details:', error.message);
+    res.status(500).send({ error: error.message });
   }
-}
+};
+
+//============================== deleteStripeCard ===========================
+
 const deleteStripeCard = async (req, res) => {
-  console.log(req.params.id)
+  console.log(`Deleting Stripe card with ID: ${req.params.id}`);
   try {
-    const _id = req.params.id
-    const deleteCard = await PaymentMethod.deleteOne({ _id:_id })
-    res.status(200).send(deleteCard)
+    const _id = req.params.id;
+    const paymentMethod = await PaymentMethod.findById(_id);
+
+    if (!paymentMethod) {
+      return res.status(404).send({ error: 'Card not found' });
+    }
+
+    // Detach the payment method from Stripe
+    await stripe.paymentMethods.detach(paymentMethod.payment_method_id);
+    console.log(`PaymentMethod ${paymentMethod.payment_method_id} detached from Stripe.`);
+
+    // Delete the payment method from MongoDB
+    await PaymentMethod.deleteOne({ _id: _id });
+    console.log(`PaymentMethod document with ID ${_id} deleted from MongoDB.`);
+
+    res.status(200).send({ message: 'Card deleted successfully' });
   } catch (error) {
-    res.status(500).send(error)
+    console.error('Error deleting Stripe card:', error.message);
+    res.status(500).send({ error: error.message });
   }
-}
+};
+
+//============================== setCardToDefault ===========================
 
 const setCardToDefault = async (req, res) => {
-  console.log(req.body)
+  console.log(`Setting default card with Payload: `, req.body);
   try {
-    const _id = req.body.cardPayload._id
-    const userId = req.body.cardPayload.userId
-    const cardList = await PaymentMethod.find({ userId})
-    console.log(cardList)
-  await Promise.all(
-      cardList.map(card => {
-        card.defaultCard = false;
-        return card.save(); // Save each card individually
-      })
-    );
-    const card = await PaymentMethod.findOne({_id})
-    if (!card) {
-      return res.status(404).send("Card not found")
-    };
-    card.defaultCard = req.body.cardPayload.defaultCard
-    await card.save()
-    console.log(card)
-    res.status(201).send(card)
-    
+    const _id = req.body.cardPayload._id;
+    const userId = req.body.cardPayload.userId;
+
+    if (!_id || !userId) {
+      return res.status(400).send({ error: 'Card ID and User ID are required.' });
+    }
+
+    const cardList = await PaymentMethod.find({ userId });
+    console.log(`Current card list for User ID ${userId}: `, cardList);
+
+    // Start a session for atomicity
+    const session = await PaymentMethod.startSession();
+    session.startTransaction();
+
+    try {
+      // Set all cards to not default
+      await PaymentMethod.updateMany({ userId }, { defaultCard: false }, { session });
+
+      // Set the selected card as default
+      const card = await PaymentMethod.findOneAndUpdate(
+        { _id: _id, userId },
+        { defaultCard: true },
+        { new: true, session }
+      );
+
+      if (!card) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(404).send({ error: "Card not found." });
+      }
+
+      // Update Stripe Customer's default payment method
+      const customer = await stripe.customers.retrieve(card.stripeCustomerId);
+      if (customer) {
+        await stripe.customers.update(customer.id, {
+          invoice_settings: {
+            default_payment_method: card.payment_method_id,
+          },
+        });
+        console.log(`Stripe Customer ${customer.id} updated with default payment method ${card.payment_method_id}.`);
+      }
+
+      await session.commitTransaction();
+      session.endSession();
+
+      console.log(`Card ${_id} set as default for User ID ${userId}.`);
+      res.status(200).send({ message: 'Default card set successfully.', card });
+    } catch (error) {
+      await session.abortTransaction();
+      session.endSession();
+      throw error;
+    }
   } catch (error) {
-    res.status(500).send(error.message)
+    console.error('Error setting default card:', error.message);
+    res.status(500).send({ error: error.message });
   }
-}
-module.exports = { createNewPayment,updateStripeAccount,setCardToDefault,deleteStripeCard, TranscationInitiation,userStripeCards, fetchUserCardDetails,stripeCustomConnectedAccount };
+};
+
+//============================== deleteStripeCard ===========================
+
+// Note: The deleteStripeCard function is already defined above.
+
+//============================== Exporting Functions ===========================
+
+module.exports = {
+  createNewPayment,
+  updateStripeAccount,
+  setCardToDefault,
+  deleteStripeCard,
+  TransactionInitiation,
+  userStripeCards,
+  fetchUserCardDetails,
+  stripeCustomConnectedAccount,
+  handleStripeWebhook, // Exporting the webhook handler
+};

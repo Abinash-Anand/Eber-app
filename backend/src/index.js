@@ -1,5 +1,4 @@
-// index.js
-
+//================================ index.js =======================================
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
@@ -10,7 +9,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const routers = require('./routers/routers'); // Ensure this path is correct
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-
 const Booking = require('./models/rideBookings'); // Ensure the correct path
 const Ride = require('./models/createRideModel'); // Ensure the correct path
 const { scheduledReassignDriver, resumePendingAssignments } = require('./utils/scheduler'); // Adjust the path accordingly

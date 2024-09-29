@@ -32,6 +32,7 @@ const createNewDriver = async (req, res) => {
             city: req.body.city,
             serviceType: req.body.serviceType,
             status: req.body.status,
+            countryObjectId: req.body.countryObjectId
             // contactId:fundAccountContact.id
             // [email, phone, country, city, serviceType,status,contactId]
         }

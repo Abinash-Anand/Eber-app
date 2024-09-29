@@ -45,7 +45,12 @@ const userSchema = new mongoose.Schema({
         trim:true,
         
         
-    }
+    },
+    countryObjectId: {
+        type: mongoose.Types.ObjectId,
+        ref: 'Country',
+        required:true
+     }
 }, { timestamps: true })
 const userModel = mongoose.model('userModel', userSchema)
 module.exports = userModel

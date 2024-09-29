@@ -6,7 +6,7 @@ const Counter = require('../models/mongoose-sequencer');
 const { default: mongoose } = require('mongoose');
 const { sendInvoiceEmail} = require('./nodemailer')
 const {sendSmsNotification, sendWhatsAppNotification} = require('./twilioSMS')
-const {TranscationInitiation} = require('./stripePayment')
+const {TransactionInitiation} = require('./stripePayment')
 
 // Function to update booking status
 const updateBookingStatus = async (req, res, io) => {
@@ -34,7 +34,7 @@ const updateBookingStatus = async (req, res, io) => {
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
     const id = reqId.toString()
-    console.log("ID: ", id)
+    // console.log("ID: ", id)
     let inovice;
     // let nodemail;
     // let transcationResponse;
@@ -43,12 +43,12 @@ const updateBookingStatus = async (req, res, io) => {
     if (booking.status === 'Completed') {
       //-------------------------Initiate Invoice--------------------------------
       inovice = await calculateInvoice(id)
-      console.log("INvoice: ", inovice)
+      // console.log("INvoice: ", inovice)
       //---------------------------Email Service--------------------------
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
       if (booking.paymentOption === 'card') {
-        // await TranscationInitiation(booking)
+        await TransactionInitiation(booking)
       }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)

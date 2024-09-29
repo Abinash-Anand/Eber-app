@@ -35,7 +35,7 @@
             <select id="countrySelect" class="form-select form-control" ngModel required name="countryCode"
                 (change)="onCountryChange($event)">
                 <option value="" disabled selected>Select Country</option>
-                <option *ngFor="let country of countries" [value]="country.countryCode">{{country.name}}
+                <option *ngFor="let country of countries" [id]="country._id" [value]="country.countryCode">{{country.name}}
                 </option>
             </select>
         </div>

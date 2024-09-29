@@ -20,6 +20,7 @@ import Swal from 'sweetalert2';
 })
 export class UserComponent implements OnInit {
   autoFillUser: any = {};
+  countryObjectId: string = '';
   users: Signup[] = [];
   userObject: User = {
     userProfile: '',
@@ -120,6 +121,8 @@ export class UserComponent implements OnInit {
     const selectElement = event.target as HTMLSelectElement;
     const selectedOption = selectElement.options[selectElement.selectedIndex];
     this.selectedCountryId = selectedOption.value;
+    // console.log("ID: ", selectedOption.id)
+    this.countryObjectId = selectedOption.id
     this.filterCitiesByCountry();
   }
 
@@ -139,7 +142,9 @@ export class UserComponent implements OnInit {
     
     this.userObject = this.userForm.value;
     this.userObject.countryCallingCode = filteredArrayObject[0].countryCallingCode
-    this.userService.createNewUser(this.userObject).subscribe(
+    const userObject:any = this.userObject;
+    userObject.countryObjectId =  this.countryObjectId
+    this.userService.createNewUser(userObject).subscribe(
       (response) => {
         if (response.status === 201) {
             Swal.fire({

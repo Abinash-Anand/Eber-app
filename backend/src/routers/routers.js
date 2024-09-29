@@ -21,7 +21,7 @@
     const auth = require('../middlewares/authMiddleware');
     const { setPricing, getAllPricing , fetchAllPricingData, } = require('../controllers/pricingController')
     const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
-    const { createNewPayment,fetchUserCardDetails, userStripeCards ,updateStripeAccount, deleteStripeCard, setCardToDefault, stripeCustomConnectedAccount} = require('../controllers/stripePayment');
+    const { createNewPayment,fetchUserCardDetails,handleStripeWebhook, userStripeCards ,updateStripeAccount, deleteStripeCard, setCardToDefault, stripeCustomConnectedAccount} = require('../controllers/stripePayment');
     const { createNewRide, deleteRideFromRides } = require('../controllers/createRideController')
     const { ensureAuthenticated } = require('../middlewares/authMiddleware');
     const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
@@ -143,6 +143,8 @@ router.get('/cities/specific-zone', zoneByCity);
     router.patch('/stripe/cards/update/make-default',setCardToDefault)
     router.post('/driver/stripe/create/express/account/:id', stripeCustomConnectedAccount)
     router.patch('/driver/account/stripe/update/:id', updateStripeAccount)
+    //---------------------------------stripe webhook------------------------
+    router.post('/stripe-webhook', handleStripeWebhook);
     //------------------------------Create Rides Section--------------------------------
     router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 
@@ -166,7 +168,7 @@ router.get('/cities/specific-zone', zoneByCity);
     router.post('/calculate-invoice/:id', calculateInvoice);
 
     // Route to submit feedback
-router.post('/submit-feedback', submitFeedback);
+    router.post('/submit-feedback', submitFeedback);
     
 //--------------------- Ride History---------------------------------
 router.get('/rides/ride-history', rideHistory);
