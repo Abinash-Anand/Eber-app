@@ -31,10 +31,10 @@
     const { rideBooked, getAllAcceptedRides, assignDriver, reassignRequest, rideRejectedByDriver } = require('../controllers/bookedRidesController')
     const {updateBookingStatus,calculateInvoice,submitFeedback} = require('../controllers/tripController');
     const {rideHistory, filteredHistory, searchHistory} = require('../controllers/rideHistoryController')
-    const { sendWelcomeEmail, sendInvoiceEmail } = require('../controllers/nodemailer');
+    const { sendWelcomeEmail, sendInvoiceEmail, emailSettings } = require('../controllers/nodemailer');
     const {driverBankAccount} = require('../controllers/driverBankAccount')
     const {handleSubscription} = require('../controllers/pushNotification')
-    
+    const {saveTwilioSettings}= require('../controllers/twilioSMS')
     // Route to get the data from the vehicle type form
     
     router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
@@ -135,6 +135,8 @@ router.get('/cities/specific-zone', zoneByCity);
     router.post('/set-settings', setSettings);
     router.get('/check-settings', searchDefaultSettings);
     router.patch('/update-settings', updateSettings);
+    router.post('/settings/email/default', emailSettings)
+    router.post('/settings/twillio-message/default', saveTwilioSettings)
     //------------------------------Stripe payment gateway------------------------------
     router.post('/create-payment-intent', createNewPayment);
     router.get('/fetch-all-cards/:id', fetchUserCardDetails);

@@ -120,6 +120,45 @@ const createNewPayment = async (req, res) => {
 };
 
 //============================== TransactionInitiation ===========================
+// Helper function to check available balance
+const checkAvailableBalance = async (currency) => {
+  try {
+    const balance = await stripe.balance.retrieve();
+    const availableBalance = balance.available.find(b => b.currency === currency);
+
+    if (availableBalance) {
+      console.log(`Available balance in ${currency}:`, availableBalance.amount);
+      return availableBalance.amount;
+    } else {
+      return 0; // No available balance in this currency
+    }
+  } catch (error) {
+    console.error('Error checking available balance:', error.message);
+    throw error;
+  }
+};
+
+// Helper function to add funds to the account (Test mode only)
+// Helper function to add funds to the account (Test mode only
+const addFundsToBalance = async (currency, amount) => {
+  try {
+    // Adding the correct amount (INR in this case)
+    const charge = await stripe.charges.create({
+      amount: amount * 100, // Ensure this is the correct amount in the smallest currency unit
+      currency: currency, // Should be 'inr' for INR
+      source: 'tok_bypassPending', // Test token for adding funds to balance (may not work in INR)
+      description: `Test charge to add ${amount / 100} ${currency.toUpperCase()} to available balance`,
+    });
+    console.log(`Added ${(charge.amount).toFixed(2)} ${currency.toUpperCase()} to available balance.`);
+    return charge;
+  } catch (error) {
+    console.error('Error adding funds to balance:', error.message);
+    throw error;
+  }
+};
+
+
+// Main transaction initiation function
 const TransactionInitiation = async (booking) => {
   console.log("Booking: ", booking);
   try {
@@ -131,53 +170,72 @@ const TransactionInitiation = async (booking) => {
     }
 
     // Use the Stripe customer ID stored in the payment method document
-    const customerId = paymentMethod.stripeCustomerId; // Correctly use the field storing the customer ID
+    const customerId = paymentMethod.stripeCustomerId; 
 
-    // Check if customerId is a valid string
     if (typeof customerId !== 'string' || !customerId.trim()) {
       throw new Error('Customer ID must be a valid non-empty string.');
     }
-    const user = await User.findOne({ _id: booking.userId._id }).populate('countryObjectId')
+
+    // Find the user and their currency
+    const user = await User.findOne({ _id: booking.userId._id }).populate('countryObjectId');
     if (!user) {
-      throw new Error("User not found")
+      throw new Error("User not found");
     }
-    // Create a Payment Intent using the saved payment_method_id and customer ID
+
+    const totalFare = Math.round(booking.bookingId.totalFare * 100); // Total fare in the smallest currency unit
+    const currency = user.countryObjectId.currency;
+
+    console.log(`Total fare: ${totalFare} ${currency.toUpperCase()}`);
+
+    // Step 1: Check the available balance in the appropriate currency
+    let availableBalance = await checkAvailableBalance(currency);
+
+    // Step 2: Compare available balance with totalFare
+    if (availableBalance < totalFare) {
+      console.log(`Insufficient funds. Adding ${totalFare - availableBalance} ${currency.toUpperCase()} to the balance...`);
+
+      // Step 3: Add funds in the correct currency to cover the difference
+      await addFundsToBalance(currency, totalFare - availableBalance);
+
+      // Step 4: Re-check the balance after adding funds
+      availableBalance = await checkAvailableBalance(currency);
+
+      // Check if balance is still insufficient after adding funds
+      if (availableBalance < totalFare) {
+        throw new Error(`Insufficient funds even after adding balance. Available: ${availableBalance}, Required: ${totalFare}`);
+      }
+    }
+
+    // Step 5: Proceed with creating a Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(booking.bookingId.totalFare * 100), // Amount in the smallest currency unit
-      currency: user.countryObjectId.currency,
+      amount: totalFare, // Amount in the smallest currency unit
+      currency: currency,
       payment_method: paymentMethod.payment_method_id,
-      customer: customerId,  // Correctly include the customer ID here
+      customer: customerId,
       confirm: true,
       return_url: 'http://localhost:4200/rides/confirm-ride',
       description: `Charge for trip ${booking.bookingId._id}`,
     });
-    console.log("Payment intent: ", paymentIntent)
+    console.log("Payment intent: ", paymentIntent);
+
     if (paymentIntent.status === 'succeeded') {
       const pricing = await Pricing.findOne({ city: booking.city._id });
       if (!pricing) {
         console.error('Pricing Data not found');
         throw new Error('Pricing data not found');
       }
-      //================tranferring the payment to the driver's account=============================
-      const driverAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id })
-      if (!driverAccount) {
-        throw new Error('Driver Account not found')
-      }
-      if (paymentIntent.id && driverAccount.stripe_account_id) {
-        TransferToDriver(paymentIntent, booking, user)
-      } else {
-        throw new Error("Driver Does not have a Custom stripe account!")
-      }
-      // const driverShare = (paymentIntent.amount * (pricing.driverProfit / 100));
 
-      // TODO: Implement transfer to driver if needed
-      // Example:
-      // const transfer = await stripe.transfers.create({
-      //   amount: driverShare,
-      //   currency: 'inr',
-      //   destination: booking.driverObjectId.stripe_account_id,
-      //   description: `Driver share for trip ${booking.bookingId._id}`,
-      // });
+      // Transfer to driver's account
+      const driverAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id });
+      if (!driverAccount) {
+        throw new Error('Driver Account not found');
+      }
+
+      if (paymentIntent.id && driverAccount.stripe_account_id) {
+        await TransferToDriver(paymentIntent, booking, user);
+      } else {
+        throw new Error("Driver does not have a Custom stripe account!");
+      }
 
       return paymentIntent;
     } else {
@@ -188,7 +246,6 @@ const TransactionInitiation = async (booking) => {
     throw error;
   }
 };
-
 //============================== fetchUserCardDetails ===========================
 
 const fetchUserCardDetails = async (req, res) => {
@@ -357,7 +414,7 @@ const updateStripeAccount = async (req, res) => {
     }
 
     // Find the CustomAccount associated with the driver
-    const driverAccount = await CustomAccount.findOne({ driverObjectId: driverId });
+    const driverAccount = await CustomAccount.findOne({ driverObjectId: driverId }).populate('driverObjectId').populate('countryObjectId');
     if (!driverAccount) {
       console.error(`Driver account not found for driverId: ${driverId}`);
       return res.status(404).json({ error: "Driver account not found." });
@@ -402,7 +459,7 @@ const updateStripeAccount = async (req, res) => {
       external_account: {
         object: 'bank_account',
         country: country,                  // Germany
-        currency: 'eur',                   // EUR is the currency in Germany
+        currency: driverAccount.driverObjectId.countryObjectId.currency,                   // EUR is the currency in Germany
         account_holder_name: account_holder_name,  // Provided account holder name
         account_holder_type: account_holder_type,  // Type of account holder
         account_number: account_number,            // Valid IBAN
@@ -533,25 +590,52 @@ const TransferToDriver = async (paymentIntent, booking, user) => {
 
     // Create the transfer to the driver's Stripe Custom account
     const transfer = await stripe.transfers.create({
-      amount: driverShare, // Amount in smallest currency unit (e.g., cents for USD or paise for INR)
+      amount: driverShare, // Amount in smallest currency unit
       currency: user.countryObjectId.currency,     // Currency must match the currency used in the payment
       destination: driverCustomAccount.stripe_account_id, // Driver's Stripe account ID
-      transfer_group: paymentIntent.id, // Optionally, you can group this transfer with the Payment Intent ID for tracking
-      description: `Driver share for trip ${booking.bookingId._id}`, // Add a meaningful description
+      transfer_group: paymentIntent.id, 
+      description: `Driver share for trip ${booking.bookingId._id}`, 
     });
 
     console.log('Transfer to driver successful: ', transfer);
     return transfer;
 
   } catch (error) {
-    console.error('Error during transfer to driver: ', error.message);
+    console.error('Error during transfer to driver:', error.message);
+    console.error(error.stack); // Log the stack trace for debugging
     throw error;
   }
 };
 
 
 
+const checkBalance = async () => {
+  try {
+    const balance = await stripe.balance.retrieve();
 
+    // Log the available balance
+    console.log('Available balance:', balance.available);
+    console.log('Pending balance:', balance.pending);
+  } catch (error) {
+    console.error('Error retrieving balance:', error.message);
+  }
+};
+checkBalance()
+
+// const addFundsToBalance = async () => {
+//   try {
+//     const charge = await stripe.charges.create({
+//       amount: 5000, // Amount in cents (e.g., 5000 = $50.00)
+//       currency: 'usd',
+//       source: 'tok_bypassPending', // Special test token to bypass pending state
+//       description: 'Test charge to add funds to available balance',
+//     });
+
+//     console.log('Funds added to balance:', charge);
+//   } catch (error) {
+//     console.error('Error adding funds to balance:', error.message);
+//   }
+// };
 
 
 

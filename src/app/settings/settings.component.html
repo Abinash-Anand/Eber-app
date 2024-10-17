@@ -115,7 +115,56 @@
         </div>
     </div>
 </div>
+<div class="twilio-settings-container bg-dark p-4">
+    <h2>Twilio Settings</h2>
 
+    <form [formGroup]="twilioSettingsForm" (ngSubmit)="saveTwilioSettings()">
+        <!-- API Keys and Credentials Section -->
+        <div class="settings-section">
+            <h3>API Keys and Credentials</h3>
+            <div class="form-group">
+                <label for="accountSid">Account SID</label>
+                <input type="text" id="accountSid" formControlName="accountSid" placeholder="Enter Account SID" />
+            </div>
+            <div class="form-group">
+                <label for="authToken">Auth Token</label>
+                <input type="password" id="authToken" formControlName="authToken" placeholder="Enter Auth Token" />
+            </div>
+        </div>
+
+        <!-- Phone Numbers Section -->
+        <div class="settings-section">
+            <h3>Phone Numbers</h3>
+            <div class="form-group">
+                <label for="twilioPhoneNumber">Twilio Phone Number</label>
+                <input type="text" id="twilioPhoneNumber" formControlName="twilioPhoneNumber"
+                    placeholder="Enter Twilio Phone Number" />
+            </div>
+            <div class="form-group">
+                <label for="whatsappNumber">WhatsApp Number</label>
+                <input type="text" id="whatsappNumber" formControlName="whatsappNumber"
+                    placeholder="Enter WhatsApp Number" />
+            </div>
+        </div>
+
+        <!-- Message Settings Section -->
+        <div class="settings-section">
+            <h3>Message Settings</h3>
+            <div class="form-group">
+                <label for="defaultMessage">Default SMS Message</label>
+                <textarea id="defaultMessage" formControlName="defaultMessage"
+                    placeholder="Enter Default SMS Message"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="whatsappMessage">Default WhatsApp Message</label>
+                <textarea id="whatsappMessage" formControlName="whatsappMessage"
+                    placeholder="Enter Default WhatsApp Message"></textarea>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" [disabled]="!twilioSettingsForm.valid">Save All Settings</button>
+    </form>
 </div>
 
 

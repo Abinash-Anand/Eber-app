@@ -20,9 +20,14 @@ export class SettingsComponent implements OnInit{
   newSettings: boolean = false;
   DefaultSettings:boolean = false
   settingId: string = '';
+  //  apiKeysForm: FormGroup;
+  // phoneNumbersForm: FormGroup;
+  // messageSettingsForm: FormGroup;
+    twilioSettingsForm: FormGroup;
+
   constructor(private settingsService: SettingsService,
     private fb: FormBuilder
-  ) { }
+  ) {}
   ngOnInit(): void {
     this.disableDefaultSettings()
     this.emailConfigForm = this.fb.group({
@@ -34,6 +39,75 @@ export class SettingsComponent implements OnInit{
       fromName: ['', Validators.required],
       fromEmail: ['', [Validators.required, Validators.email]],
     });
+    // this.initForms();
+     this.twilioSettingsForm = this.fb.group({
+      accountSid: ['', Validators.required],
+      authToken: ['', Validators.required],
+      twilioPhoneNumber: ['', Validators.required],
+      whatsappNumber: ['', Validators.required],
+      defaultMessage: [''],
+      whatsappMessage: [''],
+    });
+
+  }
+  // initForms() {
+  //   this.apiKeysForm = this.fb.group({
+  //     accountSid: ['', Validators.required],
+  //     authToken: ['', Validators.required]
+  //   });
+
+  //   this.phoneNumbersForm = this.fb.group({
+  //     twilioPhoneNumber: ['', Validators.required],
+  //     whatsappNumber: ['', Validators.required]
+  //   });
+
+  //   this.messageSettingsForm = this.fb.group({
+  //     defaultMessage: ['', Validators.required],
+  //     whatsappMessage: ['', Validators.required]
+  //   });
+  // }
+
+  // saveApiKeys() {
+  //   if (this.apiKeysForm.valid) {
+  //     const apiKeysData = this.apiKeysForm.value;
+  //     console.log('API Keys saved:', apiKeysData);
+  //     // this.settingsService.defaultTwillioMessageSettings(messageObject).subscribe((response) => {
+  //     //   if (response.status === 200) {
+  //     //     console.log("message Settings: ", response.body)
+  //     //     alert('Message Settings Set to Default')
+  //     //   }
+  //     // })
+  //     // Save the data via service or API call
+  //   }
+  // }
+
+  // savePhoneNumbers() {
+  //   if (this.phoneNumbersForm.valid) {
+  //     const phoneNumbersData = this.phoneNumbersForm.value;
+  //     console.log('Phone Numbers saved:', phoneNumbersData);
+  //     // Save the data via service or API call
+  //   }
+  // }
+
+  // saveMessageSettings() {
+  //   if (this.messageSettingsForm.valid) {
+  //     const messageSettingsData = this.messageSettingsForm.value;
+  //     console.log('Message Settings saved:', messageSettingsData);
+  //     // Save the data via service or API call
+  //   }
+  // }
+
+   saveTwilioSettings(): void {
+    if (this.twilioSettingsForm.valid) {
+      console.log('Twilio Settings:', this.twilioSettingsForm.value);
+      const messageObject = this.twilioSettingsForm.value
+     this.settingsService.defaultTwillioMessageSettings(messageObject).subscribe((response) => {
+        if (response.status === 200) {
+          console.log("message Settings: ", response.body)
+          alert('Message Settings Set to Default')
+        }
+      })
+    }
   }
 
   disableDefaultSettings() {
@@ -118,6 +192,12 @@ export class SettingsComponent implements OnInit{
     if (this.emailConfigForm.valid) {
       const emailSettings = this.emailConfigForm.value;
       console.log('Email Settings:', emailSettings);
+      this.settingsService.defaultEmailSettings(emailSettings).subscribe((response) => {
+        if (response.status === 200) {
+          console.log("New email settings added")
+          alert('New Email settings')
+        }
+      })
       // Save or send the settings to your server
     } else {
       console.log('Form is invalid');

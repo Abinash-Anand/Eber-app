@@ -23,4 +23,10 @@ settingArray:[Settings]
     return this.http.patch<Settings[]>(`${environment.backendServerPORT}/update-settings`,newSettings, {observe:'response'} )
     
   }
+  defaultEmailSettings(emailObject: any): Observable<any>{
+    return this.http.post<any>(`${environment.backendServerPORT}/settings/email/default`, emailObject, { observe:'response'})
+  }
+  defaultTwillioMessageSettings(messageObject: any): Observable<any>{
+    return this.http.post<any>(`${environment.backendServerPORT}/settings/twillio-message/default`, messageObject, {observe:"response"})
+  }
 }
