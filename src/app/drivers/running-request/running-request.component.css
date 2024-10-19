@@ -1,48 +1,264 @@
-.timer{
+/* Timer Styles */
+.timer {
     background-color: rgb(148, 222, 154);
     font-size: 2rem;
 }
- .invoice-header,
- .invoice-footer {
-     border-bottom: 1px solid #ddd;
-     margin-bottom: 20px;
- }
 
- .invoice-footer {
-     border-top: 1px solid #ddd;
-     margin-top: 20px;
- }
+/* Invoice Header and Footer Styles */
+.invoice-header,
+.invoice-footer {
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
 
- .table-bordered th,
- .table-bordered td {
-     border: 1px solid #ddd;
- }
- .booking-request{
+.invoice-footer {
+    border-top: 1px solid #ddd;
+    margin-top: 20px;
+}
+
+/* Table Styles */
+.table-bordered th,
+.table-bordered td {
+    border: 1px solid #ddd;
+}
+
+/* Booking Request Styles */
+.booking-request {
     border: 1px solid rgb(0, 0, 0);
     width: 50%;
-    /* background-color: rgba(197, 197, 197, 0.247); */
-    /* color: white; */
     background-image: linear-gradient(to right top, #f0e2e2, #ece0e6, #e6e0e9, #dee0ea, #d6e0e8);
-    /* background-image: linear-gradient(to right top, #f3dbdb, #eed7e1, #e2d6e8, #d1d6ec, #bfd7e9); */
- }
- .email{
+}
+
+/* Email Icon Styles */
+.email {
     position: absolute;
     right: 10%;
     top: 0%;
-
     z-index: 100;
- }
- .countdown-timer{
-  /* padding: 5px 10px;
-    border-radius: 50%;
-    color: red;
-    border: 1px solid red;
-    color: white; */
+}
+
+/* Countdown Timer Styles */
+.countdown-timer {
     font-size: 1.2rem;
     color: red;
     font-weight: bolder;
+}
+
+/* Ruler (Horizontal Line) Styles */
+.ruler {
+    border: 5px solid rgba(128, 128, 128, 0.358);
+}
+
+/* Global Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Card Styles */
+.card {
+    background: linear-gradient(145deg, #e0e5ec, #f0f4f7);
+    border-radius: 20px;
+    box-shadow: 20px 20px 50px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated Background */
+.animated-bg {
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+    animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Text Gradient Styles */
+.text-gradient {
+    background: linear-gradient(45deg, #4f93e2, #42a45d);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* Amount Animation Styles */
+.animated-amount {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        color: #42a45d;
+    }
+    50% {
+        transform: scale(1.05);
+        color: #22863a;
+    }
+    100% {
+        transform: scale(1);
+        color: #42a45d;
+    }
+}
+
+/* Bounce Animation */
+.bounce {
+    animation: bounce 1.5s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* List Group Styles */
+.list-group-item {
+    border: none;
+    background-color: rgba(240, 244, 247, 0.5);
+    font-weight: 500;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.list-group-item:last-child {
+    margin-bottom: 0;
+}
+
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, #42a45d, #4f93e2);
+    margin: 20px 0;
+}
+
+/* Button Styles */
+button {
+    background: linear-gradient(45deg, #42a45d, #4f93e2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Star Rating Styles */
+/* Floating card with subtle animation */
+.floating-card {
+    border-radius: 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+}
+
+/* Add some elevation with box-shadow */
+.animated-card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover effect to float the card and change shadow */
+.animated-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15), 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Star rating color and styles */
+.star {
+    font-size: 2rem;
+    color: lightgray;
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.star.filled {
+    color: gold;
+}
+
+/* Text gradient for heading */
+.text-gradient {
+    background: linear-gradient(to right, #ff9966, #ff5e62);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* Additional form styling */
+.form-check-input {
+    cursor: pointer;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.p-4 {
+    padding: 1.5rem !important;
+}
+
+/* Additional Button Hover Styles */
+.btn-primary:hover {
+    background-color: #4827cd;
+    transform: translateY(-2px);
+}
+
+/* Additional Animated Background */
+/* .animated-bg {
+    background: linear-gradient(145deg, #ff6b6b, #5f27cd);
+    width: 300%;
+    height: 300%;
+    position: absolute;
+    top: -100%;
+    left: -100%;
+    animation: bgMove 5s linear infinite;
+    opacity: 0.1;
+} */
+
+/* @keyframes bgMove {
+    0% {
+        top: -100%;
+        left: -100%;
+    }
+    100% {
+        top: 100%;
+        left: 100%;
+    }
+} */
+
+.animated-amount {
+    font-size: 2.2rem;
+    animation: amountBounce 0.5s ease-in-out;
+}
+
+@keyframes amountBounce {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+.comments{
+    justify-content: space-around;
     
- }
- .ruler{
-    border: 5px solid rgba(128, 128, 128, 0.358)
- }
+    /* background-color: #4f93e2; */
+}

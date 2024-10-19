@@ -6,6 +6,8 @@ import { TripControlServiceService } from '../../services/tripControlSerivce/tri
 import { response } from 'express';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-running-request',
@@ -13,6 +15,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./running-request.component.css']
 })
 export class RunningRequestComponent implements OnInit {
+  invoiceId: string = '';
+  feedbackSubmited: boolean = false
   assignedRequests: any[] = [];
   countdownTimers: { bookingId: string, countdown: number }[] = [];
   selectedRequest: any = null;
@@ -31,7 +35,29 @@ export class RunningRequestComponent implements OnInit {
   cronDataBooking: any
   booking_id: string = ''
     private countdownSub: Subscription;
-
+ userRating: number = 0;          // Stores the user's rating for the ride
+  driverRating: number = 0;        // Stores the user's rating for the driver
+  comments: { [key: string]: boolean } = {
+    polite: false,
+    timely: false,
+    clean: false,
+    safe: false,
+    friendly: false,
+  };                                // Object to hold comments
+    feedbackForm: FormGroup;
+     Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000
+  });
+  commentsList = [
+    { key: 'onTime', label: 'Driver arrived on time' },
+    { key: 'friendly', label: 'Driver was friendly and courteous' },
+    { key: 'smoothDrive', label: 'Driving was smooth and safe' },
+    { key: 'trafficRules', label: 'Driver followed all traffic rules' },
+    { key: 'lateArrival', label: 'Driver arrived late' }
+  ];
   //constructor
   constructor(
     private requestService: DriverRunningRequestService,
@@ -40,15 +66,27 @@ export class RunningRequestComponent implements OnInit {
     private tripControlService: TripControlServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private route: ActivatedRoute
-    
+    private route: ActivatedRoute,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit(): void {
     this.loadAssignedRequests();
     this.listenForAssignedRequests();
+    this.initForm()
   }
-
+    // Initialize the reactive form
+  initForm() {
+    this.feedbackForm = this.fb.group({
+      rideRating: [null, Validators.required],
+      driverRating: [null, Validators.required],
+      onTime: [false],
+      friendly: [false],
+      smoothDrive: [false],
+      trafficRules: [false],
+      lateArrival: [false]
+    });
+  }
   loadAssignedRequests(): void {
     this.requestService.getAssignedRequests().subscribe({
       next: (requests) => {
@@ -212,6 +250,8 @@ export class RunningRequestComponent implements OnInit {
           this.invoiceObject = response.body.inovice
           this.nodemail = true;
           console.log("Inovice Object: ", this.invoiceObject);
+               this.invoiceId = this.invoiceObject._id
+          console.log("Inovice iD: ", this.invoiceId)
              this.removeRequest(request._id)
           setTimeout(() => {
             this.rideCompleteStatus = false
@@ -222,5 +262,39 @@ export class RunningRequestComponent implements OnInit {
         
     })
    
+  }
+
+
+   // Set the rating for ride or driver
+  setRating(controlName: string, rating: number) {
+    this.feedbackForm.get(controlName)?.setValue(rating);
+  }
+
+  // Handle form submission
+  submitFeedback() {
+    if (this.feedbackForm.valid) {
+      const formValues = this.feedbackForm.value;
+      console.log('Submitted Feedback:', formValues);
+      this.tripControlService.submitFeedback(formValues, this.invoiceId).subscribe((response) => {
+         Swal.fire({
+        title: 'Success!',
+        text: "Your Feedback is Precious for Us. Submitted successfully!",
+        icon: 'success',
+        confirmButtonText: 'OK'
+         });
+        this.feedbackSubmited = true
+        // this.Toast.fire({
+        //   icon: 'success',
+        //   title: 'Tanks'
+        // });
+      })
+      // Example action after submission
+      // alert('Thank you for your feedback!');
+      
+      // Optionally reset the form
+      this.feedbackForm.reset();
+    } else {
+      alert('Please provide all required feedback!');
+    }
   }
 }

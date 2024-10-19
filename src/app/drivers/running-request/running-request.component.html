@@ -96,83 +96,141 @@
     </div>
    
     <hr>
-
-
 <div class="container my-5" *ngIf="showInvoice">
     <!-- Invoice Header -->
-    <div class="container mt-5">
-        <!-- Header Section -->
-        <div class="card bg-light text-center p-4 mb-3">
-            <h2 class="card-title mb-1">Thanks for riding, {{invoiceObject.bookingId.username}}</h2>
-            <p class="card-text">We hope you enjoyed your Ride.</p>
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-start">
-                    <p class="text-muted mb-0">Total: <strong>{{invoiceObject.totalFare | currency :
-                            invoiceObject.userId.countryCode : display : digitsInfo : locale}}</strong></p>
-                    <p class="text-muted mb-0">{{(invoiceObject.createdAt | date: 'shortDate')}}</p>
-                    <p class="text-muted mb-0">Invoice No:  {{invoiceObject.invoiceNo}}</p>
-                </div>
+    <div class="card shadow-lg rounded invoice-card">
+        <div class="animated-bg"></div>
+        <div class="card-body">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-gradient">Thank You for Riding, {{ invoiceObject.bookingId.username }}!</h2>
+                <p class="text-muted">We hope you enjoyed your ride this evening.</p>
+                <img width="94" height="94" src="https://img.icons8.com/3d-fluency/94/taxi.png" alt="Taxi"
+                    class="img-fluid" />
+            </div>
+            <hr>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
-                    <img width="94" height="94" src="https://img.icons8.com/3d-fluency/94/taxi.png" alt="taxi" />
+                    <p class="text-muted mb-0">Date: {{ invoiceObject.createdAt | date: 'shortDate' }}</p>
+                </div>
+                <div class="text-end">
+                    <h3 class="fw-bold text-success animated-amount">${{ invoiceObject.totalFare }}</h3>
+                    <p class="text-muted mb-0">Total</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Total Section -->
-        <div class="text-center mb-4">
-            <h3 class="fw-bold">Total <span class="d-block">{{invoiceObject.totalFare | currency :
-                    invoiceObject.userId.countryCode : display : digitsInfo : locale}}</span></h3>
-        </div>
+            <!-- Trip Details Section -->
+            <h5 class="mt-4 text-gradient">Trip Details</h5>
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <span>Trip Fare</span>
+                    <span>${{ invoiceObject.tripFare }}</span>
+                </li>
+                <li class="list-group-item">
+                    <span>Platform Charges</span>
+                    <span>${{ invoiceObject.platformCharge }}</span>
+                </li>
+            </ul>
 
-        <!-- Trip Details Section -->
-        <ul class="list-group mb-3">
-            <li class="list-group-item d-flex justify-content-between">
-                <span>Trip Fare</span>
-                <span>{{invoiceObject.tripFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
-                    locale}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-                <span>Subtotal</span>
-                <span>{{invoiceObject.tripFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
-                    locale}}</span>
-            </li>
-            <li class="list-group-item d-flex justify-content-between">
-                <span>Platform Charges
-                    <span class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top"
-                        title="Airport charge details.">?</span>
-                </span>
-                <span>{{invoiceObject.platformCharge | currency : invoiceObject.userId.countryCode : display :
-                    digitsInfo : locale}}</span>
-            </li>
-        </ul>
-
-        <!-- Payment Method Section -->
-        <div class="mb-4">
-            <div class="d-flex justify-content-between">
-                <span>Amount Charged </span>
-                <span>{{invoiceObject.totalFare | currency : invoiceObject.userId.countryCode : display : digitsInfo :
-                    locale}}</span>
-            </div>
-            <div class="d-flex align-items-center" *ngIf="invoiceObject.paymentOption !== 'cash' else cashPayment">
-                <img width="60" height="60" src="https://img.icons8.com/3d-fluency/94/stripe.png" alt="stripe" />
-            </div>
-                <ng-template class="d-flex align-items-center" #cashPayment>
-                    <img width="64" height="64"
-                        src="https://img.icons8.com/external-nawicon-flat-nawicon/64/external-Cash-ecommerce-nawicon-flat-nawicon.png"
-                        alt="external-Cash-ecommerce-nawicon-flat-nawicon" />
+            <!-- Payment Method Section -->
+            <div class="mb-4">
+                <h5 class="text-gradient">Payment Method</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Amount Charged</span>
+                    <span>${{ invoiceObject.totalFare }}</span>
+                </div>
+                <div class="d-flex align-items-center mt-2"
+                    *ngIf="invoiceObject.paymentOption !== 'cash' else cashPayment">
+                    <img width="60" height="60" src="https://img.icons8.com/3d-fluency/94/stripe.png" alt="Stripe"
+                        class="img-fluid bounce" />
+                    <span class="ms-2">Credit Card</span>
+                </div>
+                <ng-template #cashPayment>
+                    <div class="d-flex align-items-center mt-2">
+                        <img width="60" height="60"
+                            src="https://img.icons8.com/external-nawicon-flat-nawicon/64/external-Cash-ecommerce-nawicon-flat-nawicon.png"
+                            alt="Cash" class="img-fluid bounce" />
+                        <span class="ms-2">Cash</span>
+                    </div>
                 </ng-template>
-        </div>
-        <hr>
+            </div>
 
-        <!-- Driver Section -->
-        <div class="row align-items-center">
-            <div class="col-auto">
-                <!-- You can add content here if needed -->
+            <hr>
+
+            <!-- Driver Section -->
+            <div class="row align-items-center ">
+                <div class="col">
+                    <h5 class="mb-0">{{ invoiceObject.driverObjectId.username }}</h5>
+                    <p class="text-muted mb-0">{{ invoiceObject.driverObjectId.rating || '4.97' }} ★ Rating</p>
+                </div>
             </div>
-            <div class="col">
-                <h5 class="mb-0">{{invoiceObject.driverObjectId.username}}</h5>
-                <p class="text-muted mb-0">{{invoiceObject.driverObjectId.rating || '4.97'}} ★ Rating</p>
+
+            <div class="text-center mt-4">
+                <p class="text-muted">Thank you for choosing us!</p>
+                <p class="text-muted">We look forward to serving you again!</p>
             </div>
+
+        <!-- Feedback Form Section -->
+    <div class="container my-5" *ngIf="!feedbackSubmited">
+        <div class="card shadow-lg p-4 floating-card animated-card">
+            <div class="mt-5">
+                <h5 class="text-gradient display-6 fw-bold text-center">Rate Your Experience</h5>
+    
+                <!-- Feedback Form -->
+                <form [formGroup]="feedbackForm" (ngSubmit)="submitFeedback()">
+    
+                    <!-- Rate the Ride -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-3">Rate the Ride</h6>
+                        <div class="d-flex justify-content-center mb-4">
+                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                <i class="star filled"
+                                    [ngClass]="star <= feedbackForm.get('rideRating')?.value ? 'bi-star-fill' : 'bi-star'"
+                                    (click)="setRating('rideRating', star)" style="cursor: pointer;"></i>
+                            </ng-container>
+                        </div>
+                    </div>
+    
+                    <!-- Rate the Driver -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-3">Rate the Driver</h6>
+                        <div class="d-flex justify-content-center mb-4">
+                            <ng-container *ngFor="let star of [1, 2, 3, 4, 5]">
+                                <i class="star filled"
+                                    [ngClass]="star <= feedbackForm.get('driverRating')?.value ? 'bi-star-fill' : 'bi-star'"
+                                    (click)="setRating('driverRating', star)" style="cursor: pointer;"></i>
+                            </ng-container>
+                        </div>
+                    </div>
+    
+                    <!-- Comments for the Driver -->
+                    <div class="mt-4">
+                        <h6 class="text-center fs-5 text-secondary mb-4">Comments for the Driver</h6>
+                        <div class="row comments m-3">
+                            <div class="col-md-5 " *ngFor="let comment of commentsList">
+                                <div class="p-2 mb-3 bg-light text-dark shadow-sm">
+                                    <input class="form-check-input p-2" type="checkbox" [formControlName]="comment.key"
+                                        id="{{comment.key}}">
+                                    <label class="form-check-label fs-5 text-secondary" for="{{comment.key}}">
+                                        {{ comment.label }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    
+                    <!-- Submit Button -->
+                    <div class="text-center mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg" [disabled]="!feedbackForm.valid">Submit
+                            Feedback</button>
+                    </div>
+    
+                </form>
+            </div>
+        </div>
+    </div>
+
+
         </div>
     </div>
 </div>

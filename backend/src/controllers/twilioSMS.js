@@ -20,16 +20,16 @@ const getTwilioSettings = async () => {
 const createTwilioClient = async () => {
   const settings = await getTwilioSettings();
   return twilio(settings.accountSid, settings.authToken);
-};
+};  
 
 // Function to send an SMS notification
 const sendSmsNotification = async (user, body) => {
   try {
     const settings = await getTwilioSettings();
     const client = await createTwilioClient();
-    console.log("TWILLIO SMS Settings: ", settings)
-    console.log("TWILLIO SMS client: ", client)
-
+    // console.log("TWILLIO SMS Settings: ", settings)
+    // console.log("TWILLIO SMS client: ", client)
+// 
     const message = await client.messages.create({
       from: settings.twilioPhoneNumber,  // Use Twilio phone number from settings
       to: `${user.countryCallingCode}${user.phone}`,  // Recipient's phone number

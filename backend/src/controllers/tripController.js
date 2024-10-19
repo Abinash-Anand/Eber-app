@@ -26,11 +26,11 @@ const updateBookingStatus = async (req, res, io) => {
     ride.status = status;
 
    //---------------Messaging service-------------------------
-   await twilioSMSNotification(booking.userId, status)
+  //  await twilioSMSNotification(booking.userId, status)
 
     // console.log("ID: ", booking.bookingId._id)
-    // await booking.save();
-    // await ride.save();
+    await booking.save();
+    await ride.save();
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
     const id = reqId.toString()
@@ -48,7 +48,7 @@ const updateBookingStatus = async (req, res, io) => {
       await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
       if (booking.paymentOption === 'card') {
-        await TransactionInitiation(booking)
+        // await TransactionInitiation(booking)
       }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
@@ -170,18 +170,26 @@ const calculateDistance = (startLocation, endLocation) => {
 
 // Function to submit feedback
 const submitFeedback = async (req, res) => {
-  const { bookingId, feedback } = req.body;
-
+  console.log("Invoice Feedback: ",req.body.feedback, req.params)
+ 
   try {
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
+     const { driverRating, friendly, lateArrival,
+      onTime, rideRating, smoothDrive, trafficRules } = req.body;
+    const invoiceId = req.params.id
+    
+    const invoice = await Invoice.findOne({_id: invoiceId});
+    if (!invoice) {
+      return res.status(404).json({ message: 'Inovice not found' });
     }
+    console.log("inovice:", invoice)
+    const feedback = { driverRating, friendly, lateArrival,
+      onTime, rideRating, smoothDrive, trafficRules
+    } 
+    console.log("feedback: ", feedback)
+    invoice.feedback = feedback
+    await invoice.save();
 
-    booking.feedback = feedback;
-    await booking.save();
-
-    res.status(200).json({ message: 'Feedback submitted successfully', booking });
+    res.status(200).json({ message: 'Feedback submitted successfully', invoice });
   } catch (error) {
     res.status(500).json({ message: 'Internal Server Error', error });
   }

@@ -636,8 +636,8 @@ const checkBalance = async () => {
     const balance = await stripe.balance.retrieve();
 
     // Log the available balance
-    console.log('Available balance:', balance.available);
-    console.log('Pending balance:', balance.pending);
+    // console.log('Available balance:', balance.available);
+    // console.log('Pending balance:', balance.pending);
   } catch (error) {
     console.error('Error retrieving balance:', error.message);
   }

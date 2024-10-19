@@ -16,7 +16,10 @@ export class TripControlServiceService {
   calculateInvoice(bookingIdInvoice:any): Observable<any>{
     return this.http.post<any>(`${environment.backendServerPORT}/calculate-invoice/${bookingIdInvoice}`, {observe:'response'})
   }
-  submitFeedback(feedback:any): Observable<any>{
-    return this.http.post<any>(`${environment.backendServerPORT}/submit-feedback`,feedback, {observe:'response'} )
+  submitFeedback(feedback:any, invoiceId:string): Observable<any>{
+    return this.http.patch<any>(`${environment.backendServerPORT}/submit-feedback/${invoiceId}`,feedback, {observe:'response'} )
   }
+
+  
+
 }

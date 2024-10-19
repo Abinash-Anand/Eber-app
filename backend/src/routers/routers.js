@@ -180,7 +180,7 @@ router.post('/webhooks/stripe', handleStripeWebhook);
     router.post('/calculate-invoice/:id', calculateInvoice);
 
     // Route to submit feedback
-    router.post('/submit-feedback', submitFeedback);
+    router.patch('/submit-feedback/:id', submitFeedback);
     
 //--------------------- Ride History---------------------------------
 router.get('/rides/ride-history', rideHistory);

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const Counter = require('../models/mongoose-sequencer')
+const Counter = require('../models/mongoose-sequencer');
+
 // Define the invoice schema
 const invoiceSchema = new mongoose.Schema({
     invoiceNo: {
@@ -18,6 +19,7 @@ const invoiceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Ride',
         required: true,
+        unique:true
     },
     EstimatedTime: {
         type: String,
@@ -95,10 +97,6 @@ const invoiceSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    // vehicleName: {
-    //     type: String,
-    //     required: true,
-    // },
     vehicleType: {
         type: String,
         required: true,
@@ -114,30 +112,56 @@ const invoiceSchema = new mongoose.Schema({
     },
     tripFare: {
         type: Number,
-        required:true,
-     },
+        required: true,
+    },
     platformCharge: {
         type: Number,
-        required:true
+        required: true
     },
     totalFare: {
         type: Number,
-        required:true
+        required: true
+    },
+    // Add the feedback property
+   feedback: {
+    driverRating: {
+        type: Number,
+        required: false,
+        default: 0,  // Default value for driverRating
+    },
+    friendly: {
+        type: Boolean,
+        required: false,
+        default: false,  // Default value for friendly
+    },
+    lateArrival: {
+        type: Boolean,
+        required: false,
+        default: false,  // Default value for lateArrival
+    },
+    onTime: {
+        type: Boolean,
+        required: false,
+        default: true,  // Default value for onTime
+    },
+    rideRating: {
+        type: Number,
+        required: false,
+        default: 0,  // Default value for rideRating
+    },
+    smoothDrive: {
+        type: Boolean,
+        required: false,
+        default: false,  // Default value for smoothDrive
+    },
+    trafficRules: {
+        type: Boolean,
+        required: false,
+        default: true,  // Default value for trafficRules
     }
+}
+
 }, { timestamps: true });
-// invoiceSchema.pre('save', async function (next) {
-//     if (this.isNew) {
-//         console.log('Pre-save hook triggered for new invoice');
-//         const counter = await Counter.findByIdAndUpdate(
-//             { _id: 'invoiceNo' },
-//             { $inc: { seq: 1 } },
-//             { new: true, upsert: true }
-//         );
-//         console.log('Counter value:', counter.seq);
-//         this.invoiceNo = counter.seq;
-//     }
-//     next();
-// });
 
 // Create the index on invoiceNo for uniqueness
 // invoiceSchema.index({ invoiceNo: 1 }, { unique: true });
