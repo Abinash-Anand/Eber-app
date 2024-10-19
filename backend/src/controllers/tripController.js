@@ -26,11 +26,11 @@ const updateBookingStatus = async (req, res, io) => {
     ride.status = status;
 
    //---------------Messaging service-------------------------
-  //  await twilioSMSNotification(booking.userId, status)
+   await twilioSMSNotification(booking.userId, status)
 
     // console.log("ID: ", booking.bookingId._id)
-    await booking.save();
-    await ride.save();
+    // await booking.save();
+    // await ride.save();
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
     const id = reqId.toString()

@@ -5,6 +5,7 @@ import { RideService } from '../../services/rides/ride.service';
 import { TripControlServiceService } from '../../services/tripControlSerivce/trip-control-service.service';
 import { response } from 'express';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-running-request',
@@ -13,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class RunningRequestComponent implements OnInit {
   assignedRequests: any[] = [];
+  countdownTimers: { bookingId: string, countdown: number }[] = [];
   selectedRequest: any = null;
   timer: any = null;
   emptyBookingError: boolean = false;
@@ -27,7 +29,9 @@ export class RunningRequestComponent implements OnInit {
   nodemail: boolean = false;
   countdownTimer: number = null;
   cronDataBooking: any
-  booking_id: string =''
+  booking_id: string = ''
+    private countdownSub: Subscription;
+
   //constructor
   constructor(
     private requestService: DriverRunningRequestService,
@@ -36,7 +40,8 @@ export class RunningRequestComponent implements OnInit {
     private tripControlService: TripControlServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private route : ActivatedRoute
+    private route: ActivatedRoute
+    
   ) { }
 
   ngOnInit(): void {
@@ -99,15 +104,20 @@ export class RunningRequestComponent implements OnInit {
         this.router.navigate(['/rides/confirm-ride'])
       }
     })
-
-    //count down timer
-    this.socketService.requestCountdownTimer().subscribe((countdown) => {
-      this.booking_id = countdown.booking._id
-      console.log("countdown: ", countdown.booking._id)
+    this.socketService.onCountdownUpdate().subscribe((timerUpdate) => {
+      console.log(timerUpdate)
+      const { bookingId, countdown } = timerUpdate;
+      this.countdownTimers[bookingId] = countdown; 
       
-      this.countdownTimer = countdown.timeRemaining
-      console.log(this.countdownTimer);
+
     })
+    //count down timer
+    // this.socketService.requestCountdownTimer().subscribe((countdown) => {
+    //   this.booking_id = countdown.booking._id
+    //   console.log("countdown: ", countdown.booking._id)
+      
+    //   console.log(this.countdownTimer);
+    // })
   }
 
   selectRequest(request: any): void {

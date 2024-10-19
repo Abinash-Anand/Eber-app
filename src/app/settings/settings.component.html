@@ -166,5 +166,56 @@
         <button type="submit" [disabled]="!twilioSettingsForm.valid">Save All Settings</button>
     </form>
 </div>
+<hr>
+<!-- src/app/components/settings/settings.component.html -->
+<div class="container mt-5">
+    <h2>Stripe Settings</h2>
+    <form [formGroup]="stripeSettingsForm" (ngSubmit)="defaultStripeSettings()">
 
+        <!-- Stripe Secret Key -->
+        <div class="form-group">
+            <label for="stripeSecretKey">Stripe Secret Key</label>
+            <input type="text" id="stripeSecretKey" formControlName="stripeSecretKey" class="form-control"
+                placeholder="Enter Stripe Secret Key" />
+            <div *ngIf="stripeSettingsForm.get('stripeSecretKey').invalid && stripeSettingsForm.get('stripeSecretKey').touched"
+                class="text-danger">
+                Stripe Secret Key is required.
+            </div>
+        </div>
 
+        <!-- Default Currency -->
+        <div class="form-group mt-3">
+            <label for="defaultCurrency">Default Currency</label>
+            <select id="defaultCurrency" formControlName="defaultCurrency" class="form-control">
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+                <option value="GBP">GBP</option>
+                <option value="INR">INR</option>
+                <option value="CAD">CAD</option>
+            </select>
+        </div>
+
+        <!-- Driver Payout Frequency -->
+        <div class="form-group mt-3">
+            <label for="driverPayoutFrequency">Driver Payout Frequency</label>
+            <select id="driverPayoutFrequency" formControlName="driverPayoutFrequency" class="form-control">
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+            </select>
+        </div>
+
+        <!-- Stripe Mode (Live or Test) -->
+        <div class="form-group mt-3">
+            <label for="stripeMode">Stripe Mode</label>
+            <select id="stripeMode" formControlName="stripeMode" class="form-control">
+                <option value="Live">Live</option>
+                <option value="Test">Test</option>
+            </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary mt-4" [disabled]="stripeSettingsForm.invalid">Save
+            Settings</button>
+    </form>
+</div>

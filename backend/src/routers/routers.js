@@ -34,6 +34,7 @@
     const { sendWelcomeEmail, sendInvoiceEmail, emailSettings } = require('../controllers/nodemailer');
     const {driverBankAccount} = require('../controllers/driverBankAccount')
     const {handleSubscription} = require('../controllers/pushNotification')
+    const { getStripeSettings, updateStripeSettings, deleteStripeSettings } = require('../controllers/stripeSettings')
     const {saveTwilioSettings}= require('../controllers/twilioSMS')
     // Route to get the data from the vehicle type form
     
@@ -137,6 +138,14 @@ router.get('/cities/specific-zone', zoneByCity);
     router.patch('/update-settings', updateSettings);
     router.post('/settings/email/default', emailSettings)
     router.post('/settings/twillio-message/default', saveTwilioSettings)
+    // GET Route to fetch the current Stripe settings
+// router.get('/settings/stripe/default', getStripeSettings);
+
+// POST or PUT Route to update the Stripe settings
+router.post('/settings/stripe/update', updateStripeSettings);
+
+// DELETE Route to delete the Stripe settings (optional)
+// router.delete('/settings/stripe/delete/:id', deleteStripeSettings);
     //------------------------------Stripe payment gateway------------------------------
     router.post('/create-payment-intent', createNewPayment);
     router.get('/fetch-all-cards/:id', fetchUserCardDetails);
@@ -146,7 +155,8 @@ router.get('/cities/specific-zone', zoneByCity);
     router.post('/driver/stripe/create/express/account/:id', stripeCustomConnectedAccount)
     router.patch('/driver/account/stripe/update/:id', updateStripeAccount)
     //---------------------------------stripe webhook------------------------
-    router.post('/stripe-webhook', handleStripeWebhook);
+router.post('/webhooks/stripe', handleStripeWebhook);
+
     //------------------------------Create Rides Section--------------------------------
     router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));
 

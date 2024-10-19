@@ -38,7 +38,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr *ngFor="let request of assignedRequests" (click)="selectRequest(request)">
+            <tr *ngFor="let request of assignedRequests; let i = index" (click)="selectRequest(request)">
                 <td>{{ request._id }}</td>
                 <td>{{ request.userId?.username }}</td>
                 <td>{{ request.pickupLocation }}</td>
@@ -66,7 +66,7 @@
                 </td>
             </ng-template>
             <!-- working on it *ngIf="booking_id === request._id" -->
-            <td class="countdown-timer p-3" >{{countdownTimer}}</td>
+            <td class="countdown-timer p-3" >{{ countdownTimers[request._id] || 'No Timer' }}</td>
             </tr>
         </tbody>
     </table>

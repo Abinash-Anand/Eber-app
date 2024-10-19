@@ -27,6 +27,8 @@ const sendSmsNotification = async (user, body) => {
   try {
     const settings = await getTwilioSettings();
     const client = await createTwilioClient();
+    console.log("TWILLIO SMS Settings: ", settings)
+    console.log("TWILLIO SMS client: ", client)
 
     const message = await client.messages.create({
       from: settings.twilioPhoneNumber,  // Use Twilio phone number from settings

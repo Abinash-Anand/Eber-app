@@ -1,9 +1,10 @@
 // utils/scheduler.js
 
-const Booking = require('../models/rideBookings'); // Ensure the correct path to your model
+const Booking = require('../models/rideBookings');
 const DriverVehicleModel = require('../models/driverVehiclePricingModel');
 const Ride = require('../models/createRideModel');
-const mongoose = require('mongoose');
+
+const countdownIntervals = {}; // To store interval IDs for countdowns
 
 // Function to handle driver assignment and response for both manual and auto assignments
 const scheduledReassignDriver = async (bookingId, io) => {
@@ -36,9 +37,10 @@ const scheduledReassignDriver = async (bookingId, io) => {
       if (bookingRequest.driverObjectId && bookingRequest.schedulerState.currentDriverId) {
         console.log('Driver is already assigned. Waiting for driver response.');
         bookingRequest.schedulerState.assignmentStatus = 'Assigned';
-        await bookingRequest.save()
-        // Schedule a timeout to handle driver response
-        scheduleDriverResponseTimeout(bookingRequest, io);
+        await bookingRequest.save();
+
+        // Start the countdown timer
+        startCountdown(bookingRequest._id, bookingRequest.requestTimer, io, bookingRequest.driverObjectId);
 
         return;
       } else {
@@ -83,7 +85,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
 
       io.emit('no-drivers-available', {
         bookingId: bookingRequest._id,
-        filteredDriverList: filteredDriverList
+        filteredDriverList: filteredDriverList,
       });
       return;
     }
@@ -103,42 +105,69 @@ const scheduledReassignDriver = async (bookingId, io) => {
 
     // Assign the driver to the booking
     await driverAssignedWithABooking(currentDriver, bookingRequest);
-    
+
     // Emit the driver assignment to the client
     io.emit('cron-driver-assignment', {
       booking: bookingRequest,
       driver: currentDriver,
-      driverArrayLength: filteredDriverList.length
+      driverArrayLength: filteredDriverList.length,
     });
     console.log('Emitted cron-driver-assignment event for booking:', bookingId);
 
-    // Schedule a check for driver response after the request timer
-    console.log('Waiting for driver response for booking:', bookingId);
-    scheduleDriverResponseTimeout(bookingRequest, io, currentDriver);
-
+    // Start the countdown timer
+    startCountdown(bookingRequest._id, bookingRequest.requestTimer, io, currentDriver);
   } catch (error) {
     console.error('Error in scheduledReassignDriver for booking:', bookingId, 'Error:', error);
   }
 };
 
-// Function to schedule driver response timeout
-const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null) => {
-  setTimeout(async () => {
-    console.log('Driver response time expired for booking:', bookingRequest._id);
+// Function to start the countdown and emit updates to the client
+const startCountdown = (bookingId, remainingTime, io, currentDriver) => {
+  console.log(`Starting countdown for booking: ${bookingId}`);
+
+  let countdown = remainingTime;
+  const intervalId = setInterval(async () => {
+    if (countdown <= 0) {
+      clearInterval(intervalId);
+      countdownIntervals[bookingId] = null; // Set to null instead of deleting
+      console.log(`Countdown expired for booking: ${bookingId}`);
+
+      // Handle timeout once countdown expires
+      await handleDriverResponseTimeout(bookingId, io, currentDriver);
+    } else {
+      // Emit countdown update to the client every second
+      io.emit('countdown-update', {
+        bookingId: bookingId,
+        countdown: countdown,
+      });
+      console.log(`Booking ${bookingId}: ${countdown} seconds remaining`);
+      countdown -= 1;
+    }
+  }, 1000);
+
+  // Store the interval ID to clear later if needed (e.g., if driver responds)
+  countdownIntervals[bookingId] = intervalId;
+};
+
+// Function to handle driver response timeout
+const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
+  try {
+    console.log('Driver response time expired for booking:', bookingId);
+
+    // Clear the countdown timer
+    clearCountdown(bookingId);
+
     // Fetch the latest booking data
-    const updatedBooking = await Booking.findById(bookingRequest._id);
+    const updatedBooking = await Booking.findById(bookingId);
 
     console.log('Fetched updated booking after timeout:', updatedBooking);
 
     // If the driver hasn't accepted yet and booking is still 'Assigned'
-    console.log('assignmentStatus & currentDriverId: ',
-      updatedBooking.schedulerState.assignmentStatus,
-      updatedBooking.schedulerState.currentDriverId);
     if (
       updatedBooking.schedulerState.assignmentStatus === 'Assigned' &&
       updatedBooking.schedulerState.currentDriverId
     ) {
-      console.log('Driver did not accept booking:', bookingRequest._id);
+      console.log('Driver did not accept booking:', bookingId);
 
       // For auto assignment, we need to add driver to rejected list and reassign
       if (updatedBooking.assignmentType === 'auto' && currentDriver) {
@@ -146,7 +175,7 @@ const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null)
 
         // Add driver to rejectedDrivers using $addToSet to prevent duplicates
         await Booking.updateOne(
-          { _id: bookingRequest._id },
+          { _id: bookingId },
           {
             $addToSet: { 'schedulerState.rejectedDrivers': currentDriver.driverObjectId._id },
             $set: {
@@ -157,11 +186,11 @@ const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null)
         );
 
         // Retry assignment with next driver
-        scheduledReassignDriver(bookingRequest._id, io);
+        scheduledReassignDriver(bookingId, io);
       } else if (updatedBooking.assignmentType === 'manual') {
         console.log('Manual assignment: Cancelling booking due to driver non-response.');
 
-        // Update booking and ride status to 'Cancelled'
+        // Update booking and ride status to 'Pending'
         updatedBooking.status = 'Pending';
         updatedBooking.schedulerState.assignmentStatus = 'Cancelled';
         await updatedBooking.save();
@@ -176,10 +205,15 @@ const scheduleDriverResponseTimeout = (bookingRequest, io, currentDriver = null)
         io.emit('booking-cancelled', { bookingId: updatedBooking._id });
       }
     } else {
-      console.log('Booking assignment status after driver response:', updatedBooking.schedulerState.assignmentStatus);
+      console.log(
+        'Booking assignment status after driver response:',
+        updatedBooking.schedulerState.assignmentStatus
+      );
       // Do nothing, as booking is either completed or cancelled
     }
-  }, bookingRequest.requestTimer * 1000);
+  } catch (error) {
+    console.error('Error in handleDriverResponseTimeout for booking:', bookingId, 'Error:', error);
+  }
 };
 
 // Function to handle driver assignment to booking
@@ -206,11 +240,20 @@ const driverAssignedWithABooking = async (currentDriver, booking) => {
     await bookingToUpdate.save();
     await rideToUpdate.save();
 
-    console.log('Driver assigned to booking:', bookingToUpdate._id, 'Driver ID:', currentDriver.driverObjectId._id);
+    console.log(
+      'Driver assigned to booking:',
+      bookingToUpdate._id,
+      'Driver ID:',
+      currentDriver.driverObjectId._id
+    );
     return bookingToUpdate; // Return the updated booking document
-
   } catch (error) {
-    console.error('Error in driverAssignedWithABooking for booking:', booking._id, 'Error:', error.message);
+    console.error(
+      'Error in driverAssignedWithABooking for booking:',
+      booking._id,
+      'Error:',
+      error.message
+    );
     throw new Error('Check your Try Block, something is causing an issue.');
   }
 };
@@ -238,7 +281,12 @@ const reassignBookingToPending = async (booking) => {
     console.log('Ride Request Updated TO PENDING:', rideRequest._id);
     return rideRequest;
   } catch (error) {
-    console.error('Error in reassignBookingToPending for booking:', booking._id, 'Error:', error.message);
+    console.error(
+      'Error in reassignBookingToPending for booking:',
+      booking._id,
+      'Error:',
+      error.message
+    );
     throw new Error('Failed to reassign booking to pending.');
   }
 };
@@ -249,7 +297,7 @@ const resumePendingAssignments = async (io) => {
     console.log('Resuming pending assignments on server startup.');
     const pendingBookings = await Booking.find({
       'schedulerState.assignmentStatus': { $in: ['Pending', 'Assigned'] },
-      'status': { $in: ['Pending', 'Assigned'] },
+      status: { $in: ['Pending', 'Assigned'] },
     });
 
     console.log('Found pending bookings:', pendingBookings.length);
@@ -258,12 +306,17 @@ const resumePendingAssignments = async (io) => {
       const expiration = booking.schedulerState.expirationTimestamp || now;
 
       if (expiration > now) {
-        // If the assignment hasn't expired, schedule the check after the remaining time
-        const remainingTime = expiration - now;
-        console.log('Scheduling booking:', booking._id, 'to check in', remainingTime, 'ms');
-        setTimeout(() => {
-          scheduledReassignDriver(booking._id, io);
-        }, remainingTime);
+        // If the assignment hasn't expired, start the countdown with remaining time
+        const remainingTime = Math.ceil((expiration - now) / 1000);
+        console.log(
+          'Resuming countdown for booking:',
+          booking._id,
+          'with',
+          remainingTime,
+          'seconds remaining'
+        );
+        // Start the countdown
+        startCountdown(booking._id, remainingTime, io, null); // Assuming currentDriver is null here
       } else {
         // If the assignment has expired or no assignment, proceed with reassigning
         console.log('Booking:', booking._id, 'has expired assignment. Reassigning now.');
@@ -275,4 +328,14 @@ const resumePendingAssignments = async (io) => {
   }
 };
 
-module.exports = { scheduledReassignDriver, resumePendingAssignments };
+// Function to clear countdown when driver responds
+const clearCountdown = (bookingId) => {
+  const intervalId = countdownIntervals[bookingId];
+  if (intervalId) {
+    clearInterval(intervalId);
+    countdownIntervals[bookingId] = null; // Set to null instead of deleting
+    console.log(`Cleared countdown for booking: ${bookingId}`);
+  }
+};
+
+module.exports = { scheduledReassignDriver, resumePendingAssignments, clearCountdown };

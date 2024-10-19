@@ -60,6 +60,11 @@ export class SocketService {
   manualBookingCancelled(): Observable<any>{
     return this.socket.fromEvent('booking-cancelled')
   }
+  // New method for handling countdown updates
+  onCountdownUpdate(): Observable<any> {
+    return this.socket.fromEvent('countdown-update');
+  }
+  
   disconnect() {
     this.socket.disconnect();
   }

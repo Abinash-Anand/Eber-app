@@ -19,10 +19,11 @@ const getEmailSettings = async () => {
 // Function to create a transporter with dynamic settings from the database
 const createTransporter = async () => {
   const settings = await getEmailSettings();
+    console.log("Email Settings: ", settings)
   const transporter = nodemailer.createTransport({
     host: settings.smtpHost,
     port: settings.smtpPort,
-    secure: settings.secureConnection,
+    secure:settings.secureConnection,
     auth: {
       user: settings.emailUser,
       pass: settings.emailPass,

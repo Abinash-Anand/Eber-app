@@ -29,4 +29,15 @@ settingArray:[Settings]
   defaultTwillioMessageSettings(messageObject: any): Observable<any>{
     return this.http.post<any>(`${environment.backendServerPORT}/settings/twillio-message/default`, messageObject, {observe:"response"})
   }
+
+  //stripe
+  // ('/settings/stripe', getStripeSettings);
+
+// POST or PUT Route to update the Stripe settings
+  updateStripeSettings(updateStripeSettings:any): Observable<any>{
+  return this.http.post(`${environment.backendServerPORT}/settings/stripe/update`,updateStripeSettings, {observe:'response'} )
+};
+
+// DELETE Route to delete the Stripe settings (optional)
+// router.delete('/settings/stripe', deleteStripeSettings);
 }

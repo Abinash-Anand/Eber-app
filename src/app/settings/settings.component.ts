@@ -10,7 +10,13 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class SettingsComponent implements OnInit{
   acceptRequestTime: number = 30; // Default value or initialize as needed
+    // stripeSettingsForm!: FormGroup;
+
   maxStops: number = 2; // Default value or initialize as needed
+  stripeSettingsForm: FormGroup;
+
+  loading = false;
+  successMessage: string = '';
   settingObject: Settings = {
     id:"DEFAULT",
     requestAcceptTime: null,
@@ -47,9 +53,35 @@ export class SettingsComponent implements OnInit{
       whatsappNumber: ['', Validators.required],
       defaultMessage: [''],
       whatsappMessage: [''],
+     });
+    //stripe settings
+     this.stripeSettingsForm = this.fb.group({
+      stripeSecretKey: ['', Validators.required],
+      defaultCurrency: ['USD', Validators.required],
+      driverPayoutFrequency: ['weekly', Validators.required],
+      stripeMode: ['Test', Validators.required],
     });
 
   }
+  
+ // Submit handler to save updated Stripe settings
+  defaultStripeSettings(): void {
+    if (this.stripeSettingsForm.valid) {
+      const formValues = this.stripeSettingsForm.value;
+      console.log('Stripe Settings Saved:', formValues);
+
+      this.settingsService.updateStripeSettings(formValues).subscribe(
+        (response) => {
+          console.log('Settings updated successfully:', response);
+        },
+        (error) => {
+          console.error('Error updating settings:', error);
+        }
+      );
+    }
+  }
+
+  // defaultStripeSettings(){}
   // initForms() {
   //   this.apiKeysForm = this.fb.group({
   //     accountSid: ['', Validators.required],
