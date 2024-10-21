@@ -29,8 +29,8 @@ const updateBookingStatus = async (req, res, io) => {
   //  await twilioSMSNotification(booking.userId, status)
 
     // console.log("ID: ", booking.bookingId._id)
-    await booking.save();
-    await ride.save();
+    // await booking.save();
+    // await ride.save();
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
     const id = reqId.toString()
@@ -42,13 +42,13 @@ const updateBookingStatus = async (req, res, io) => {
 //================================= When Ride is Completed================================
     if (booking.status === 'Completed') {
       //-------------------------Initiate Invoice--------------------------------
-      inovice = await calculateInvoice(id)
+      // inovice = await calculateInvoice(id)
       // console.log("INvoice: ", inovice)
       //---------------------------Email Service--------------------------
-      await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
+      // await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
       if (booking.paymentOption === 'card') {
-        // await TransactionInitiation(booking)
+        await TransactionInitiation(booking)
       }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)

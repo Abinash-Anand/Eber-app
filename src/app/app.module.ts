@@ -138,6 +138,7 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
       multi: true
     },
     LoginService,
+
     //  SwPush
   ],
   bootstrap: [AppComponent]

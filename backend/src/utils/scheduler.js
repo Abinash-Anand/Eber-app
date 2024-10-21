@@ -21,7 +21,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
       return;
     }
 
-    console.log('Fetched booking request:', bookingRequest);
+    // console.log('Fetched booking request:', bookingRequest);
 
     // Check if the booking has been completed or cancelled
     if (['Completed', 'Cancelled'].includes(bookingRequest.schedulerState.assignmentStatus)) {
@@ -300,7 +300,7 @@ const resumePendingAssignments = async (io) => {
       status: { $in: ['Pending', 'Assigned'] },
     });
 
-    console.log('Found pending bookings:', pendingBookings.length);
+    // console.log('Found pending bookings:', pendingBookings.length);
     pendingBookings.forEach((booking) => {
       const now = new Date();
       const expiration = booking.schedulerState.expirationTimestamp || now;

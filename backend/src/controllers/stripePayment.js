@@ -166,7 +166,8 @@ const addFundsToBalance = async (currency, amount) => {
 };
 
 
-// Main transaction initiation function
+//==================Main transaction initiation function==================================
+//=================Initiates Payment charges from the user ===============================
 const TransactionInitiation = async (booking) => {
   console.log("Booking: ", booking);
   try {
@@ -199,32 +200,33 @@ const TransactionInitiation = async (booking) => {
     const totalFare = Math.round(booking.bookingId.totalFare); // Total fare in the smallest currency unit
     const currency = user.countryObjectId.currency;
 
-    console.log(`Total fare: ${totalFare} ${currency.toUpperCase()}`);
+    // console.log(`Total fare: ${totalFare} ${currency.toUpperCase()}`);
 
-    // Step 1: Check the available balance in the appropriate currency
-    let availableBalance = await checkAvailableBalance(currency);
+    // // // Step 1: Check the available balance in the appropriate currency
+    // let availableBalance = await checkAvailableBalance(currency);
 
-    // Step 2: Compare available balance with totalFare
-    if (availableBalance < totalFare) {
-      console.log(`Insufficient funds. Adding ${totalFare - availableBalance} ${currency.toUpperCase()} to the balance...`);
+    // // // Step 2: Compare available balance with totalFare
+    // if (availableBalance < totalFare) {
+    //   console.log(`Insufficient funds. Adding ${totalFare - availableBalance} ${currency.toUpperCase()} to the balance...`);
 
-    //   // Step 3: Add funds in the correct currency to cover the difference
-      await addFundsToBalance(currency, totalFare - availableBalance);
+    // // //   // Step 3: Add funds in the correct currency to cover the difference
+    //   await addFundsToBalance(currency, totalFare - availableBalance);
 
-    //   // Step 4: Re-check the balance after adding funds
-      availableBalance = await checkAvailableBalance(currency);
+    // // //   // Step 4: Re-check the balance after adding funds
+    //   availableBalance = await checkAvailableBalance(currency);
 
-      // Check if balance is still insufficient after adding funds
-      if (availableBalance < totalFare) {
-        throw new Error(`Insufficient funds even after adding balance. Available: ${availableBalance}, Required: ${totalFare}`);
-      }
-    }
-
- 
+    // //   // Check if balance is still insufficient after adding funds
+    //   if (availableBalance < totalFare) {
+    //     throw new Error(`Insufficient funds even after adding balance. Available: ${availableBalance}, Required: ${totalFare}`);
+    //   }
+    // }
+    
+    
     // Step 5: Proceed with creating a Payment Intent
+    // [1]==================Debiting Money from the User=============================
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: totalFare , // Amount in the smallest currency unit
-      currency:  stripeSettings.currency ||'eur',
+      amount: convertToSmallestCurrencyUnit(totalFare, currency) , // Amount in the smallest currency unit
+      currency:  stripeSettings.currency || currency ||'eur', // currency = Rupee
       payment_method: paymentMethod.payment_method_id,
       customer: customerId,
       confirm: true,
@@ -240,14 +242,15 @@ const TransactionInitiation = async (booking) => {
         throw new Error('Pricing data not found');
       }
 
-      // Transfer to driver's account
+      //[2]================= Transfer to driver's account=================================
       const driverAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id });
       if (!driverAccount) {
         throw new Error('Driver Account not found');
       }
 
       if (paymentIntent.id && driverAccount.stripe_account_id) {
-        await TransferToDriver(paymentIntent, booking, user, stripeSettings);
+      //[2]=================Function to Transfer Money to driver's account=================================
+        await TransferToDriver(paymentIntent, booking, user, stripeSettings, currency);
       } else {
         throw new Error("Driver does not have a Custom stripe account!");
       }
@@ -261,6 +264,28 @@ const TransactionInitiation = async (booking) => {
     throw error;
   }
 };
+
+//[0]==================Utility function to convert the amount to the smallest unit===================
+function convertToSmallestCurrencyUnit(amount, currency) {
+  let convertedAmount = 0;
+
+  // Stripe expects amounts in the smallest unit of the currency
+  switch(currency.toLowerCase()) {
+    case 'inr': // Indian Rupee, amount is in paise
+      convertedAmount = Math.round(amount * 100); // Convert rupees to paise
+      break;
+    case 'usd': // US Dollars, amount is in cents
+    case 'eur': // Euros, amount is in cents
+    case 'gbp': // British Pounds, amount is in pence
+      convertedAmount = Math.round(amount * 100); // Convert to cents/pence
+      break;
+    default:
+      convertedAmount = Math.round(amount * 100); // Default behavior for most currencies
+      break;
+  }
+
+  return convertedAmount;
+}
 //============================== fetchUserCardDetails ===========================
 
 const fetchUserCardDetails = async (req, res) => {
@@ -576,8 +601,21 @@ const driverAccount = await CustomAccount.findOne({ driverObjectId: driverId })
   }
 };
 
+//Retrieving driver's account
+const driverAccount = async () => {
+  const account = await stripe.accounts.retrieve('acct_1QC1d3Rtoa9GAiK2');
+  const chargesEnabled = account.charges_enabled;
+  const payoutsEnabled = account.payouts_enabled;
+  console.log('Charges Enabled:', chargesEnabled);
+  console.log('Payouts Enabled:', payoutsEnabled);
+}
+// driverAccount();
+
+
+
+
 //================================= Transfer Payment to the driver =================
-const TransferToDriver = async (paymentIntent, booking, user, stripeSettings) => {
+const TransferToDriver = async (paymentIntent, booking, user, stripeSettings, currency) => {
   try {
     // Fetch pricing data to determine driver share
     const pricing = await Pricing.findOne({ city: booking.city._id });
@@ -592,7 +630,7 @@ const TransferToDriver = async (paymentIntent, booking, user, stripeSettings) =>
     if (!booking.driverObjectId || !booking.driverObjectId._id) {
       throw new Error('Driver Object ID not found in the booking');
     }
-
+    
     console.log('Driver object ID:', booking.driverObjectId._id);
 
     // Find the driver's custom Stripe account
@@ -610,10 +648,10 @@ const TransferToDriver = async (paymentIntent, booking, user, stripeSettings) =>
       throw new Error('Driver Stripe account ID not found');
     }
 
-    // Create the transfer to the driver's Stripe Custom account
+    //[3]===================Create the transfer to the driver's Stripe Custom account=================
     const transfer = await stripe.transfers.create({
-      amount: driverShare, // Amount in smallest currency unit
-      currency: stripeSettings.currency || 'eur',     // Currency must match the currency used in the payment
+      amount: convertToSmallestCurrencyUnit(driverShare, currency), // Amount in smallest currency unit
+      currency: stripeSettings.currency|| currency || 'eur',     // Currency must match the currency used in the payment
       destination: driverCustomAccount.stripe_account_id, // Driver's Stripe account ID
       transfer_group: paymentIntent.id, 
       description: `Driver share for trip ${booking.bookingId._id}`, 
@@ -636,13 +674,29 @@ const checkBalance = async () => {
     const balance = await stripe.balance.retrieve();
 
     // Log the available balance
-    // console.log('Available balance:', balance.available);
-    // console.log('Pending balance:', balance.pending);
+    console.log('Available balance:', balance.available);
+    console.log('Pending balance:', balance.pending);
+    console.log(' balance:', balance);
+
   } catch (error) {
     console.error('Error retrieving balance:', error.message);
   }
 };
 checkBalance()
+// const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
+ const accountDetails = async function checkAccountStatus() {
+  try {
+    // Fetch the account details from Stripe
+    const account = await stripe.accounts.retrieve();
+
+    console.log("Account Info: ", account)
+
+  } catch (error) {
+    console.error("Error checking Stripe account status:", error.message);
+  }
+}
+// accountDetails()
 
 // const addFundsToBalance = async () => {
 //   try {
@@ -663,12 +717,51 @@ checkBalance()
 
 
 //============================== handleStripeWebhook ===========================
-const handleStripeWebhook = async (req, res) => {
-  const sig = req.headers['stripe-signature'];
+// const handleStripeWebhook = async (req, res) => {
+//   const sig = req.headers['stripe-signature'];
 
+//   let event;
+
+//   try {
+//     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+//     console.log(`Webhook received: ${event.type}`);
+//   } catch (err) {
+//     console.error('Webhook signature verification failed:', err.message);
+//     return res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
+
+//   // Handle the event
+//   switch (event.type) {
+//     case 'payment_intent.succeeded':
+//       const paymentIntent = event.data.object;
+//       // Update booking status, notify user, etc.
+//       await handlePaymentIntentSucceeded(paymentIntent);
+//       break;
+//     case 'payment_intent.payment_failed':
+//       const failedPaymentIntent = event.data.object;
+//       // Notify user of failure, log the error, etc.
+//       await handlePaymentIntentFailed(failedPaymentIntent);
+//       break;
+//     case 'account.updated':
+//       const account = event.data.object;
+//       // Update your database with the latest account information
+//       await handleAccountUpdated(account);
+//       break;
+//     // Add more cases as needed
+//     default:
+//       console.log(`Unhandled event type ${event.type}`);
+//   }
+
+//   // Return a response to acknowledge receipt of the event
+//   res.json({ received: true });
+// };
+
+const handleStripeWebhook = async (req, res) => {
+  const sig = req.headers['stripe-signature']; // Stripe signature from headers
   let event;
 
   try {
+    // Verify the webhook signature
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     console.log(`Webhook received: ${event.type}`);
   } catch (err) {
@@ -676,32 +769,34 @@ const handleStripeWebhook = async (req, res) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
+  // Handle the different event types
   switch (event.type) {
     case 'payment_intent.succeeded':
       const paymentIntent = event.data.object;
-      // Update booking status, notify user, etc.
+      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+      // Your custom logic for handling a successful payment (e.g., update booking status)
       await handlePaymentIntentSucceeded(paymentIntent);
       break;
     case 'payment_intent.payment_failed':
       const failedPaymentIntent = event.data.object;
-      // Notify user of failure, log the error, etc.
+      console.log(`PaymentIntent for ${failedPaymentIntent.amount} failed.`);
+      // Your custom logic for handling a failed payment (e.g., notify user)
       await handlePaymentIntentFailed(failedPaymentIntent);
       break;
     case 'account.updated':
       const account = event.data.object;
-      // Update your database with the latest account information
+      console.log(`Account updated: ${account.id}`);
+      // Your custom logic to update account information in your system
       await handleAccountUpdated(account);
       break;
     // Add more cases as needed
     default:
-      console.log(`Unhandled event type ${event.type}`);
+      console.log(`Unhandled event type: ${event.type}`);
   }
 
-  // Return a response to acknowledge receipt of the event
+  // Return a 200 response to acknowledge receipt of the event
   res.json({ received: true });
 };
-
 //============================== Webhook Event Handlers ===========================
 
 const handlePaymentIntentSucceeded = async (paymentIntent) => {
