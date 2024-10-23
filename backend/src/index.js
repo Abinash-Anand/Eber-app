@@ -34,7 +34,6 @@ const corsOptions = {
   optionsSuccessStatus: 200,
   credentials: true,
 };
-
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use('/uploads', express.static('uploads'));

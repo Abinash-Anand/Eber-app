@@ -249,10 +249,17 @@ export class RunningRequestComponent implements OnInit {
           this.rideCompleteStatus = true;
           this.invoiceObject = response.body.inovice
           this.nodemail = true;
+           this.Toast.fire({
+          icon: 'success',
+          title: 'Invoice Sent to your Email'
+        });
           console.log("Inovice Object: ", this.invoiceObject);
                this.invoiceId = this.invoiceObject._id
           console.log("Inovice iD: ", this.invoiceId)
-             this.removeRequest(request._id)
+          this.removeRequest(request._id)
+          // if (response.body.transfer !== null) {
+          //   window.location.href = response.body.transfer;
+          // }
           setTimeout(() => {
             this.rideCompleteStatus = false
             this.currentRideStatus = ''

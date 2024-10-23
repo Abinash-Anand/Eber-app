@@ -21,7 +21,10 @@
     const auth = require('../middlewares/authMiddleware');
     const { setPricing, getAllPricing , fetchAllPricingData, } = require('../controllers/pricingController')
     const {setSettings, searchDefaultSettings, updateSettings} = require('../controllers/settingsController')
-    const { createNewPayment,fetchUserCardDetails,handleStripeWebhook, userStripeCards ,updateStripeAccount, deleteStripeCard, setCardToDefault, stripeCustomConnectedAccount} = require('../controllers/stripePayment');
+    const { createNewPayment,fetchUserCardDetails,handleStripeWebhook, userStripeCards ,updateStripeAccount,
+        deleteStripeCard, setCardToDefault, stripeCustomConnectedAccount, transferPayment,
+        createCustomAccount } = require('../controllers/stripePayment');
+    
     const { createNewRide, deleteRideFromRides } = require('../controllers/createRideController')
     const { ensureAuthenticated } = require('../middlewares/authMiddleware');
     const { getConfirmedRides, updateRideStatus, cancelRide } = require('../controllers/confirmRideController')
@@ -35,9 +38,23 @@
     const {driverBankAccount} = require('../controllers/driverBankAccount')
     const {handleSubscription} = require('../controllers/pushNotification')
     const { getStripeSettings, updateStripeSettings, deleteStripeSettings } = require('../controllers/stripeSettings')
-    const {saveTwilioSettings}= require('../controllers/twilioSMS')
-    // Route to get the data from the vehicle type form
+    const { saveTwilioSettings } = require('../controllers/twilioSMS')
+
+
+
+//=================Testing Routes for Transfer Payment================
+router.post('/driver/payment/transfer', transferPayment)
+router.post('/create-account', createCustomAccount);
     
+
+
+
+//======================End=================================
+    // Route to get the data from the vehicle type form
+    // const {subsrcibe, unsubscribe} =require('../controllers/webPush')
+    //webpush 
+    // router.post('/subscribe', subsrcibe)
+    // router.post('/unsubscribe',unsubscribe)
     router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
     // Route to get the vehicle data from server
     router.get('/req-vehicle-data', vehicleData);
@@ -155,7 +172,7 @@ router.post('/settings/stripe/update', updateStripeSettings);
     router.post('/driver/stripe/create/express/account/:id', stripeCustomConnectedAccount)
     router.patch('/driver/account/stripe/update/:id', updateStripeAccount)
     //---------------------------------stripe webhook------------------------
-router.post('/webhooks/stripe', handleStripeWebhook);
+    router.post('/webhook', handleStripeWebhook);
 
     //------------------------------Create Rides Section--------------------------------
     router.post('/book-ride', (req, res) => createNewRide(req, res, req.app.get('socketio')));

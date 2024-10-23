@@ -1,9 +1,7 @@
-// utils/scheduler.js
-
 const Booking = require('../models/rideBookings');
 const DriverVehicleModel = require('../models/driverVehiclePricingModel');
 const Ride = require('../models/createRideModel');
-
+const { sendVapidPushNotification } = require('./pushNotifications'); // Import the VAPID notification utility
 const countdownIntervals = {}; // To store interval IDs for countdowns
 
 // Function to handle driver assignment and response for both manual and auto assignments
@@ -20,8 +18,6 @@ const scheduledReassignDriver = async (bookingId, io) => {
       console.error('Booking request not found for bookingId:', bookingId);
       return;
     }
-
-    // console.log('Fetched booking request:', bookingRequest);
 
     // Check if the booking has been completed or cancelled
     if (['Completed', 'Cancelled'].includes(bookingRequest.schedulerState.assignmentStatus)) {
@@ -87,6 +83,13 @@ const scheduledReassignDriver = async (bookingId, io) => {
         bookingId: bookingRequest._id,
         filteredDriverList: filteredDriverList,
       });
+
+      // Send push notification to user about no drivers available
+      const subscription = bookingRequest.userSubscription; // Assuming userSubscription object is stored for the booking
+      if (subscription) {
+        sendVapidPushNotification(subscription, 'No Drivers Available', 'No drivers accepted your ride request.');
+      }
+
       return;
     }
 
@@ -203,6 +206,12 @@ const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
 
         // Notify user if needed
         io.emit('booking-cancelled', { bookingId: updatedBooking._id });
+
+        // Send push notification to user for manual assignment failure
+        const subscription = updatedBooking.userSubscription; // Assuming userSubscription object is stored for the booking
+        if (subscription) {
+          sendVapidPushNotification(subscription, 'Driver Rejected', 'The assigned driver did not accept your ride request.');
+        }
       }
     } else {
       console.log(
@@ -300,13 +309,11 @@ const resumePendingAssignments = async (io) => {
       status: { $in: ['Pending', 'Assigned'] },
     });
 
-    // console.log('Found pending bookings:', pendingBookings.length);
     pendingBookings.forEach((booking) => {
       const now = new Date();
       const expiration = booking.schedulerState.expirationTimestamp || now;
 
       if (expiration > now) {
-        // If the assignment hasn't expired, start the countdown with remaining time
         const remainingTime = Math.ceil((expiration - now) / 1000);
         console.log(
           'Resuming countdown for booking:',

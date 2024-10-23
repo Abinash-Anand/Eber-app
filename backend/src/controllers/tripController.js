@@ -29,33 +29,37 @@ const updateBookingStatus = async (req, res, io) => {
   //  await twilioSMSNotification(booking.userId, status)
 
     // console.log("ID: ", booking.bookingId._id)
-    // await booking.save();
-    // await ride.save();
+    await booking.save();
+    await ride.save();
     const reqId = new mongoose.Types.ObjectId(booking.bookingId._id);
     // console.log("Booking Id: ", id.toString())
     const id = reqId.toString()
     // console.log("ID: ", id)
     let inovice;
+    let transfer = null;
     // let nodemail;
     // let transcationResponse;
-    // await TranscationInitiation(booking)
+   
 //================================= When Ride is Completed================================
     if (booking.status === 'Completed') {
       //-------------------------Initiate Invoice--------------------------------
-      // inovice = await calculateInvoice(id)
+      inovice = await calculateInvoice(id)
       // console.log("INvoice: ", inovice)
       //---------------------------Email Service--------------------------
-      // await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
+      await sendInvoiceEmail(booking.userId.email, booking.userId.userProfile, inovice);
       //---------------------------- createRazorpayPayout | sending payment from user to the Driver |-------------
       if (booking.paymentOption === 'card') {
-        await TransactionInitiation(booking)
+        transfer =  await TransactionInitiation(booking)
       }
     }
     // console.log(`=====Logging User Data: ${booking.userId.email} && ${booking.userId.name}`)
     // console.log('Emitting rideStatusProgressed event with status:', status); // Log event emission
     io.emit('rideStatusProgressed', ride);
   
-    res.status(200).json({ message: 'Booking status updated successfully', booking, ride, inovice });
+    res.status(200).json({
+      message: 'Booking status updated successfully',
+      booking, ride, inovice, transfer
+    });
     // console.log(`Invoice ${inovice}`);
     
   } catch (error) {

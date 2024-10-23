@@ -23,14 +23,14 @@ const customAccountSchema = mongoose.Schema(
     country: {
       type: String,
       required: true,
-      enum: ['DE'], // Fixed value for Germany
-      default: 'DE',
+      // enum: ['DE'], // Fixed value for Germany
+      // default: 'DE',
     },
     type: {
       type: String,
       required: true,
-      enum: ['custom'], // Only 'custom' type as per your setup
-      default: 'custom',
+      // enum: ['custom'], // Only 'custom' type as per your setup
+      // default: 'custom',
     },
     business_type: {
       type: String,

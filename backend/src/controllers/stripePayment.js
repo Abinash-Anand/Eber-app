@@ -9,6 +9,8 @@ const driverModel = require('../models/driverModel');
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 const User = require('../models/usersModel');
 const StripeSettings = require('../models/stripeSettings');
+const standardAccountModel = require('../models/standardAccount');
+const standardAccount = require('../models/standardAccount');
 const stripeSettings = async()=>{
     const stripeSettings = await StripeSettings.findOne()
     if (!stripeSettings) {
@@ -152,8 +154,8 @@ const addFundsToBalance = async (currency, amount) => {
   try {
     // Adding the correct amount (INR in this case)
     const charge = await stripe.charges.create({
-      amount: amount * 100, // Ensure this is the correct amount in the smallest currency unit
-      currency: currency, // Should be 'inr' for INR
+      amount: 100 * 100, // Ensure this is the correct amount in the smallest currency unit
+      currency: 'USD', // Should be 'inr' for INR
       source: 'tok_bypassPending', // Test token for adding funds to balance (may not work in INR)
       description: `Test charge to add ${amount / 100} ${currency.toUpperCase()} to available balance`,
     });
@@ -171,6 +173,7 @@ const addFundsToBalance = async (currency, amount) => {
 const TransactionInitiation = async (booking) => {
   console.log("Booking: ", booking);
   try {
+    let transfer
        //stripe settings
     const stripeSettings = await StripeSettings.findOne()
     if (!stripeSettings) {
@@ -205,28 +208,28 @@ const TransactionInitiation = async (booking) => {
     // // // Step 1: Check the available balance in the appropriate currency
     // let availableBalance = await checkAvailableBalance(currency);
 
-    // // // Step 2: Compare available balance with totalFare
+    // Step 2: Compare available balance with totalFare
     // if (availableBalance < totalFare) {
-    //   console.log(`Insufficient funds. Adding ${totalFare - availableBalance} ${currency.toUpperCase()} to the balance...`);
+      // console.log(`Insufficient funds. Adding ${totalFare - availableBalance} ${currency.toUpperCase()} to the balance...`);
 
-    // // //   // Step 3: Add funds in the correct currency to cover the difference
-    //   await addFundsToBalance(currency, totalFare - availableBalance);
+    //   // Step 3: Add funds in the correct currency to cover the difference
+      // await addFundsToBalance(currency, totalFare - availableBalance);
 
-    // // //   // Step 4: Re-check the balance after adding funds
-    //   availableBalance = await checkAvailableBalance(currency);
+    //   // Step 4: Re-check the balance after adding funds
+      // availableBalance = await checkAvailableBalance(currency);
 
-    // //   // Check if balance is still insufficient after adding funds
-    //   if (availableBalance < totalFare) {
-    //     throw new Error(`Insufficient funds even after adding balance. Available: ${availableBalance}, Required: ${totalFare}`);
-    //   }
+      // Check if balance is still insufficient after adding funds
+      // if (availableBalance < totalFare) {
+        // throw new Error(`Insufficient funds even after adding balance. Available: ${availableBalance}, Required: ${totalFare}`);
+      // }
     // }
     
     
     // Step 5: Proceed with creating a Payment Intent
     // [1]==================Debiting Money from the User=============================
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: convertToSmallestCurrencyUnit(totalFare, currency) , // Amount in the smallest currency unit
-      currency:  stripeSettings.currency || currency ||'eur', // currency = Rupee
+      amount: totalFare * 100 , // Amount in the smallest currency unit
+      currency:  stripeSettings.currency ||'USD', // currency = Rupee
       payment_method: paymentMethod.payment_method_id,
       customer: customerId,
       confirm: true,
@@ -243,19 +246,19 @@ const TransactionInitiation = async (booking) => {
       }
 
       //[2]================= Transfer to driver's account=================================
-      const driverAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id });
+      const driverAccount = await standardAccountModel.findOne({ driverObjectId: booking.driverObjectId._id });
       if (!driverAccount) {
         throw new Error('Driver Account not found');
       }
 
       if (paymentIntent.id && driverAccount.stripe_account_id) {
       //[2]=================Function to Transfer Money to driver's account=================================
-        await TransferToDriver(paymentIntent, booking, user, stripeSettings, currency);
+       transfer =   await TransferToDriver(paymentIntent, booking, user, stripeSettings, currency);
       } else {
         throw new Error("Driver does not have a Custom stripe account!");
       }
 
-      return paymentIntent;
+      return transfer;
     } else {
       throw new Error('Payment Intent was not successful');
     }
@@ -305,6 +308,144 @@ const fetchUserCardDetails = async (req, res) => {
 
 //===============================CREATING A CUSTOM ACCOUNT===================================
 
+// const stripeCustomConnectedAccount = async (req, res) => {
+//   try {
+//     const driverId = req.params.id;
+
+//     if (!driverId) {
+//       return res.status(400).send({ error: "Driver ID is required in params." });
+//     }
+
+//     const {
+//       city,
+//       country,
+//       dob_day,
+//       dob_month,
+//       dob_year,
+//       email,
+//       first_name,
+//       last_name,
+//       line1,
+//       phone,
+//       postal_code,
+//       state,
+//       type,
+//       business_url, // Ensure this is sent from the client or set a default
+//     } = req.body;
+
+//     // Corrected Validation: Use logical OR (||) between each condition
+//     if (
+//       !city ||
+//       !country ||
+//       !dob_day ||
+//       !dob_month ||
+//       !dob_year ||
+//       !email ||
+//       !first_name ||
+//       !last_name ||
+//       !line1 ||
+//       !phone ||
+//       !postal_code ||
+//       !state ||
+//       !type ||
+//       !business_url
+//     ) {
+//       return res.status(400).send({ error: "All required fields must be provided." });
+//     }
+
+//     // Fetch the driver from the database
+//     const driver = await driverModel.findOne({ _id: driverId });
+//     if (!driver) {
+//       return res.status(404).send({ error: "Driver not found." });
+//     }
+
+//     // Create Stripe Account
+//     const account = await stripe.accounts.create({
+//       country: country, // Germany country code 'DE'
+//       type: 'custom', // Fixed to 'custom' as per your schema
+//       business_type: 'individual', // Assuming drivers are individuals
+//       capabilities: {
+//         card_payments: { requested: true },
+//         transfers: { requested: true }
+//       },
+//       individual: {
+//         first_name: first_name,
+//         last_name: last_name,
+//         email: email,
+//         phone: phone,
+//         dob: {
+//           day: dob_day,
+//           month: dob_month,
+//           year: dob_year,
+//         },
+//         address: {
+//           line1: line1,
+//           city: city,
+//           postal_code: postal_code,
+//           state: state,
+//           country: country,
+//         },
+//       },
+//       business_profile: {
+//         url: business_url, // Ensure this is provided by the client
+//       },
+//     });
+//     console.log("Account creation response: ", account);
+
+
+//     // Create CustomAccount Document in MongoDB
+//     const customAccount = new CustomAccount({
+//       stripe_account_id: account.id, // Save Stripe Account ID
+//       driverObjectId: driver._id,
+//       email: email,
+//       country: country,
+//       type: type,
+//       business_type: 'individual', // As set during Stripe account creation
+//       individual: {
+//         first_name: first_name,
+//         last_name: last_name,
+//         email: email,
+//         phone: phone,
+//         dob: {
+//           day: dob_day,
+//           month: dob_month,
+//           year: dob_year,
+//         },
+//         address: {
+//           line1: line1,
+//           city: city,
+//           postal_code: postal_code,
+//           state: state,
+//           country: country,
+//         },
+//       },
+//       business_profile: {
+//         url: business_url,
+//       },
+//       // Optional fields can remain as defaults or empty
+//     });
+
+//     await customAccount.save();
+
+//     // Optionally, associate the CustomAccount with the Driver
+//     // driver.customAccount = customAccount._id;
+//     // await driver.save();
+
+//     res.status(201).send({ account, customAccount });
+//   } catch (error) {
+//     console.error('Error creating driver Stripe account:', error);
+
+//     // Enhanced error response
+//     if (error.type === 'StripeCardError') {
+//       // Handle Stripe specific errors
+//       res.status(400).send({ error: error.message });
+//     } else {
+//       res.status(500).send({ error: "Internal Server Error" });
+//     }
+//   }
+// };
+
+//==========[STANDARD]=========CREATING STRIPE STANDARD ACCOUNT=================================
 const stripeCustomConnectedAccount = async (req, res) => {
   try {
     const driverId = req.params.id;
@@ -313,41 +454,11 @@ const stripeCustomConnectedAccount = async (req, res) => {
       return res.status(400).send({ error: "Driver ID is required in params." });
     }
 
-    const {
-      city,
-      country,
-      dob_day,
-      dob_month,
-      dob_year,
-      email,
-      first_name,
-      last_name,
-      line1,
-      phone,
-      postal_code,
-      state,
-      type,
-      business_url, // Ensure this is sent from the client or set a default
-    } = req.body;
+    const { email, business_url } = req.body;
 
-    // Corrected Validation: Use logical OR (||) between each condition
-    if (
-      !city ||
-      !country ||
-      !dob_day ||
-      !dob_month ||
-      !dob_year ||
-      !email ||
-      !first_name ||
-      !last_name ||
-      !line1 ||
-      !phone ||
-      !postal_code ||
-      !state ||
-      !type ||
-      !business_url
-    ) {
-      return res.status(400).send({ error: "All required fields must be provided." });
+    // Basic Validation
+    if (!email || !business_url) {
+      return res.status(400).send({ error: "Email and Business URL are required." });
     }
 
     // Fetch the driver from the database
@@ -356,78 +467,46 @@ const stripeCustomConnectedAccount = async (req, res) => {
       return res.status(404).send({ error: "Driver not found." });
     }
 
-    // Create Stripe Account
+    // Create Stripe Standard Account
     const account = await stripe.accounts.create({
-      country: country, // Germany country code 'DE'
-      type: 'custom', // Fixed to 'custom' as per your schema
-      business_type: 'individual', // Assuming drivers are individuals
-      capabilities: {
-        card_payments: { requested: true },
-        transfers: { requested: true }
-      },
-      individual: {
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        phone: phone,
-        dob: {
-          day: dob_day,
-          month: dob_month,
-          year: dob_year,
-        },
-        address: {
-          line1: line1,
-          city: city,
-          postal_code: postal_code,
-          state: state,
-          country: country,
-        },
-      },
-      business_profile: {
-        url: business_url, // Ensure this is provided by the client
-      },
-    });
-    console.log("Account creation response: ", account);
-
-    // Create CustomAccount Document in MongoDB
-    const customAccount = new CustomAccount({
-      stripe_account_id: account.id, // Save Stripe Account ID
-      driverObjectId: driver._id,
+      type: 'standard', // Ensure type is 'standard'
       email: email,
-      country: country,
-      type: type,
-      business_type: 'individual', // As set during Stripe account creation
-      individual: {
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        phone: phone,
-        dob: {
-          day: dob_day,
-          month: dob_month,
-          year: dob_year,
-        },
-        address: {
-          line1: line1,
-          city: city,
-          postal_code: postal_code,
-          state: state,
-          country: country,
-        },
-      },
       business_profile: {
         url: business_url,
       },
-      // Optional fields can remain as defaults or empty
+      // Additional parameters can be included if needed
+    });
+    console.log("Standard Account creation response: ", account);
+
+    // Create Account Link for Onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: `${process.env.FRONTEND_URL}/onboarding/refresh`, // Replace with your frontend URL
+      return_url: `${process.env.FRONTEND_URL}/onboarding/return`, // Replace with your frontend URL
+      type: 'account_onboarding',
     });
 
-    await customAccount.save();
+    // Save StandardAccount Document in MongoDB
+    const standardAccount = new standardAccountModel({
+      stripe_account_id: account.id, // Save Stripe Account ID
+      driverObjectId: driver._id,
+      email: email,
+      business_url: business_url,
+      onboarding_complete: false, // Initialize as false
+      // Add any additional fields you require
+    });
 
-    // Optionally, associate the CustomAccount with the Driver
-    // driver.customAccount = customAccount._id;
+    await standardAccount.save();
+
+    // Optionally, associate the StandardAccount with the Driver
+    // driver.standardAccount = standardAccount._id;
     // await driver.save();
 
-    res.status(201).send({ account, customAccount });
+    res.status(201).send({ 
+      account, 
+      standardAccount,
+      accountLink: accountLink.url // Send the account link to the client to redirect the user
+    });
   } catch (error) {
     console.error('Error creating driver Stripe account:', error);
 
@@ -440,6 +519,7 @@ const stripeCustomConnectedAccount = async (req, res) => {
     }
   }
 };
+
 
 //============================== updateStripeAccount ===========================
 
@@ -601,6 +681,76 @@ const driverAccount = await CustomAccount.findOne({ driverObjectId: driverId })
   }
 };
 
+
+
+//==================Testing Transfer Payment Through POSTMAN===========================
+
+/**
+ * Creates a Stripe Custom Connected Account
+ */
+const createCustomAccount = async (req, res) => {
+  try {
+    // Create a Standard connected account
+    const account = await stripe.accounts.create({
+      type: 'standard', // Standard account type
+    });
+
+    // Create an account link for onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: 'https://example.com/reauth',  // Replace with your refresh URL
+      return_url: 'https://example.com/success',  // Replace with your return URL
+      type: 'account_onboarding',
+    });
+
+    // Return the account link for the user to complete onboarding
+    return res.status(200).json({
+      success: true,
+      message: 'Standard connected account created successfully',
+      accountLink: accountLink.url,
+    });
+  } catch (error) {
+    console.error('Error creating Stripe Standard Account:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create standard connected account',
+      error: error.message,
+    });
+  }
+};
+
+
+
+
+
+
+const transferPayment = async (req, res) => {
+  try {
+    // const charge = await stripe.charges.create({
+    //   amount: 5000, // Amount in cents (e.g., 5000 = $50.00)
+    //   currency: 'usd',
+    //   source: 'tok_bypassPending', // Special test token to bypass pending state
+    //   description: 'Test charge to add funds to available balance',
+    // });
+
+    // console.log('Funds added to balance:', charge);
+
+     const transfer = await stripe.transfers.create({
+      amount: 2 * 100, // Amount in smallest currency unit
+      currency: 'USD',     // Currency must match the currency used in the payment
+      destination: 'acct_1QCmzE2NWaRpXP7J', // Driver's Stripe account ID
+      // transfer_group: paymentIntent.id, 
+      description: `Driver share for trip `, 
+     });
+    res.status(200).send(transfer)
+  } catch (error) {
+    res.status(500).send(error)
+    
+  }
+     
+}
+//===========================END OF TESTING CODE=================================================
+
 //Retrieving driver's account
 const driverAccount = async () => {
   const account = await stripe.accounts.retrieve('acct_1QC1d3Rtoa9GAiK2');
@@ -610,8 +760,6 @@ const driverAccount = async () => {
   console.log('Payouts Enabled:', payoutsEnabled);
 }
 // driverAccount();
-
-
 
 
 //================================= Transfer Payment to the driver =================
@@ -634,7 +782,7 @@ const TransferToDriver = async (paymentIntent, booking, user, stripeSettings, cu
     console.log('Driver object ID:', booking.driverObjectId._id);
 
     // Find the driver's custom Stripe account
-    const driverCustomAccount = await CustomAccount.findOne({ driverObjectId: booking.driverObjectId._id });
+    const driverCustomAccount = await standardAccountModel.findOne({ driverObjectId: booking.driverObjectId._id });
 
     if (!driverCustomAccount) {
       console.error("No custom account found for driver:", booking.driverObjectId._id);
@@ -649,14 +797,21 @@ const TransferToDriver = async (paymentIntent, booking, user, stripeSettings, cu
     }
 
     //[3]===================Create the transfer to the driver's Stripe Custom account=================
-    const transfer = await stripe.transfers.create({
-      amount: convertToSmallestCurrencyUnit(driverShare, currency), // Amount in smallest currency unit
-      currency: stripeSettings.currency|| currency || 'eur',     // Currency must match the currency used in the payment
+    // const transfer = await stripe.transfers.create({
+    //   amount: convertToSmallestCurrencyUnit(driverShare, currency), // Amount in smallest currency unit
+    //   currency: stripeSettings.currency|| currency || 'eur',     // Currency must match the currency used in the payment
+    //   destination: driverCustomAccount.stripe_account_id, // Driver's Stripe account ID
+    //   // transfer_group: paymentIntent.id, 
+    //   description: `Driver share for trip ${booking.bookingId._id}`, 
+    // });
+     const transfer = await stripe.transfers.create({
+      amount: driverShare , // Amount in smallest currency unit
+      currency: stripeSettings.currency ||'USD',     // Currency must match the currency used in the payment
       destination: driverCustomAccount.stripe_account_id, // Driver's Stripe account ID
       transfer_group: paymentIntent.id, 
-      description: `Driver share for trip ${booking.bookingId._id}`, 
-    });
-
+      description: `Driver share for trip  `, 
+     });
+    
     console.log('Transfer to driver successful: ', transfer);
     return transfer;
 
@@ -682,7 +837,7 @@ const checkBalance = async () => {
     console.error('Error retrieving balance:', error.message);
   }
 };
-checkBalance()
+// checkBalance()
 // const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
  const accountDetails = async function checkAccountStatus() {
@@ -712,8 +867,55 @@ checkBalance()
 //     console.error('Error adding funds to balance:', error.message);
 //   }
 // };
+//============================check service agreement=======================
+// const checkServiceAgreement = async (accountId) => {
+//   try {
+//     // Retrieve the connected account details from Stripe
+//     const account = await stripe.accounts.retrieve(accountId);
+
+//     // Check the account type (custom, express, or standard)
+//     const accountType = account.type;
+//     console.log(`Account Type: ${accountType}`);
+
+//     // Check the capabilities to determine the agreement status
+//     const capabilities = account.capabilities;
+//     console.log(`Account Capabilities: `, capabilities);
+
+//     // Log any additional requirements for the account
+//     if (account.requirements && account.requirements.currently_due.length > 0) {
+//       console.log('Current requirements due: ', account.requirements.currently_due);
+//     } else {
+//       console.log('No additional requirements needed.');
+//     }
+
+//     // Determine if the account is under the Full Service Agreement
+//     if (capabilities.transfers === 'active') {
+//       console.log('The account is eligible for transfers under the current agreement.');
+//     } else if (capabilities.transfers === 'inactive') {
+//       console.log('The account is not eligible for transfers. Check for additional requirements.');
+//     } else {
+//       console.log('Transfer capability is not active. Full Service Agreement may be applied.');
+//     }
+//   } catch (error) {
+//     console.error('Error retrieving the account:', error.message);
+//   }
+// };
+
+// // Example usage
+// checkServiceAgreement('acct_1QCZuG2NQDHXu0qH');
+
+//============================delete custom account manually==============
+// acct_1QCZuG2NQDHXu0qH
+// const deletedAccount = async () => {
+//   const accId = 'acct_1QCd3B2MsKV2pKcQ'
+//   await stripe.accounts.del('acct_1QCd3B2MsKV2pKcQ');
+//   const driverAccount = await CustomAccount.findOne({stripe_account_id: accId})
+//   console.log(`Deleted account: ${deletedAccount.id}`);
+//   console.log(`Deleted account: ${driverAccount}`);
 
 
+// } // Replace with the actual connected account ID
+// deletedAccount()
 
 
 //============================== handleStripeWebhook ===========================
@@ -756,113 +958,154 @@ checkBalance()
 //   res.json({ received: true });
 // };
 
+// const handleStripeWebhook = async (req, res) => {
+//   const sig = req.headers['stripe-signature']; // Stripe signature from headers
+//   let event;
+
+//   try {
+//     // Verify the webhook signature
+//     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+//     console.log(`Webhook received: ${event.type}`);
+//   } catch (err) {
+//     console.error('Webhook signature verification failed:', err.message);
+//     return res.status(400).send(`Webhook Error: ${err.message}`);
+//   }
+
+//   // Handle the different event types
+//   switch (event.type) {
+//     case 'payment_intent.succeeded':
+//       const paymentIntent = event.data.object;
+//       console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
+//       // Your custom logic for handling a successful payment (e.g., update booking status)
+//       await handlePaymentIntentSucceeded(paymentIntent);
+//       break;
+//     case 'payment_intent.payment_failed':
+//       const failedPaymentIntent = event.data.object;
+//       console.log(`PaymentIntent for ${failedPaymentIntent.amount} failed.`);
+//       // Your custom logic for handling a failed payment (e.g., notify user)
+//       await handlePaymentIntentFailed(failedPaymentIntent);
+//       break;
+//     case 'account.updated':
+//       const account = event.data.object;
+//       console.log(`Account updated: ${account.id}`);
+//       // Your custom logic to update account information in your system
+//       await handleAccountUpdated(account);
+//       break;
+//     // Add more cases as needed
+//     default:
+//       console.log(`Unhandled event type: ${event.type}`);
+//   }
+
+//   // Return a 200 response to acknowledge receipt of the event
+//   res.json({ received: true });
+// };
+// //============================== Webhook Event Handlers ===========================
+
+// const handlePaymentIntentSucceeded = async (paymentIntent) => {
+//   try {
+//     console.log(`Handling payment_intent.succeeded for PaymentIntent ID: ${paymentIntent.id}`);
+
+//     // Find the booking associated with this payment intent
+//     const booking = await Booking.findOne({ paymentIntentId: paymentIntent.id });
+//     if (booking) {
+//       booking.status = 'paid';
+//       await booking.save();
+//       console.log(`Booking ${booking._id} marked as paid.`);
+
+//       // Optionally, notify the user and driver via Socket.io or email
+//       // Example:
+//       // io.emit('payment-success', { bookingId: booking._id });
+//     } else {
+//       console.warn(`No booking found for PaymentIntent ID: ${paymentIntent.id}`);
+//     }
+//   } catch (error) {
+//     console.error('Error handling payment_intent.succeeded:', error.message);
+//   }
+// };
+
+// const handlePaymentIntentFailed = async (failedPaymentIntent) => {
+//   try {
+//     console.log(`Handling payment_intent.payment_failed for PaymentIntent ID: ${failedPaymentIntent.id}`);
+
+//     // Find the booking associated with this payment intent
+//     const booking = await Booking.findOne({ paymentIntentId: failedPaymentIntent.id });
+//     if (booking) {
+//       booking.status = 'failed';
+//       await booking.save();
+//       console.log(`Booking ${booking._id} marked as failed.`);
+
+//       // Optionally, notify the user via Socket.io or email
+//       // Example:
+//       // io.emit('payment-failed', { bookingId: booking._id, reason: failedPaymentIntent.last_payment_error.message });
+//     } else {
+//       console.warn(`No booking found for PaymentIntent ID: ${failedPaymentIntent.id}`);
+//     }
+//   } catch (error) {
+//     console.error('Error handling payment_intent.payment_failed:', error.message);
+//   }
+// };
+
+// const handleAccountUpdated = async (account) => {
+//   try {
+//     console.log(`Handling account.updated for Account ID: ${account.id}`);
+
+//     // Update the corresponding CustomAccount in MongoDB
+//     const customAccount = await CustomAccount.findOne({ stripe_account_id: account.id });
+//     if (customAccount) {
+//       if (account.business_profile && account.business_profile.mcc) {
+//         customAccount.business_profile.mcc = account.business_profile.mcc;
+//       }
+//       // Update other fields as needed
+//       await customAccount.save();
+//       console.log(`CustomAccount ${customAccount._id} updated with latest account information.`);
+//     } else {
+//       console.warn(`No CustomAccount found for Account ID: ${account.id}`);
+//     }
+//   } catch (error) {
+//     console.error('Error handling account.updated:', error.message);
+//   }
+// };
+
+//===================================New webhooks===================================
 const handleStripeWebhook = async (req, res) => {
-  const sig = req.headers['stripe-signature']; // Stripe signature from headers
+  const sig = req.headers['stripe-signature'];
+
   let event;
 
   try {
-    // Verify the webhook signature
-    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-    console.log(`Webhook received: ${event.type}`);
+    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error('Webhook signature verification failed.', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the different event types
+  // Handle the event
   switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
-      // Your custom logic for handling a successful payment (e.g., update booking status)
-      await handlePaymentIntentSucceeded(paymentIntent);
-      break;
-    case 'payment_intent.payment_failed':
-      const failedPaymentIntent = event.data.object;
-      console.log(`PaymentIntent for ${failedPaymentIntent.amount} failed.`);
-      // Your custom logic for handling a failed payment (e.g., notify user)
-      await handlePaymentIntentFailed(failedPaymentIntent);
-      break;
     case 'account.updated':
       const account = event.data.object;
-      console.log(`Account updated: ${account.id}`);
-      // Your custom logic to update account information in your system
-      await handleAccountUpdated(account);
+      // Example: Check if the account has completed onboarding
+      if (account.details_submitted) {
+        try {
+          await standardAccountModel.findOneAndUpdate(
+            { stripe_account_id: account.id },
+            { onboarding_complete: true } // Ensure your schema has this field
+          );
+          console.log(`Account ${account.id} has completed onboarding.`);
+        } catch (updateError) {
+          console.error(`Error updating account ${account.id}:`, updateError);
+          return res.status(500).send('Internal Server Error');
+        }
+      }
       break;
-    // Add more cases as needed
+    // Handle other event types as needed
     default:
-      console.log(`Unhandled event type: ${event.type}`);
+      console.log(`Unhandled event type ${event.type}`);
   }
 
-  // Return a 200 response to acknowledge receipt of the event
+  // Acknowledge receipt of the event
   res.json({ received: true });
 };
-//============================== Webhook Event Handlers ===========================
 
-const handlePaymentIntentSucceeded = async (paymentIntent) => {
-  try {
-    console.log(`Handling payment_intent.succeeded for PaymentIntent ID: ${paymentIntent.id}`);
-
-    // Find the booking associated with this payment intent
-    const booking = await Booking.findOne({ paymentIntentId: paymentIntent.id });
-    if (booking) {
-      booking.status = 'paid';
-      await booking.save();
-      console.log(`Booking ${booking._id} marked as paid.`);
-
-      // Optionally, notify the user and driver via Socket.io or email
-      // Example:
-      // io.emit('payment-success', { bookingId: booking._id });
-    } else {
-      console.warn(`No booking found for PaymentIntent ID: ${paymentIntent.id}`);
-    }
-  } catch (error) {
-    console.error('Error handling payment_intent.succeeded:', error.message);
-  }
-};
-
-const handlePaymentIntentFailed = async (failedPaymentIntent) => {
-  try {
-    console.log(`Handling payment_intent.payment_failed for PaymentIntent ID: ${failedPaymentIntent.id}`);
-
-    // Find the booking associated with this payment intent
-    const booking = await Booking.findOne({ paymentIntentId: failedPaymentIntent.id });
-    if (booking) {
-      booking.status = 'failed';
-      await booking.save();
-      console.log(`Booking ${booking._id} marked as failed.`);
-
-      // Optionally, notify the user via Socket.io or email
-      // Example:
-      // io.emit('payment-failed', { bookingId: booking._id, reason: failedPaymentIntent.last_payment_error.message });
-    } else {
-      console.warn(`No booking found for PaymentIntent ID: ${failedPaymentIntent.id}`);
-    }
-  } catch (error) {
-    console.error('Error handling payment_intent.payment_failed:', error.message);
-  }
-};
-
-const handleAccountUpdated = async (account) => {
-  try {
-    console.log(`Handling account.updated for Account ID: ${account.id}`);
-
-    // Update the corresponding CustomAccount in MongoDB
-    const customAccount = await CustomAccount.findOne({ stripe_account_id: account.id });
-    if (customAccount) {
-      if (account.business_profile && account.business_profile.mcc) {
-        customAccount.business_profile.mcc = account.business_profile.mcc;
-      }
-      // Update other fields as needed
-      await customAccount.save();
-      console.log(`CustomAccount ${customAccount._id} updated with latest account information.`);
-    } else {
-      console.warn(`No CustomAccount found for Account ID: ${account.id}`);
-    }
-  } catch (error) {
-    console.error('Error handling account.updated:', error.message);
-  }
-};
 
 //============================== userStripeCards ===========================
 
@@ -979,6 +1222,8 @@ const setCardToDefault = async (req, res) => {
 
 module.exports = {
   createNewPayment,
+  transferPayment,
+  createCustomAccount,
   updateStripeAccount,
   setCardToDefault,
   deleteStripeCard,

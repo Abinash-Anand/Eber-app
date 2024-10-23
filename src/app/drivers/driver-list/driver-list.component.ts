@@ -18,6 +18,7 @@ import { Vehicle } from '../../shared/vehicle';
 import { BankAccountService } from '../../services/driverBankAccount/bank-account.service';
 import { filter } from 'rxjs';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-driver-list',
@@ -106,6 +107,7 @@ export class DriverListComponent implements OnInit {
     private VehiclePricingService: VehiclePricingService,
     private vehicleTypeService: VehicleTypeService,
     private fb: FormBuilder,
+    private router: Router,
     private bankAccountService:BankAccountService
   ) { }
 
@@ -115,31 +117,10 @@ export class DriverListComponent implements OnInit {
     this.getVehicleData();
      // Initialize the form with controls and validators
  this.bankAccountForm = this.fb.group({
-      // Account Details
-      country: ['DE', Validators.required], // Fixed country code for Germany
-      type: ['custom', Validators.required], // Account type 'custom'
-      business_type: ['individual', Validators.required], // Business type 'individual'
-
-      // Individual Fields (driver details)
-      first_name: ['', Validators.required],
-      last_name: ['', Validators.required],
+      // Essential Fields for Standard Account
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', Validators.required],
-
-      // Date of Birth
-      dob_day: ['', Validators.required],
-      dob_month: ['', Validators.required],
-      dob_year: ['', Validators.required],
-
-      // Address Fields
-      line1: ['', Validators.required],
-      city: ['', Validators.required],
-      postal_code: ['', Validators.required],
-      state: ['', Validators.required],
-      country_address: ['DE', Validators.required], // Fixed country code for Germany
-
-      // Business Profile
-      business_url: ['https://your-platform-url.com', Validators.required], // Replace with actual platform URL
+      business_url: ['https://your-platform-url.com', [Validators.required, Validators.pattern(/https?:\/\/[\w\-]+(\.[\w\-]+)+[/#?]?.*$/)]],
+      country: ['DE', Validators.required], // Fixed country code for Germany; make readonly in template if fixed
     });
     this.accountUpdateForm = this.fb.group({
       business_mcc: ['4789', Validators.required], // Business MCC for transportation
@@ -505,25 +486,33 @@ onAssignBooking(vehicle, i) {
       // You can make an API call to your backend with the updated data here
     }
   }
- onSubmit() {
-   if (this.bankAccountForm.valid) {
-      const bankDetails = this.bankAccountForm.value
-      console.log('Form Submitted', this.bankAccountForm.value);
-     this.bankAccountService.createNewBankAccount(this.driverId, bankDetails).subscribe((response) => {
-        console.log(response);
-       if (response.status === 201) {
-          this.bankAccountCreated = true
-       }
-       setTimeout(() => {
-        this.bankAccountCreated = false
-       }, 3000);
-      })
+  onSubmit() {
+    if (this.bankAccountForm.valid) {
+      const bankDetails = this.bankAccountForm.value;
+      console.log('Form Submitted', bankDetails);
+      this.bankAccountService.createNewBankAccount(this.driverId, bankDetails).subscribe(
+        (response) => {
+          if (response.status === 201) {
+            console.log(response);
+            this.bankAccountCreated = true;
+            // Use window.location.href to redirect to the external Stripe onboarding URL
+            window.location.href = response.body.accountLink;
+          }
+          setTimeout(() => {
+            this.bankAccountCreated = false;
+          }, 3000);
+        },
+        (error) => {
+          console.error('Error creating standard account:', error);
+          // Optionally, display an error message to the user
+        }
+      );
       // Handle form submission logic here, such as sending the data to the backend
     } else {
       console.log('Form is invalid');
+      // Optionally, display validation errors to the user
     }
   }
-
   getServiceAssignedToDriver(driverId, filteredPricingArray) {
     console.log("ids: ",driverId, filteredPricingArray);
     
