@@ -26,7 +26,7 @@ const createNewUser = async (req, res) => {
         if (existingUser) {
             throw new Error("Username or email already in use");
         }
-
+        
         // Create a new user
         const newUser = new User(req.body);
 

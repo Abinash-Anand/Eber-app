@@ -54,6 +54,7 @@ import { NotificationsComponent } from './notifications/notifications.component'
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { SpinnerInterceptor } from './services/spinner.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
 // import {PushNotificationsModule} from 'ng-push'
 
 // import { ServiceWorkerModule } from '@angular/service-worker';
@@ -106,6 +107,12 @@ const config: SocketIoConfig = { url: environment.backendServerPORT, options: {}
     SocketIoModule.forRoot(config),
     BrowserAnimationsModule,
     NgxSpinnerModule,
+    ServiceWorkerModule.register('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      // Register the ServiceWorker as soon as the application is stable
+      // or after 30 seconds (whichever comes first).
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
     
    
    

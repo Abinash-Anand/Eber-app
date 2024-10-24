@@ -778,7 +778,7 @@ const TransferToDriver = async (paymentIntent, booking, user, stripeSettings, cu
     if (!booking.driverObjectId || !booking.driverObjectId._id) {
       throw new Error('Driver Object ID not found in the booking');
     }
-    
+        
     console.log('Driver object ID:', booking.driverObjectId._id);
 
     // Find the driver's custom Stripe account

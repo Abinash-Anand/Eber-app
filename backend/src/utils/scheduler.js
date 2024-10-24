@@ -2,12 +2,13 @@ const Booking = require('../models/rideBookings');
 const DriverVehicleModel = require('../models/driverVehiclePricingModel');
 const Ride = require('../models/createRideModel');
 const { sendVapidPushNotification } = require('./pushNotifications'); // Import the VAPID notification utility
+const Subscription = require('../models/pushNotification'); // Import Subscription model
 const countdownIntervals = {}; // To store interval IDs for countdowns
 
 // Function to handle driver assignment and response for both manual and auto assignments
 const scheduledReassignDriver = async (bookingId, io) => {
   try {
-    console.log('Starting scheduledReassignDriver for booking:', bookingId);
+    // console.log('Starting scheduledReassignDriver for booking:', bookingId);
 
     // Fetch the booking request with populated fields
     const bookingRequest = await Booking.findOne({ _id: bookingId })
@@ -27,11 +28,11 @@ const scheduledReassignDriver = async (bookingId, io) => {
 
     // **Handle Manual Assignment**
     if (bookingRequest.assignmentType === 'manual') {
-      console.log('Handling manual assignment for booking:', bookingId);
+      // console.log('Handling manual assignment for booking:', bookingId);
 
       // If a driver is already assigned, we need to wait for their response
       if (bookingRequest.driverObjectId && bookingRequest.schedulerState.currentDriverId) {
-        console.log('Driver is already assigned. Waiting for driver response.');
+        // console.log('Driver is already assigned. Waiting for driver response.');
         bookingRequest.schedulerState.assignmentStatus = 'Assigned';
         await bookingRequest.save();
 
@@ -52,7 +53,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
       .populate('city')
       .populate('driverObjectId');
 
-    console.log('Total drivers fetched:', allDriversList.length);
+    // console.log('Total drivers fetched:', allDriversList.length);
 
     // Filter available drivers by city, status, and vehicle type
     const availableDriverList = allDriversList.filter((driver) =>
@@ -61,21 +62,21 @@ const scheduledReassignDriver = async (bookingId, io) => {
       driver.vehicleType === bookingRequest.serviceType
     );
 
-    console.log('Available drivers after filtering by city, status, and vehicle type:', availableDriverList.length);
+    // console.log('Available drivers after filtering by city, status, and vehicle type:', availableDriverList.length);
 
     // Exclude drivers who have already rejected this booking
     const rejectedDriverIds = bookingRequest.schedulerState.rejectedDrivers.map((driverId) => driverId.toString());
-    console.log('Rejected driver IDs:', rejectedDriverIds);
+    // console.log('Rejected driver IDs:', rejectedDriverIds);
 
     const filteredDriverList = availableDriverList.filter((driver) => {
       const driverIdString = driver.driverObjectId._id.toString();
       return !rejectedDriverIds.includes(driverIdString);
     });
 
-    console.log('Filtered driver list after excluding rejected drivers:', filteredDriverList.length);
+    // console.log('Filtered driver list after excluding rejected drivers:', filteredDriverList.length);
 
     if (filteredDriverList.length === 0) {
-      console.log('No more drivers available to assign for booking:', bookingId);
+      // console.log('No more drivers available to assign for booking:', bookingId);
       // Call the function to reassign booking to pending
       await reassignBookingToPending(bookingRequest);
 
@@ -87,7 +88,10 @@ const scheduledReassignDriver = async (bookingId, io) => {
       // Send push notification to user about no drivers available
       const subscription = bookingRequest.userSubscription; // Assuming userSubscription object is stored for the booking
       if (subscription) {
+        console.log("Triggering 'No Drivers Available' push notification");
         sendVapidPushNotification(subscription, 'No Drivers Available', 'No drivers accepted your ride request.');
+      } else {
+        console.log("No user subscription found for 'No Drivers Available' notification");
       }
 
       return;
@@ -95,7 +99,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
 
     // Select the next driver
     const currentDriver = filteredDriverList[0];
-    console.log('Assigning next driver:', currentDriver.driverObjectId._id.toString(), 'to booking:', bookingId);
+    // console.log('Assigning next driver:', currentDriver.driverObjectId._id.toString(), 'to booking:', bookingId);
 
     // Update scheduler state in the booking
     bookingRequest.schedulerState.currentDriverId = currentDriver.driverObjectId._id;
@@ -103,7 +107,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
     bookingRequest.schedulerState.expirationTimestamp = new Date(Date.now() + bookingRequest.requestTimer * 1000);
     bookingRequest.schedulerState.assignmentStatus = 'Assigned';
 
-    console.log('Updating booking scheduler state with current driver and timestamps.');
+    // console.log('Updating booking scheduler state with current driver and timestamps.');
     await bookingRequest.save();
 
     // Assign the driver to the booking
@@ -115,7 +119,7 @@ const scheduledReassignDriver = async (bookingId, io) => {
       driver: currentDriver,
       driverArrayLength: filteredDriverList.length,
     });
-    console.log('Emitted cron-driver-assignment event for booking:', bookingId);
+    // console.log('Emitted cron-driver-assignment event for booking:', bookingId);
 
     // Start the countdown timer
     startCountdown(bookingRequest._id, bookingRequest.requestTimer, io, currentDriver);
@@ -155,7 +159,7 @@ const startCountdown = (bookingId, remainingTime, io, currentDriver) => {
 // Function to handle driver response timeout
 const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
   try {
-    console.log('Driver response time expired for booking:', bookingId);
+    // console.log('Driver response time expired for booking:', bookingId);
 
     // Clear the countdown timer
     clearCountdown(bookingId);
@@ -163,18 +167,18 @@ const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
     // Fetch the latest booking data
     const updatedBooking = await Booking.findById(bookingId);
 
-    console.log('Fetched updated booking after timeout:', updatedBooking);
+    // console.log('Fetched updated booking after timeout:', updatedBooking);
 
     // If the driver hasn't accepted yet and booking is still 'Assigned'
     if (
       updatedBooking.schedulerState.assignmentStatus === 'Assigned' &&
       updatedBooking.schedulerState.currentDriverId
     ) {
-      console.log('Driver did not accept booking:', bookingId);
+      // console.log('Driver did not accept booking:', bookingId);
 
       // For auto assignment, we need to add driver to rejected list and reassign
       if (updatedBooking.assignmentType === 'auto' && currentDriver) {
-        console.log('Auto assignment: Reassigning to next driver.');
+        // console.log('Auto assignment: Reassigning to next driver.');
 
         // Add driver to rejectedDrivers using $addToSet to prevent duplicates
         await Booking.updateOne(
@@ -207,11 +211,20 @@ const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
         // Notify user if needed
         io.emit('booking-cancelled', { bookingId: updatedBooking._id });
 
-        // Send push notification to user for manual assignment failure
-        const subscription = updatedBooking.userSubscription; // Assuming userSubscription object is stored for the booking
-        if (subscription) {
-          sendVapidPushNotification(subscription, 'Driver Rejected', 'The assigned driver did not accept your ride request.');
-        }
+        // Fetch user's subscriptions and send push notifications
+        const userSubscriptions = await Subscription.find({ userId: updatedBooking.userId });
+
+        // Loop through each subscription and send a push notification
+        userSubscriptions.forEach(subscription => {
+          const subscriptionObj = {
+            endpoint: subscription.endpoint,
+            keys: {
+              p256dh: subscription.keys.p256dh,
+              auth: subscription.keys.auth
+            }
+          };
+          sendVapidPushNotification(subscriptionObj, 'Driver Rejected', 'The assigned driver did not accept your ride request.');
+        });
       }
     } else {
       console.log(
@@ -228,7 +241,7 @@ const handleDriverResponseTimeout = async (bookingId, io, currentDriver) => {
 // Function to handle driver assignment to booking
 const driverAssignedWithABooking = async (currentDriver, booking) => {
   try {
-    console.log('Assigning driver to booking:', booking._id);
+    // console.log('Assigning driver to booking:', booking._id);
 
     // Fetch the booking and associated ride to update
     const bookingToUpdate = await Booking.findById(booking._id)
@@ -270,7 +283,7 @@ const driverAssignedWithABooking = async (currentDriver, booking) => {
 // Function to reassign booking to pending when no drivers are left
 const reassignBookingToPending = async (booking) => {
   try {
-    console.log('Reassigning booking to pending. Booking ID:', booking._id);
+    // console.log('Reassigning booking to pending. Booking ID:', booking._id);
 
     const rideRequest = await Ride.findById(booking.bookingId._id);
     if (!rideRequest) {
@@ -287,7 +300,7 @@ const reassignBookingToPending = async (booking) => {
 
     rideRequest.status = 'Pending';
     await rideRequest.save();
-    console.log('Ride Request Updated TO PENDING:', rideRequest._id);
+    // console.log('Ride Request Updated TO PENDING:', rideRequest._id);
     return rideRequest;
   } catch (error) {
     console.error(

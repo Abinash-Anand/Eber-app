@@ -33,11 +33,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/sw.js",
               "src/manifest.webmanifest",
               "src/manifest.webmanifest",
               "src/manifest.webmanifest",
-              "src/service-worker.js" 
-
+              "src/service-worker.js",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "./node_modules/bootstrap/dist/css/bootstrap.css",
@@ -111,10 +112,12 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
+              "src/sw.js",
+              "src/manifest.webmanifest",
               "src/manifest.webmanifest",
               "src/manifest.webmanifest",
               "src/manifest.webmanifest"
-   ],
+            ],
             "styles": [
               "src/styles.css"
             ],

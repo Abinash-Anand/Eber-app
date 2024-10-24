@@ -15,13 +15,13 @@ const saveVapidKeysToEnv = (publicKey, privateKey) => {
   envContent = envContent.replace(/^VAPID_PRIVATE_KEY=.*/m, `VAPID_PRIVATE_KEY=${privateKey}`);
 
   fs.writeFileSync(envPath, envContent);
+  console.log('VAPID keys saved to .env file');
 };
 
 // Check if VAPID keys exist in the .env file
 let vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 let vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
 
-// If keys don't exist, generate them and save them to .env
 if (!vapidPublicKey || !vapidPrivateKey) {
   console.log('VAPID keys not found in .env. Generating new keys...');
   const vapidKeys = webPush.generateVAPIDKeys();
@@ -34,6 +34,10 @@ if (!vapidPublicKey || !vapidPrivateKey) {
   console.log('VAPID keys generated and saved to .env:');
   console.log('Public Key:', vapidPublicKey);
   console.log('Private Key:', vapidPrivateKey);
+} else {
+  console.log('VAPID keys loaded from .env:');
+  console.log('Public Key:', vapidPublicKey);
+  console.log('Private Key:', vapidPrivateKey);
 }
 
 // Configure web-push with VAPID details
@@ -42,18 +46,29 @@ webPush.setVapidDetails(
   vapidPublicKey,
   vapidPrivateKey
 );
+console.log('Web-push VAPID details set');
 
 // Function to send push notifications using VAPID
 const sendVapidPushNotification = (subscription, title, message) => {
-    console.log("Subscription: ", subscription);
+  if (!subscription) {
+    console.error('No subscription provided');
+    return;
+  }
+
+  console.log("Subscription object: ", JSON.stringify(subscription));
 
   const notificationPayload = JSON.stringify({
     title: title,
     body: message,
     // icon: '/path/to/icon.png', // Optional icon, replace with an actual path if needed
   });
-console.log("SENDVAPID PUSH NOtification: ", notificationPayload)
+
+  console.log("Notification Payload to send: ", notificationPayload);
+
   webPush.sendNotification(subscription, notificationPayload)
+    .then(response => {
+      console.log('Push notification sent successfully:', response);
+    })
     .catch((error) => {
       console.error('Error sending push notification:', error);
     });

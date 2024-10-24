@@ -5,9 +5,16 @@
     const User = require('../models/signupUser');
     const { setUser, getUser } = require('../services/auth');
     const bcrypt = require('bcrypt');
-    const {sessionCountdownTimer,logoutStopTimer} =  require('../services/sessionTimer')
-    // const io = require('socket.io')
-// const webPush =  require('../services/webPushNotification')
+    const {sessionController,logoutStopTimer} =  require('../services/sessionTimer')
+     const {
+  saveSessionToDB,
+  startSessionTimer,
+  autoSaveToRedis,
+  markSessionInactive,
+  resumeSessionAfterRestart,
+  cleanUpExpiredSessions,
+  sessionCountdownTimer
+} = require('../services/sessionTimer')
     const user = async (req, res) => {
         try {
             const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -54,7 +61,9 @@
             //create web push creds
             // webPush()
             const io = req.app.get('socketio');
-            sessionCountdownTimer(io);
+            sessionCountdownTimer(io, user._id, initialHours = 0,
+                initialMinutes = 59, initialSeconds = 60);
+         
         } catch (error) {
             console.error('Login error:', error); // Log error for debugging
             res.status(500).send(error);

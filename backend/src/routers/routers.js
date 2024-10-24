@@ -39,7 +39,7 @@
     const {handleSubscription} = require('../controllers/pushNotification')
     const { getStripeSettings, updateStripeSettings, deleteStripeSettings } = require('../controllers/stripeSettings')
     const { saveTwilioSettings } = require('../controllers/twilioSMS')
-
+    const {saveSubscription} = require('../controllers/subscriptionController')
 
 
 //=================Testing Routes for Transfer Payment================
@@ -52,9 +52,13 @@ router.post('/create-account', createCustomAccount);
 //======================End=================================
     // Route to get the data from the vehicle type form
     // const {subsrcibe, unsubscribe} =require('../controllers/webPush')
-    //webpush 
+    //webpush
     // router.post('/subscribe', subsrcibe)
-    // router.post('/unsubscribe',unsubscribe)
+// router.post('/unsubscribe',unsubscribe)
+        
+//====================PUSH NOTIFICATIONS======================
+    router.post('/save-subscription',saveSubscription)
+//==========================================================
     router.post('/submit-vehicle-type', upload.single('vehicleImage'), vehicleTypeController);
     // Route to get the vehicle data from server
     router.get('/req-vehicle-data', vehicleData);
