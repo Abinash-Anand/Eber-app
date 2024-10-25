@@ -4,7 +4,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+   "build": "npm install --legacy-peer-deps && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:eber-app": "node dist/eber-app/server/server.mjs"
