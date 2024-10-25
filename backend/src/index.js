@@ -65,7 +65,7 @@ if (cluster.isMaster) {
   const server = http.createServer(app);
   const io = socketIo(server, {
     cors: {
-      origin: 'http://localhost:4200', // Adjust this to your frontend URL
+      origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
       methods: ['GET', 'POST'],
     },
   });
@@ -76,7 +76,7 @@ if (cluster.isMaster) {
   app.use(express.json());
 
   const corsOptions = {
-    origin: 'http://localhost:4200', // Adjust this to your frontend URL
+    origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
     optionsSuccessStatus: 200,
     credentials: true,
   };

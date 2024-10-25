@@ -22,17 +22,17 @@ export class VehicleTypeService {
   }
   //Send data to server
   submitVehicleType(formData: FormData): Promise<any> {
-    return this.http.post('http://localhost:5000/submit-vehicle-type', formData).toPromise();
+    return this.http.post(`${environment.backendServerPORT}/submit-vehicle-type`, formData).toPromise();
   }
 
   //Get data from server
    onGetVehicle(): Observable<Vehicle[]> {
-    return this.http.get<Vehicle[]>(`http://localhost:5000/req-vehicle-data`)
+    return this.http.get<Vehicle[]>(`${environment.backendServerPORT}/req-vehicle-data`)
   }
 
   //update data request to server
 updateVehicleDetails(vehicleId: string, updateData: { type: string, image: File | string }): Observable<any> {
-  const url = `http://localhost:5000/update-vehicle-data/${vehicleId}`;
+  const url = `${environment.backendServerPORT}/update-vehicle-data/${vehicleId}`;
   
   const formData = new FormData();
   formData.append('type', updateData.type);
@@ -48,7 +48,7 @@ updateVehicleDetails(vehicleId: string, updateData: { type: string, image: File 
 }
 
     getVehicleTypesByCity(cityId: string): Observable<Vehicle[]> {
-    return this.http.get<Vehicle[]>(`http://localhost:5000/vehicle-types/${cityId}`);
+    return this.http.get<Vehicle[]>(`${environment.backendServerPORT}/vehicle-types/${cityId}`);
   }
 
 checkSpecificVehicleType(vehicleType: string): Observable<HttpResponse<any>> {
