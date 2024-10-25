@@ -18,7 +18,7 @@ const stripeSettings = async()=>{
     } 
     console.log("stripe Settings: ", stripeSettings)
 }
-stripeSettings()
+// stripeSettings()
 //============================== createNewPayment ===========================
 
 const createNewPayment = async (req, res) => {
