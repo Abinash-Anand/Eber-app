@@ -22,6 +22,12 @@ const {
 const { scheduledReassignDriver, resumePendingAssignments } = require('./utils/scheduler'); // Adjust the path accordingly
 const cluster = require('cluster');
 const os = require('os');
+const whitelist = [
+  process.env.FRONTEND_URL_1,
+  process.env.FRONTEND_URL_2,
+  process.env.FRONTEND_URL_3,
+  process.env.FRONTEND_URL_4
+].filter(Boolean); // This removes any undefined values if env vars are not set
 
 // Redis client setup for general session management
 const redis = require('redis');
@@ -63,35 +69,34 @@ if (cluster.isMaster) {
   // Worker processes: run the express server
   const app = express();
   const server = http.createServer(app);
-  const io = socketIo(server, {
-    cors: {
-      origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
-      methods: ['GET', 'POST'],
-    },
-  });
+ const io = socketIo(server, {
+  cors: {
+    origin: whitelist,
+    methods: ['GET', 'POST'],
+    credentials: true
+  }
+});
+
 
   console.log(`Worker ${process.pid} started`);
 
   app.use(cookieParser());
   app.use(express.json());
 
- const whitelist = [
-  process.env.FRONTEND_URL_1,
-  process.env.FRONTEND_URL_2,
-  process.env.FRONTEND_URL_3,
-  process.env.FRONTEND_URL_4
-];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1 || !origin) {
+    if (whitelist.includes(origin) || !origin) {
       callback(null, true);
     } else {
+      console.error(`Origin not allowed by CORS: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+  optionsSuccessStatus: 200,
+  credentials: true
 };
-  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions)); // Allow preflight requests on all routes
   app.use(bodyParser.json());
   app.use('/uploads', express.static('uploads'));
   app.use(routers);
