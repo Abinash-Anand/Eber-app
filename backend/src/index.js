@@ -75,11 +75,22 @@ if (cluster.isMaster) {
   app.use(cookieParser());
   app.use(express.json());
 
-  const corsOptions = {
-    origin: process.env.FRONTEND_URL, // Adjust this to your frontend URL
-    optionsSuccessStatus: 200,
-    credentials: true,
-  };
+ const whitelist = [
+  process.env.FRONTEND_URL_1,
+  process.env.FRONTEND_URL_2,
+  process.env.FRONTEND_URL_3,
+  process.env.FRONTEND_URL_4
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
+};
   app.use(cors(corsOptions));
   app.use(bodyParser.json());
   app.use('/uploads', express.static('uploads'));
