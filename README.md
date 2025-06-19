@@ -1,3 +1,62 @@
+---
+
+## 🌐 Eber Frontend (Angular)
+
+The frontend of **Eber** is built using the **Angular framework** and provides a responsive, user-friendly interface for riders, drivers, and admins. It integrates real-time updates, maps, secure authentication, and payment systems to deliver a seamless ride-booking experience.
+
+---
+
+## 🧩 Key Features
+
+- 🔐 **User & Admin Authentication**
+- 🗺️ **Google Maps Integration** (Pickup/Drop Marker, Polyline routes)
+- 🚘 **Live Ride Tracking** via WebSockets
+- 🔔 **Browser Push Notifications** using Service Workers
+- 💳 **Stripe Payment Gateway**
+- 📦 **Real-time ride request/response via Socket.IO**
+- 📬 **Email & SMS alert triggers (Twilio, Nodemailer)**
+- 📱 **PWA (Progressive Web App) Support**
+- 🌙 **Angular Material for UI** with responsive design
+- 🔍 **Search & Filter** for bookings, users, trips
+
+---
+
+## 🛠️ Frontend Tech Stack
+
+| Layer            | Technology                             |
+|------------------|-----------------------------------------|
+| Framework        | Angular 18 (CLI, Animations, Router)    |
+| UI Library       | Angular Material, Bootstrap 5           |
+| Maps             | @angular/google-maps, Google Maps API   |
+| State & Events   | RxJS, NgRx-like patterns                |
+| Real-Time Comm.  | Socket.IO & ngx-socket-io               |
+| Notifications    | ng-push, Service Workers (Web Push)     |
+| Payment          | Stripe JS, Razorpay, Omise             |
+| Graphics/Icons   | Lottie, SweetAlert2, Bootstrap Icons    |
+| PWA Support      | @angular/pwa, Angular SSR               |
+| Utilities        | JWT Decode, Validator, uuid             |
+
+---
+
+## 📦 Notable Packages Used
+
+- `@angular/material`, `@angular/google-maps`, `ngx-socket-io`
+- `@stripe/stripe-js`, `razorpay`, `omise`
+- `sweetalert2`, `ng-lottie`, `ng-push`
+- `jwt-decode`, `validator`, `uuid`
+- `bn-ng-idle` for session tracking
+- `node-cron` for background tasks
+
+---
+
+## 🚀 Deployment
+
+- **Deployed On**: [Vercel](https://vercel.com)
+- To run locally:
+  ```bash
+  npm install
+  npm start
+
 # 🚖 Eber - On-Demand Ride Booking Backend
 
 **Eber** is a full-stack ride-booking platform backend, built using **Node.js**, **Express**, **MongoDB**, and third-party services like **Stripe**, **Twilio**, and **Nodemailer**. It offers a comprehensive admin and driver management system along with ride request tracking, billing, notifications, and history management.
