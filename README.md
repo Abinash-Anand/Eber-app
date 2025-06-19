@@ -66,7 +66,7 @@ The frontend of **Eber** is built using the **Angular framework** and provides a
 ## 🌐 Deployment
 
 - **Backend**: Deployed on [Render](https://render.com)
-- **Frontend**: Deployed on [Vercel](https://vercel.com)
+- **Frontend**: Deployed on [Vercel] https://eber-app.vercel.app/
 
 ---
 
