@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "title": "Eber",
+  "summary": "A full-stack ride-booking platform with live trip tracking, Stripe payments and an admin dashboard.",
+  "year": "2024",
+  "category": "Ride-booking platform",
+  "role": "Full-stack engineering",
+  "stack": [
+    "Angular",
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "Socket.IO",
+    "Stripe"
+  ],
+  "highlights": [
+    "Live ride tracking and ride request events over WebSockets and Socket.IO",
+    "Browser push notifications through Service Workers, plus PWA support",
+    "Admin dashboard with ride history, filtering, CSV export and Google Maps routes"
+  ],
+  "links": [
+    {
+      "kind": "repository",
+      "label": "Source on GitHub",
+      "href": "https://github.com/Abinash-Anand/Eber-app"
+    },
+    {
+      "kind": "demo",
+      "label": "Frontend on Vercel",
+      "href": "https://eber-app.vercel.app"
+    }
+  ],
+  "visual": {
+    "kind": "radar",
+    "label": "LIVE TRIP"
+  },
+  "narrative": {
+    "problem": "Ride booking involves riders, drivers and admins at once, and each needs to see trip state change as it happens, from driver assignment through billing.",
+    "constraints": "Real-time updates across web clients, a complete ride lifecycle from assignment to invoice, and third-party services for payments and notifications such as Stripe, Twilio and Nodemailer.",
+    "decision": "An Angular PWA talks to a Node.js, Express and MongoDB backend: REST APIs cover the ride lifecycle, Socket.IO pushes live tracking and request events, and Service Workers deliver browser push notifications.",
+    "result": "A deployed ride-booking platform with live tracking, Stripe payments and multi-channel notifications, plus an admin dashboard with ride history, filtering, CSV export and Google Maps trip visualization.",
+    "architecture": [
+      "Angular PWA",
+      "Socket.IO",
+      "Express API",
+      "MongoDB"
+    ]
+  },
+  "implementation": {
+    "lines": [
+      "driver assigned → en route → arrived at pickup",
+      "trip started → trip ended",
+      "invoice generated → feedback collected"
+    ],
+    "summary": "Every ride moves through distinct lifecycle phases exposed as REST APIs and verified with Postman, and admins review the outcomes in a ride-history module."
+  }
+}
