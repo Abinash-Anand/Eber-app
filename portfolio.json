@@ -7,6 +7,7 @@
   "role": "Full-stack engineering",
   "stack": [
     "Angular",
+    "RxJS",
     "Node.js",
     "Express",
     "MongoDB",
@@ -16,7 +17,8 @@
   "highlights": [
     "Live ride tracking and ride request events over WebSockets and Socket.IO",
     "Browser push notifications through Service Workers, plus PWA support",
-    "Admin dashboard with ride history, filtering, CSV export and Google Maps routes"
+    "Admin dashboard with ride history, filtering, CSV export and Google Maps routes",
+    "REST APIs for the complete ride lifecycle, from driver assignment to invoice, verified in Postman"
   ],
   "links": [
     {
@@ -53,5 +55,169 @@
       "invoice generated → feedback collected"
     ],
     "summary": "Every ride moves through distinct lifecycle phases exposed as REST APIs and verified with Postman, and admins review the outcomes in a ride-history module."
+  },
+  "caseStudyContent": {
+    "projectSlug": "eber-app",
+    "overview": {
+      "paragraphs": [
+        "Eber is a full-stack, on-demand ride-booking platform. An Angular web application serves riders, drivers and admins, and a Node.js backend manages rides, payments, notifications and administration."
+      ]
+    },
+    "problem": {
+      "paragraphs": [
+        "A ride involves a rider, a driver and an admin at the same time, and each needs to see the trip change state as it happens, from driver assignment through trip start and end to billing and feedback."
+      ]
+    },
+    "role": {
+      "paragraphs": [
+        "Full-stack engineering across the Angular frontend, the Express and MongoDB backend, the REST APIs for the ride lifecycle and the real-time and notification features."
+      ]
+    },
+    "constraints": [
+      {
+        "title": "Real time across clients",
+        "paragraphs": [
+          "Ride requests, responses and live location have to reach riders, drivers and the admin dashboard without a page refresh."
+        ]
+      },
+      {
+        "title": "Third-party services",
+        "paragraphs": [
+          "Payments, email and SMS depend on external providers: Stripe, Nodemailer and Twilio, plus Google Maps for locations and routes."
+        ]
+      }
+    ],
+    "architecture": {
+      "paragraphs": [
+        "An Angular 18 application with Angular Material and Google Maps talks to an Express API over REST and to the same server over Socket.IO. The API follows a controllers, models, routes, middleware and services layout over MongoDB with Mongoose.",
+        "The frontend is deployed on Vercel and the backend on Render."
+      ],
+      "visualIds": [
+        "ride-platform"
+      ]
+    },
+    "technicalDecisions": [
+      {
+        "id": "lifecycle-as-api-phases",
+        "title": "Every ride as explicit lifecycle phases",
+        "decision": {
+          "paragraphs": [
+            "A ride moves through distinct phases: driver assigned, en route to pickup, arrived at pickup, trip started, trip ended, invoice generation and feedback collection. Each phase is exposed as a REST API and tracked with status flags."
+          ]
+        },
+        "rationale": {
+          "paragraphs": [
+            "Explicit phases give every client one shared definition of trip state, and each endpoint can be verified on its own in Postman. The same APIs are designed to be consumed by mobile apps and admin panels."
+          ]
+        }
+      },
+      {
+        "id": "admin-configured-integrations",
+        "title": "Third-party settings managed from the admin panel",
+        "decision": {
+          "paragraphs": [
+            "Stripe, email (SMTP through Nodemailer) and SMS (Twilio) configuration is managed from a system-settings area of the admin panel instead of being fixed in code."
+          ]
+        }
+      },
+      {
+        "id": "socket-and-push",
+        "title": "Socket.IO for live events, Service Workers for push",
+        "decision": {
+          "paragraphs": [
+            "Socket.IO carries live tracking and ride request and response events. Browser push notifications through Service Workers alert admins, with a sound and a live counter, when no driver can be found."
+          ]
+        }
+      }
+    ],
+    "implementation": {
+      "paragraphs": [
+        "Stripe handles tokenized card storage, including 3D Secure cards, and charges the rider at the end of the trip. Invoices and welcome messages go out by email, and ride events such as an accepted, started or completed ride trigger SMS alerts.",
+        "The admin ride-history module lists completed and cancelled rides with filters for status, date range and locations plus keyword search, exports them as CSV and draws the travelled route with Google Maps polylines."
+      ]
+    },
+    "results": {
+      "status": "documented",
+      "summary": {
+        "paragraphs": [
+          "A working ride-booking platform with live tracking, Stripe payments, email and SMS notifications and an admin dashboard. The Angular frontend is deployed on Vercel."
+        ]
+      },
+      "links": [
+        {
+          "kind": "demo",
+          "label": "Frontend on Vercel",
+          "href": "https://eber-app.vercel.app"
+        }
+      ]
+    },
+    "visuals": [
+      {
+        "id": "ride-platform",
+        "kind": "architecture-diagram",
+        "description": "How the Angular application, the Express API, MongoDB and the third-party services connect.",
+        "nodes": [
+          {
+            "id": "web",
+            "label": "Angular PWA",
+            "responsibility": "Rider, driver and admin interfaces with Google Maps"
+          },
+          {
+            "id": "api",
+            "label": "Express API",
+            "responsibility": "Ride lifecycle, authentication, payments and admin APIs"
+          },
+          {
+            "id": "socket",
+            "label": "Socket.IO",
+            "responsibility": "Live tracking and ride request events"
+          },
+          {
+            "id": "database",
+            "label": "MongoDB",
+            "responsibility": "Users, drivers, rides and settings through Mongoose"
+          },
+          {
+            "id": "providers",
+            "label": "Stripe, Twilio, Nodemailer",
+            "responsibility": "Payments, SMS and email"
+          }
+        ],
+        "connections": [
+          {
+            "from": "web",
+            "to": "api",
+            "label": "REST"
+          },
+          {
+            "from": "web",
+            "to": "socket",
+            "label": "live events"
+          },
+          {
+            "from": "api",
+            "to": "database",
+            "label": "Mongoose"
+          },
+          {
+            "from": "api",
+            "to": "providers",
+            "label": "payments · SMS · email"
+          }
+        ]
+      }
+    ],
+    "links": [
+      {
+        "kind": "repository",
+        "label": "Source on GitHub",
+        "href": "https://github.com/Abinash-Anand/Eber-app"
+      },
+      {
+        "kind": "demo",
+        "label": "Frontend on Vercel",
+        "href": "https://eber-app.vercel.app"
+      }
+    ]
   }
 }
